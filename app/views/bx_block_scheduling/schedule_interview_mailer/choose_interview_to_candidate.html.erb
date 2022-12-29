@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+</head>
+<body>
+<p>
+Hello <%= @candidate.first_name %>,
+
+Your interview scheduled on <%= @zoom_meeting.provider.tr("_", " ").titleize %>. </br>
+To Join the meeting click on <a href="<%= @zoom_meeting.meeting_urls['start_url'] %>", target="_blank" >meeting link</a>.<br><br>
+
+Thanks for using Xcelyst.
+</p>
+</body>
+</html>

@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+
+require 'rails'
+require 'rails/generators'
+
+module FinalizeBuilderApp
+  extend self
+
+  def execute
+    Rails::Generators.invoke 'builder_base:app:finalize', params
+  end
+
+  private
+
+  def params
+    return default_params if ARGV.empty?
+    ARGV
+  end
+
+  def default_params
+    [
+      '--force',
+    ].freeze
+  end
+end
+
+FinalizeBuilderApp.execute

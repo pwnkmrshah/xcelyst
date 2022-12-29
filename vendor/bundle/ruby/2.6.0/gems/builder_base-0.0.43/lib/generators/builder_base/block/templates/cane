@@ -1,0 +1,8 @@
+--color
+--no-doc
+--style-measure 80
+--abc-max 9
+--abc-glob {Rakefile,Gemfile,*.gemspec,{app,scripts,lib,spec}/**/*.{rb,rake,example}}
+--style-glob {Rakefile,Gemfile,*.gemspec,*/**/*.{rb,rake,example}}
+
+--style-exclude spec/dummy/**/*.rb

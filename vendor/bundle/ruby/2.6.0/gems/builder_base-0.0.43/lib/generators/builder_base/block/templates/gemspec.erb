@@ -1,0 +1,37 @@
+# frozen_string_literal: true
+
+# Describe your gem and declare its dependencies:
+Gem::Specification.new do |spec|
+  spec.name     = '<%= gem_name %>'
+  spec.version  = '<%= gem_version %>'
+  spec.authors  = ['<%= author %>']
+  spec.email    = ['<%= email %>']
+  url = 'https://gitlab.builder.ai/builder/builder-bx/bx/blocks/ruby/engines'
+  spec.homepage = File.join(url, '<%= path_name %>')
+  spec.summary  = '<%= class_name %>'
+
+  if spec.respond_to?(:metadata)
+    spec.metadata['allowed_push_host'] = 'https://gemfury.com'
+    # must be a string, add infra dependencies separated by comma, eg: 'redis,smtp'
+    spec.metadata['infra_dependencies'] = ''
+  else
+    raise 'RubyGems 2.0 or newer is required to protect against ' \
+      'public gem pushes.'
+  end
+
+  spec.files = Dir['{app,config,db,lib}/**/*', 'Rakefile', 'README.md']
+
+  Dir['bin/*'].each do |path|
+    next if path.match(/rails/i)
+    spec.executables << File.basename(path)
+  end
+
+  spec.add_dependency 'builder_base'
+
+  spec.add_development_dependency 'pg'
+  spec.add_development_dependency 'rake_tasks'
+  spec.add_development_dependency 'cane'
+  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'rspec-rails'
+  spec.add_development_dependency 'factory_bot'
+end

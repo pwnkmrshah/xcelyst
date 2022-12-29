@@ -1,0 +1,9 @@
+class CurrentstatusIndustry < ActiveRecord::Migration[6.0]
+  def change
+    create_table :current_status_industries do |t|
+      t.integer :current_status_id
+      t.integer :industry_id
+      t.timestamps
+    end
+  end
+end

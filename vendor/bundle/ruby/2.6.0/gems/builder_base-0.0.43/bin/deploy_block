@@ -1,0 +1,70 @@
+#!/usr/bin/env ruby
+
+module BuildGemCommand
+  extend self
+
+  def execute
+    puts "Gemspec: #{gemspec_path}"
+    output = build_gem(gemspec_path)
+    puts output
+    output.split.last
+  end
+
+  private
+
+  def gemspec_path
+    @gemspec_path ||= Dir['*.gemspec'].first
+  end
+
+  def build_gem(gemspec_path)
+    `gem build #{gemspec_path}`
+  end
+end
+
+module PushGemCommand
+  extend self
+
+  def execute(gem_file)
+    check_file gem_file
+
+    output = push(url, gem_file)
+
+    puts output
+
+    exit 1 unless valid?(output)
+  end
+
+  private
+
+  def check_file(gem_file)
+    return if gem_file && File.exist?(gem_file)
+
+    puts "File does not exist: #{gem_file.inspect}"
+
+    exit 1
+  end
+
+  def url
+    @url ||= "https://#{gem_fury_token}@push.fury.io/engineerai"
+  end
+
+  def gem_fury_token
+    return @gem_fury_token if defined?(@gem_fury_token)
+    @gem_fury_token = ENV['GEM_FURY_TOKEN']
+  end
+
+  def push(url, gem_file)
+    `curl -F package=@#{gem_file} #{url}`
+  end
+
+  def valid?(output)
+    output.split.last.strip.downcase == 'ok'
+  end
+
+  def fail_script
+    exit 1
+  end
+end
+
+gem_file = BuildGemCommand.execute
+PushGemCommand.execute gem_file
