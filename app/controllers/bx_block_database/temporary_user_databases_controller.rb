@@ -71,12 +71,13 @@ module BxBlockDatabase
 		end
 		
 		def pagination_data data
-			total_pages = data.total/5
+			total_data = data.total > 10000 ? 10000 : data.total
+			total_pages = total_data/5
 			if total_pages == 0
 				total_pages = 1
 			end
 			{
-				total_record: data.total,
+				total_record: total_data,
 				limit_value: data.limit_value,
 				total_pages:  total_pages,
 				current_page: params[:page],
