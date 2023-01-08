@@ -11,7 +11,11 @@ docker-build:
     # - curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.12.10/2019-08-14/bin/linux/amd64/aws-iam-authenticator
     # - chmod +x ./aws-iam-authenticator
     # - mkdir -p ~/bin && cp ./aws-iam-authenticator ~/bin/aws-iam-authenticator && export PATH=~/bin:$PATH
-    - aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID" && aws configure set aws_secret_access_key "$AWS_ACCESS_KEY_SECRET" && aws configure set region "$AWS_DEFAULT_REGION" && aws configure set output "text"
+    - echo "$AWS_ACCESS_KEY_ID" "$AWS_ACCESS_KEY_SECRET" "$AWS_DEFAULT_REGION"
+    - aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+    - aws configure set aws_secret_access_key "$AWS_ACCESS_KEY_SECRET"
+    - aws configure set region "$AWS_DEFAULT_REGION"
+    - aws configure set output "text"
     - aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID".dkr.ecr."$AWS_DEFAULT_REGION".amazonaws.com
   script:
     - export tag=":$CI_COMMIT_REF_SLUG"
