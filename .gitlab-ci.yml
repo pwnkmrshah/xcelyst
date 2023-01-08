@@ -18,7 +18,7 @@ docker-build:
     - aws configure set output "text"
     - aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID".dkr.ecr."$AWS_DEFAULT_REGION".amazonaws.com
   script:
-    - export tag=":$CI_COMMIT_REF_SLUG"
+    - export tag=":$CI_COMMIT_SHA"
     - echo Running on branch "$CI_COMMIT_BRANCH" tag = "$tag"
     - docker build --pull -t "$IMAGE_REPO_NAME${tag}" .
     - docker push "$IMAGE_REPO_NAME${tag}"
