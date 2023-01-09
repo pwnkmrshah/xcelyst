@@ -26,7 +26,8 @@ docker-build:
     - old_image_tag=`cat backend/values-prod.yaml | grep "tag:" | cut -f 2 -d ":" | sed 's/ //g'`
     # - sed -i s/"$old_image_tag"/"$CI_COMMIT_SHA"/ backend/values-prod.yaml
     - echo "$old_image_tag" "$CI_COMMIT_SHA"
-    - sed -i 's"/\"${old_image_tag}\"/\"${CI_COMMIT_SHA}\"/"g backend/values-prod.yaml'
+    # - sed -i 's"/\"${old_image_tag}\"/\"${CI_COMMIT_SHA}\"/"g backend/values-prod.yaml'
+    - sed -i "s+$old_image_tag+$CI_COMMIT_SHA+g" backend/values-prod.yaml'
     - git add .
     - git config --global user.email "mohit.m@jointworksolutions.com"
     - git config --global user.name "mohitmalviya"
