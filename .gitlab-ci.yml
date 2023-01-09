@@ -23,7 +23,7 @@ docker-build:
     - docker push "$IMAGE_REPO_NAME${tag}"
     - git clone --branch preprod https://oauth2:"$GIT_TOKEN"@gitlab.com/mohitmalviya/aws-infra-repo.git
     - cd aws-infra-repo/
-    - old_image_tag=`cat backend/values-prod.yaml | grep "tag:" | cut -f 2 -d ":"` | sed 's/ //g'
+    - old_image_tag=`cat backend/values-prod.yaml | grep "tag:" | cut -f 2 -d ":" | sed 's/ //g'`
     # - sed -i s/"$old_image_tag"/"$CI_COMMIT_SHA"/ backend/values-prod.yaml
     - sed -ri "s|\"old_image_tag\"|\"$CI_COMMIT_SHA\"|" backend/values-prod.yaml
     - git add .
