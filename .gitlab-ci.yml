@@ -11,7 +11,6 @@ docker-build:
     # - curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.12.10/2019-08-14/bin/linux/amd64/aws-iam-authenticator
     # - chmod +x ./aws-iam-authenticator
     # - mkdir -p ~/bin && cp ./aws-iam-authenticator ~/bin/aws-iam-authenticator && export PATH=~/bin:$PATH
-    - echo "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" "$AWS_DEFAULT_REGION"
     - aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
     - aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
     - aws configure set region "$AWS_DEFAULT_REGION"
@@ -22,6 +21,15 @@ docker-build:
     - echo Running on branch "$CI_COMMIT_BRANCH" tag = "$tag"
     - docker build --pull -t "$IMAGE_REPO_NAME${tag}" .
     - docker push "$IMAGE_REPO_NAME${tag}"
+    - git clone https://oauth2:"$GIT_TOKEN"@gitlab.com/mohitmalviya/aws-infra-repo.git
+    - cd aws-infra-repo/
+    - old_image_tag=`cat backend/values-prod.yaml | grep "tag:" | cut -f 2 -d ":"`
+    - sed -i `s/"$old_image_tag"/"$CI_COMMIT_SHA"/` backend/values-prod.yaml
+    - git add .
+    - git config --global user.email "mohit.m@jointworksolutions.com"
+    - git config --global user.name "mohitmalviya"
+    - git commit -m "Image Tag updated"
+    - git push origin master
   # Run this job in a branch where a Dockerfile exists 
   rules:
     - if: $CI_COMMIT_BRANCH
