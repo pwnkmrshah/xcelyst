@@ -4,3 +4,4 @@ app-deploy/bin/*
 .vscode
 /hiringplatform-ruby/vendor/*
 hiringplatform-ruby/coverage
+.gitlab-ci.yml
