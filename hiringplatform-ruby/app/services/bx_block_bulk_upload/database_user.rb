@@ -33,14 +33,20 @@ module BxBlockBulkUpload
           record = BxBlockDatabase::TemporaryUserDatabase.find_by(uid: data['id'])
           puts record&.id
           if record.present?
-            exp = calculate_experience(data['experience']) # calculate the overall experience
-            exp_month = experience_month(exp) # calculate the overall experience into months.
-
+            exp = calculate_experience(data['experience'], data['experienceYears']) # calculate the overall experience
+            # exp_month = experience_month(exp) # calculate the overall experience into months.
+            education = user_degree(data['education'])
+            city = user_city(data['locations'], data['experience'])
+            company = user_current_company(data['experience'])
+            prev_work = user_prev_exp(data['experience'])
+            certificates = user_certification(data['certification'])
+            projects = user_projects(data['project'])
+            courses = user_courses(data['course'])
             begin
               user_rec = record.update(full_name: data['fullName'], photo_url: data['photo'],
                 position: data['experience'], location: data['locations'], contacts: data['contacts'], social_url: data['social'],
-                skills: data['skills'], name: data['fullName'], summary: data['summary'], title: nil, zipcode: nil, city: nil, ready_to_move: false, experience: exp,
-                company: nil, previous_work: nil, degree: nil, job_projects: nil, lead_lists: nil, experience_month: exp_month)
+                skills: data['skills'], name: data['fullName'], summary: data['summary'], title: nil, zipcode: nil, city: city, ready_to_move: false, experience: exp,
+                company: company, previous_work: prev_work, degree: education, job_projects: projects, lead_lists: nil)
             
               if user_rec
                 @count += 1
@@ -49,7 +55,7 @@ module BxBlockBulkUpload
 
                 if record.temporary_user_profile.present?
                   record.temporary_user_profile.update(head_line: data['headLine'], languages: data['language'], organizations: data['organization'],
-                    skills: data['skills'], education: data['education'], work_experience: data['experience'], courses: nil, certificates: nil)
+                    skills: data['skills'], education: data['education'], work_experience: data['experience'], courses: courses, certificates: certificates)
                 end
               end
             rescue => exception
@@ -70,6 +76,47 @@ module BxBlockBulkUpload
       end
 
       private
+      def user_courses(courses)
+        return if courses.blank?
+        courses.map{ |course| course['name'] }
+      end
+
+      def user_projects(projects)
+        return if projects.blank?
+        projects.map{|project| project['name']}.join(', ')
+      end
+
+      def user_degree(education)
+        return if education.blank?
+        education.map{|edu| [edu['university'], edu['degree'].join()] }.join(', ')
+      end
+
+      def user_certification(certification)
+        return if certification.blank?
+        certification.map{|certificate| certificate['name'] }
+      end
+
+      def user_prev_exp(exp)
+        return if exp.blank?
+        exp.map{|ex| [ex['company'], ex['position']] }
+      end
+
+      def user_current_company(experience)
+        return if experience.blank?
+        current_experience(experience).first['company']
+      end
+
+      def user_city(location, experience)
+        if location.present?
+          location.join().split(',').first
+        elsif experience.present?
+          current_experience(experience).first['location'] if current_experience(experience).present?
+        end
+      end
+
+      def current_experience(experience)
+        experience.select{|a| a[:current] == true || a['current'] == true }
+      end
 
       def traverse(data)
         data.dup.transform_values do |v|
@@ -81,20 +128,28 @@ module BxBlockBulkUpload
       # created by akash deep
       # create record into the db.
       def create_temp_user_db_record data
-        exp = calculate_experience(data['experience'])
-        exp_month = experience_month(exp)
+        exp = calculate_experience(data['experience'], data['experienceYears']) # calculate the overall experience
+        # exp_month = experience_month(exp)
+        education = user_degree(data['education'])
+        city = user_city(data['locations'], data['experience'])
+        company = user_current_company(data['experience'])
+        prev_work = user_prev_exp(data['experience'])
+        certificates = user_certification(data['certification'])
+        projects = user_projects(data['project'])
+        courses = user_courses(data['course'])
+
         begin
           user_rec = BxBlockDatabase::TemporaryUserDatabase.new(uid: data['id'], full_name: data['fullName'], photo_url: data['photo'],
             position: data['experience'], location: data['locations'], contacts: data['contacts'], social_url: data['social'],
-            skills: data['skills'], name: data['fullName'], summary: data['summary'], title: nil, zipcode: nil, city: nil, ready_to_move: false, experience: exp,
-            company: nil, previous_work: nil, degree: nil, job_projects: nil, lead_lists: nil, experience_month: exp_month)
+            skills: data['skills'], name: data['fullName'], summary: data['summary'], title: nil, zipcode: nil, city: city, ready_to_move: false, experience: exp,
+            company: company, previous_work: prev_work, degree: education, job_projects: projects, lead_lists: nil)
 
           if user_rec.save
 
             @count += 1
 
             user_rec.create_temporary_user_profile(head_line: data['headLine'], languages: data['language'], organizations: data['organization'],
-              skills: data['skills'], education: data['education'], work_experience: data['experience'], courses: nil, certificates: nil)
+              skills: data['skills'], education: data['education'], work_experience: data['experience'], courses: courses.split, certificates: certificates.split)
           end
         rescue => exception
           @errors << {id: data['id'], errors: exception}
@@ -103,45 +158,32 @@ module BxBlockBulkUpload
 
       # created by akash deep
       # calculate the overall exp into months
-      def experience_month(exp)
-        exper = exp.split
-        months = 0
-        if exper.find_index("years").present?
-          months = exper[exper.find_index("years") - 1].to_i * 12
-        end
-        if exper.find_index("months").present?
-          month = exper[exper.find_index("months") - 1].to_i + months
-        end
-        months
-      end
+      # def experience_month(exp)
+      #   exper = exp.split
+      #   months = 0
+      #   if exper.find_index("years").present?
+      #     months = exper[exper.find_index("years") - 1].to_i * 12
+      #   end
+      #   if exper.find_index("months").present?
+      #     month = exper[exper.find_index("months") - 1].to_i + months
+      #   end
+      #   months
+      # end
 
 
       # created by akash deep
       # calculate overall exp into string format ( for e.g., 4 years 3 months 10 days)
-      def calculate_experience(experience)
+      def calculate_experience(experience, experience_years)
+        return "#{experience_years} years" if experience_years.present?
         if experience.present?
           @total_days = 0
           experience.each do |exp|
             if exp['current']
               if exp['started'].present?
-                if exp['started'].present? && exp['started']['date'].present?
-                  total_time = (Time.zone.now - (exp['started']['date'].to_datetime))                
-                  @total_days += total_time/86400
-                else
-                  total_time = (Time.zone.now - (exp['started'].to_datetime))                
-                  @total_days += total_time/86400
-                end
+                @total_days += (Date.today - exp['started'].to_date).to_i
               end
             else
-              if exp['started'].present? && exp['ended'].present?
-                if exp['started'].present? && exp['started']['date'].present? && exp['ended'].present? && exp['ended']['date'].present?
-                  total_time = (exp['ended']['date'].to_datetime - exp['ended']['date'].to_datetime)
-                  @total_days += total_time/86400
-                else
-                  total_time = (exp['ended'].to_datetime - exp['ended'].to_datetime)
-                  @total_days += total_time/86400
-                end
-              end
+              @total_days += (exp['ended'].to_date - exp['started'].to_date).to_i if exp['started'].present? && exp['ended'].present?
             end
           end
           x = total_experience_conversion
@@ -159,7 +201,6 @@ module BxBlockBulkUpload
         if @total_days > 0
           years = get_years
           months = get_months
-          # days = get_days
           OpenStruct.new(success?: true, years: years, months: months)
         else
           OpenStruct.new(success?: false)
@@ -184,16 +225,15 @@ module BxBlockBulkUpload
         end
       end
 
-      def get_days
-        if @total_days > 0
-          if @months.present?
-            @days = (@total_days%30.4).floor
-          else
-            @days = @total_days.floor
-          end
-        end
-      end
-
+      # def get_days
+      #   if @total_days > 0
+      #     if @months.present?
+      #       @days = (@total_days%30).floor
+      #     else
+      #       @days = @total_days.floor
+      #     end
+      #   end
+      # end
     end
   end
 end

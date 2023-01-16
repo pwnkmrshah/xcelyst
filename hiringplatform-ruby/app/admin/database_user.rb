@@ -90,8 +90,12 @@ ActiveAdmin.register BxBlockDatabase::TemporaryUserDatabase, as: "Database User"
       row :name 
       row :location
       row :experience
-      row :company
-      row :previous_work
+      row :courses do |obj|
+        obj.temporary_user_profile&.courses
+      end
+      row :current_company do |obj|
+        obj.company
+      end
       row :skills
       row :degree 
       row :job_projects
