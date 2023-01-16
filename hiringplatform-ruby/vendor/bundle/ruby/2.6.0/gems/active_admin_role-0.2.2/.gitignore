@@ -1,0 +1,13 @@
+/.bundle/
+/.yardoc
+/Gemfile.lock
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/rails/
+/spec/reports/
+/tmp/
+/gemfiles/*.gemfile.lock
+/gemfiles/.bundle/*
+/gemfiles/vendor/

@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+module CreateNamespace
+  extend self
+
+  def execute(args)
+    params = args.map{|a| "\"#{a}\""}.join(' ') # add quotes to all params
+    cmd = command % [params]
+
+    puts "executing: #{cmd}"
+    system cmd
+  end
+
+  private
+
+  def command
+    @command ||= "bundle exec rails generate builder_base:namespace:create %s"
+  end
+end
+
+CreateNamespace.execute ARGV

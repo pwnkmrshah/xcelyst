@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/builder_base/rails_version'
+
+module CreateBuilderApp
+  extend self
+
+  def execute
+    puts "executing: #{command}"
+    system command
+  end
+
+  private
+
+  def command
+    @command ||= "rails _#{rails_version}_ new . #{flags}"
+  end
+
+  def rails_version
+    BuilderBase::RAILS_VERSION
+  end
+
+  def flags
+    [
+      '--skip-spring',
+      '--skip-listen',
+      '--skip-turbolinks',
+      '--api',
+      '--skip-test',
+      '--skip-bootsnap',
+      '--skip-webpack-install',
+      '--skip-action-cable',
+      '-d postgresql'
+    ].join(' ')
+  end
+end
+
+CreateBuilderApp.execute

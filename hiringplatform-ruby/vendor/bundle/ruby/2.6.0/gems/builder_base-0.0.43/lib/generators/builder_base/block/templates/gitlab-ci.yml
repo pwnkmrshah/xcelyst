@@ -1,0 +1,102 @@
+stages:
+- specs
+- gem
+- deploy
+
+rake:
+  stage: specs
+  image: ruby:2.6.5
+
+  services:
+  - postgres:9.3
+
+  variables:
+    DB_HOST: postgres
+    DB_USER: postgres
+
+  before_script:
+  - gem install bundler --no-document
+  - bundle install
+  - bundle exec rake db:create db:migrate db:test:prepare
+
+  script:
+  - bundle exec rake
+
+sonar:
+  image: ciricihq/gitlab-sonar-scanner
+  stage: specs
+
+  script:
+  - sonar-scanner
+    -Dsonar.projectKey=$CI_PROJECT_NAME
+    -Dsonar.sources=app,lib
+    -Dsonar.host.url=https://code-analyzer.engineer.ai
+    -Dsonar.branch.name=$CI_COMMIT_REF_NAME
+    -Dsonar.login=$SONAR_TOKEN
+
+check_infra_dependencies:
+  stage: specs
+  image: ruby:2.6.5
+  before_script:
+    - gem install bundler --no-document
+    - bundle install
+
+  script:
+    - bundle exec rake app:blocks_infra_requirements
+
+gem:
+  stage: gem
+  image: ruby:2.6.5
+
+  only:
+  - staging
+
+  dependencies:
+  - rake
+  - sonar
+
+  before_script:
+  - gem install bundler --no-document
+  - bundle install
+
+  script:
+  - bundle exec deploy_block
+
+update_cmt:
+  stage: deploy
+  image: ruby:2.6.5
+
+  only:
+  - staging
+
+  dependencies:
+  - rake
+  - sonar
+  - gem
+
+  before_script:
+  - gem install bundler --no-document
+  - bundle install
+
+  script:
+  - bundle exec update_bds $CMT_DEV $CMT_STG
+
+deploy_api:
+  stage: deploy
+  image: ruby:2.6.5
+
+  only:
+  - master
+  - staging
+
+  dependencies:
+  - rake
+  - sonar
+  - gem
+
+  before_script:
+  - gem install bundler --no-document
+  - bundle install
+
+  script:
+  - bundle exec trigger_pipeline

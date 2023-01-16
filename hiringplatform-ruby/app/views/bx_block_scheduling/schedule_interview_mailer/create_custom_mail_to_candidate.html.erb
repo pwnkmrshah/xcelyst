@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+</head>
+<body>
+<p>
+Hello <%= @candidate.first_name %>,
+
+Your interview has been scheduled on <%= @interview.send("#{@interview.preferred_slot}_slot") %>. </br><br>
+Due to some technical issues the meeting link have not been generated but you will get the link shortly.<br>
+Sorry for the inconvenience caused.<br>
+
+Thanks for using Xcelyst.
+</p>
+</body>
+</html>

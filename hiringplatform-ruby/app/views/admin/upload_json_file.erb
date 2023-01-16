@@ -1,0 +1,26 @@
+<%= form_for :upload_json_file, :url=>{ :action=>"import_json" } do |f| %>
+  <table>
+    <tr>
+      <td>
+        <label for="dump_file">
+          Select a JSON File :
+        </label>
+      </td>
+      <td>
+        <%= f.file_field :file,  :required => true, :accept => '.txt' %>
+      </td>
+      <td>
+        <%= submit_tag 'Submit', :class => 'custom-btn' %>
+      </td>
+    </tr>
+  </table>
+<% end %>
+<style type="text/css">
+  .upload-hide-button {
+    display: none !important;
+  }
+  .custom-btn {
+    padding: 10px 15px !important;
+    width: auto !important;
+  }
+</style>

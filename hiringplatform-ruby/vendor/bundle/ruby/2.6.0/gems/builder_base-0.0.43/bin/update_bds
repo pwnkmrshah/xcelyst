@@ -1,0 +1,259 @@
+#!/usr/bin/env ruby
+
+require 'net/http'
+require 'json'
+
+module UpdateBds
+  extend self
+
+  class Params
+    attr_reader :host
+
+    def initialize(host)
+      @host = host
+    end
+
+    def gem_name
+      @gem_name ||= gem_spec.name
+    end
+
+    def block_name
+      @block_name ||= path_name.gsub('_', '-')
+    end
+
+    def path_name
+      @path_name ||= File.basename(repo)
+    end
+
+    def gem_version
+      @gem_version ||= gem_spec.version.to_s
+    end
+
+    def repo
+      @repo ||= gem_spec.homepage
+    end
+
+    private
+
+    def gemspec_file
+      @gemspec_file ||= Dir['*.gemspec'].first
+    end
+
+    def gem_spec
+      @gem_spec ||= Gem::Specification.load(gemspec_file)
+    end
+  end
+
+  module Request
+    class Response
+      attr_reader :response
+
+      def initialize(response)
+        @response = response
+      end
+
+      def status_code
+        @response.code.to_i
+      end
+
+      def success?
+        status_code > 199 && status_code < 300
+      end
+
+      def body
+        begin
+          JSON.parse(response.body) if response.body
+        rescue
+          response.body
+        end
+      end
+    end
+
+    def execute
+      request = new_request
+
+      puts '=' * 80
+      puts '%s %s' % [
+        request.class.to_s.gsub(/.*::/, '').upcase,
+        url,
+      ]
+      puts '-' * 80
+      pp request_body
+      puts '*' * 80
+
+      request.body = request_body.to_json if request_body
+      response = Response.new(http.request(request))
+
+      render_response response
+
+      puts '=' * 80
+
+      on_failure unless response.success?
+
+      response
+    end
+
+    private
+
+    def render_response(response)
+      pp response
+      puts '-' * 80
+      pp response.body if response.success? || show_body?
+    end
+
+    def http
+      Net::HTTP.new uri.host, uri.port
+    end
+
+    def new_request
+      http_method.new uri.path, headers
+    end
+
+    def http_method
+      Net::HTTP::Get
+    end
+
+    def headers
+      {
+        'Content-Type' => 'application/json',
+      }
+    end
+
+    def request_body
+    end
+
+    def uri
+      URI.parse url
+    end
+
+    def url
+      host + prefix + endpoint + query_params
+    end
+
+    def host
+      UpdateBds.params.host
+    end
+
+    def prefix
+      '/api/v1/blocks/'
+    end
+
+    def endpoint
+      ''
+    end
+
+    def query_params
+      ''
+    end
+
+    def params
+      UpdateBds.params
+    end
+
+    def show_body?
+      true
+    end
+
+    def on_failure
+      puts 'Could not continue. Process was stopped.'
+      exit 1
+    end
+  end
+
+  module BlockExistsRequest
+    extend Request
+    extend self
+
+    private
+
+    def endpoint
+      '%s/ruby/bds' % [
+        UpdateBds.params.block_name,
+      ]
+    end
+
+    def on_failure
+    end
+  end
+
+  module BlockCreateRequest
+    extend Request
+    extend self
+
+    private
+
+    def http_method
+      Net::HTTP::Post
+    end
+
+    def request_body
+      {
+        :block => {
+          :name     => params.block_name,
+          :platform => 'ruby',
+          :url      => params.repo,
+        },
+      }
+    end
+  end
+
+  module BDSUpdateRequest
+    extend Request
+    extend self
+
+    private
+
+    def http_method
+      Net::HTTP::Patch
+    end
+
+    def endpoint
+      '%s/ruby' % [
+        UpdateBds.params.block_name,
+      ]
+    end
+
+    def request_body
+      { :block => {
+          :bds => bds_body,
+        }
+      }
+    end
+
+    def bds_body
+      {
+        :gem_name => params.gem_name,
+        :version  => params.gem_version,
+      }.merge(require_key)
+    end
+
+    def require_key
+      return {} if params.path_name == params.gem_name
+      { :require  => params.path_name }
+    end
+  end
+
+  def execute(hosts)
+    hosts.each do |host|
+      set_params Params.new(host)
+      BlockCreateRequest.execute unless block_exists?
+      BDSUpdateRequest.execute
+    end
+  end
+
+  def params
+    @params
+  end
+
+  private
+
+  def set_params(params)
+    @params = params
+  end
+
+  def block_exists?
+    BlockExistsRequest.execute.success?
+  end
+end
+
+UpdateBds.execute ARGV

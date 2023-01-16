@@ -1,0 +1,101 @@
+#!/usr/bin/env ruby
+
+require 'net/http'
+require 'json'
+
+module TriggerPipeline
+  extend self
+
+  def execute
+    request.body = data.to_json
+
+    response = https.request(request)
+
+    puts "HTTP Status Code: #{response.code}"
+
+    return response if response.code.to_i == 201
+
+    fatal_error response
+  end
+
+  private
+
+  def https
+    return @https if defined?(@https)
+
+    https = Net::HTTP.new(uri.host, uri.port)
+    https.use_ssl = true
+
+    @https = https
+  end
+
+  def request
+    @request ||= Net::HTTP::Post.new(uri.path, headers)
+  end
+
+  def headers
+    {
+      'Content-Type' => 'application/json',
+    }
+  end
+
+  def uri
+    @uri ||= URI.parse(url)
+  end
+
+  def url_base
+    'https://gitlab.builder.ai/api/v4/projects/'
+  end
+
+  def url_mask
+    '%s/%s/trigger/pipeline'
+  end
+
+  def url
+    @url ||= url_mask % [url_base, gitlab_project_id]
+  end
+
+  def data
+    {
+      :token => gitlab_trigger_token,
+      :ref   => ref,
+    }
+  end
+
+  def gitlab_project_id
+    @gitlab_project_id ||= ENV['GITLAB_PROJECT_ID'] || '3967'
+  end
+
+  def gitlab_trigger_token
+    @gitlab_trigger_token ||=
+      ENV['GITLAB_TRIGGER_TOKEN'] || gitlab_default_token
+  end
+
+  def gitlab_default_token
+    'e4f6b0744a12cbf238415e1c2be568'
+  end
+
+  def ref
+    @ref ||= ENV['CI_COMMIT_REF_NAME']
+  end
+
+  def fatal_error(response)
+    pp info
+    puts JSON.parse(response.body)
+    exit 1
+  end
+
+  def info
+    {
+      :ref => ref,
+      :token => present?(gitlab_trigger_token),
+      :project_id => present?(gitlab_project_id),
+    }
+  end
+
+  def present?(value)
+    value.to_s.strip != ''
+  end
+end
+
+TriggerPipeline.execute

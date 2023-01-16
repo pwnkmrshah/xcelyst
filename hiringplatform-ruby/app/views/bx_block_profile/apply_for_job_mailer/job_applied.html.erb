@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <p>
+      Dear Admin,<br><br>
+      <%= @job.candidate.first_name %> is applied for open role <%= @job.job_description.role.name %> of <%=  @job.client.first_name %> client.<br>
+      Please, <a href="<%=@host%>/admin/shortlisted_candidates?scope=applied_by_candidate">click here</a> to go the applied job list by candidate.
+
+      Thanks
+    </p>
+  </body>
+</html>

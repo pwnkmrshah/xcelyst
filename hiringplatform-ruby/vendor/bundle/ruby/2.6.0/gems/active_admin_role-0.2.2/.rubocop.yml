@@ -1,0 +1,20 @@
+inherit_from: .rubocop_todo.yml
+
+inherit_gem:
+  onkcop:
+    - "config/rubocop.yml"
+    # uncomment if use rails cops
+    # - "config/rails.yml"
+    # uncomment if use rspec cops
+    # - "config/rspec.yml"
+
+AllCops:
+  TargetRubyVersion: 2.2
+  # uncomment if use rails cops
+  # TargetRailsVersion: 5.1
+  Exclude:
+    - "spec/rails/**/*"
+    - "vendor/bundle/**/*"
+    - "gemfiles/vendor/**/*"
+    - "gemfiles/.bundle/**/*"
+    - "tmp/**/*"
