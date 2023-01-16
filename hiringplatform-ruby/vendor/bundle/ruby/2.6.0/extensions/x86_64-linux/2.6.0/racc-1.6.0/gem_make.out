@@ -1,0 +1,17 @@
+current directory: /data/home/ubuntu/Desktop/hiringplatform-74392-ruby/template-app/vendor/bundle/ruby/2.6.0/gems/racc-1.6.0/ext/racc/cparse
+/usr/local/rbenv/versions/2.6.5/bin/ruby -I /usr/local/rbenv/versions/2.6.5/lib/ruby/2.6.0 -r ./siteconf20220114-3769-1l4bo79.rb extconf.rb
+checking for rb_block_call()... yes
+checking for rb_ary_subseq()... yes
+creating Makefile
+
+current directory: /data/home/ubuntu/Desktop/hiringplatform-74392-ruby/template-app/vendor/bundle/ruby/2.6.0/gems/racc-1.6.0/ext/racc/cparse
+make "DESTDIR=" clean
+
+current directory: /data/home/ubuntu/Desktop/hiringplatform-74392-ruby/template-app/vendor/bundle/ruby/2.6.0/gems/racc-1.6.0/ext/racc/cparse
+make "DESTDIR="
+compiling cparse.c
+linking shared-object racc/cparse.so
+
+current directory: /data/home/ubuntu/Desktop/hiringplatform-74392-ruby/template-app/vendor/bundle/ruby/2.6.0/gems/racc-1.6.0/ext/racc/cparse
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 cparse.so ./.gem.20220114-3769-1c3cvwv/racc

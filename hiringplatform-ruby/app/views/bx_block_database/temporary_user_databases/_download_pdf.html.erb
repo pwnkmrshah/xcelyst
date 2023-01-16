@@ -1,0 +1,262 @@
+<% if user_record.present? %>
+    <% @temporary_profile = user_record.temporary_user_profile %>
+    <html>
+    <head>
+        <title><%= user_record.title %></title>
+    </head>
+    <style type="text/css">
+        * { 
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        }
+    </style>
+    <body style="font-family: sans-serif;margin: 0;padding: 0;box-sizing: border-box;">
+        <table>
+            <tr>
+                <td>
+                    <% if user_record.photo_url.present? %>
+                        <img src="<%= user_record.photo_url['url'] %>" alt="user_profile_pic" style="width: 4rem; height: 4rem; border-radius: 50%" />
+                    <% end %>
+                </td>
+                <td>
+                    <h3 style="font-weight: 500"><%= user_record.full_name %></h3>
+                </td>
+                <td>
+                    <img src="https://i.ibb.co/X2qV87w/xcelyst-logo-624dedb8.png" alt="xcelyst_logo" style="height: 5rem" />
+                </td>
+            </tr>
+            <% if @temporary_profile.work_experience.present? %>
+                <% @temporary_profile.work_experience.each do |work| %>
+                    <% if work['current'] %> 
+                        <% if work['position'].present? %>
+                            <tr>
+                                <td>
+                                    <p style="color: #a9b4c2;width: 18rem;margin: 0;letter-spacing: 0.1rem;">Position:</p>
+                                </td>
+                                <td colspan="2">
+                                    <p style="margin: 0.15rem 0; color: #484b4c"><%= work['position'] %></p>
+                                </td>
+                            </tr>
+                        <% end %>
+                        <% if work['company'].present? %> 
+                            <tr>
+                                <td>
+                                    <p style="color: #a9b4c2;width: 18rem;margin: 0;letter-spacing: 0.1rem;">Company:</p>
+                                </td>
+                                <td colspan="2">
+                                    <p style="margin: 0.15rem 0; color: #484b4c"><%= work['company'] %></p>
+                                </td>
+                            </tr>
+                        <% end %>  
+                        <% if work['location'].present? %>  
+                            <tr>
+                                <td>
+                                    <p style="color: #a9b4c2;width: 18rem;margin: 0;letter-spacing: 0.1rem;">Location:</p>
+                                </td>
+                                <td colspan="2">
+                                    <p style="margin: 0.15rem 0; color: #484b4c"><%= work['location'] %></p>
+                                </td>
+                            </tr>
+                        <% end %>  
+                        <% years = get_years(work) %>
+                        <% if years.present? %>  
+                            <tr>
+                                <td>
+                                    <p style="color: #a9b4c2;width: 18rem;margin: 0;letter-spacing: 0.1rem;">Exprience:</p>
+                                </td>
+                                <td colspan="2">
+                                    <p style="margin: 0.15rem 0; color: #484b4c"><%= get_years(work) %></p>
+                                </td>
+                            </tr>
+                        <% end %>    
+                    <% end %>
+                <% end %> 
+            <% end %>    
+            <tr>
+                <td colspan="3">
+                    <h3 style="font-weight: 500; letter-spacing: 0.1rem">Contact Info:</h3>
+                </td>
+            </tr>
+            <% emails = get_email_records(user_record.contacts, "email") %>
+            <% if emails.present? %>
+                <tr>
+                    <td>
+                        <p style="color: #a9b4c2;width: 18rem;margin: 0;letter-spacing: 0.1rem;">Email:</p>
+                    </td>
+                    <td colspan="2">
+                        <p style="margin: 0.15rem 0; color: #484b4c"><%= emails %></p>
+                    </td>
+                </tr>
+            <% end %>    
+            <tr>
+                <td>
+                    <p style="color: #a9b4c2;width: 18rem;margin: 0;letter-spacing: 0.1rem;">Phone:</p>
+                </td>
+                <td colspan="2">
+                    <p style="margin: 0.15rem 0; color: #484b4c"><%= get_phone_records(user_record.contacts, "phone") %></p>
+                </td>
+            </tr>
+            <% if user_record.social_url.present? %>
+                <tr>
+                    <td>
+                        <p style="color: #a9b4c2;width: 18rem;margin: 0;letter-spacing: 0.1rem;">Social:</p>
+                    </td>
+                    <td colspan="2">
+                        <% user_record.social_url.each do |rec| %>
+                            <% case rec['type'] %>
+                                <% when "li" %>
+                                    <a href="<% rec['link'] %>" target="_blank">
+                                        <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" alt="linkedin_icon" style="width: 2rem; border-radius: 50%" />
+                                    </a>
+                                <% when "fb" %>
+                                    <a href="<% rec['link'] %>" target="_blank">
+                                        <img src="https://cdn-icons-png.flaticon.com/512/145/145802.png" alt="facebook_icon" style="width: 2rem; border-radius: 50%" />
+                                    </a>
+                            <% end %>
+                        <% end %>                
+                    </td>
+                </tr>
+            <% end %>      
+            <% if @temporary_profile.work_experience.present? %> 
+                <tr>
+                    <td colspan="3">
+                        <h3 style="font-weight: 500;letter-spacing: 0.1rem;margin: 0 0 0.5rem 0;">Work experience:</h3>
+                    </td>
+                </tr>
+                <% @temporary_profile.work_experience.each do |work| %>
+                    <tr>
+                        <td>
+                            <% started_date = work['started'].kind_of?(Hash) ? work['started']['date'] : work['started'] %>
+                            <% ended_date = work['ended'].kind_of?(Hash) ? work['ended']['date'] : work['ended'] %>
+                            <% if work['current'] %> 
+                                <p style="color: #a9b4c2; width: 18rem; margin: 0"><%= "#{convert_time(started_date)} - current time" %></p>
+                            <% else %>
+                                <p style="color: #a9b4c2; width: 18rem; margin: 0"><%= "#{convert_time(started_date)} - #{convert_time(ended_date)}" %></p>
+                            <% end %>    
+                        </td>
+                        <td colspan="2">
+                            <p class="position" style="margin: 0 0 0.2rem 0;color: #484b4c;font-size: 0.9rem;"><%=  work['position'] %></p>
+                            <p class="comapany" style="margin: 0 0 0.2rem 0;color: #878787;font-size: 0.9rem;"><%= work['location'] %></p>
+                            <p class="job_description" style="margin: 0 0 0.2rem 0;color: #484b4c;font-size: 0.9rem;"><%= work['company'] %></p>
+                        </td>
+                    </tr>
+                <% end %>    
+            <% end %> 
+            <% if @temporary_profile.education.present? %>   
+                <tr>
+                    <td colspan="3">
+                        <h3 style="font-weight: 500;letter-spacing: 0.1rem;margin: 0 0 0.5rem 0;">Education:</h3>
+                    </td>
+                </tr>
+                <% @temporary_profile.education.each do |edu| %>
+                    <tr>
+                        <td>
+                            <p style="color: #a9b4c2; width: 18rem; margin: 0"><%= "#{edu['startedYear']} - #{edu['endedYear']}" %></p>
+                        </td>
+                        <td colspan="2">
+                            <p class="subject" style="margin: 0 0 0.2rem 0;color: #484b4c;font-size: 0.9rem;"><%= edu['faculty'] %></p>
+                            <p class="degree" style="margin: 0 0 0.2rem 0;color: #878787;font-size: 0.9rem;"><%= edu['degree'].join(" , ") %></p>
+                            <p class="clg" style="margin: 0 0 0.2rem 0;color: #878787;font-size: 0.9rem;"><%= edu['university'] %></p>
+                        </td>
+                    </tr>
+                <% end %>    
+            <% end %>  
+            <% if @temporary_profile.head_line.present? %>  
+                <tr>
+                    <td colspan="3">
+                        <h3 style="font-weight: 500; margin: 0 0 0.2rem 0">Head line:</h3>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <p style="margin: 0; color: #484b4c"><%= @temporary_profile.head_line %></p>
+                    </td>
+                </tr>
+            <% end %>   
+            <% if user_record.summary.present? %> 
+                <tr>
+                    <td colspan="3">
+                        <h3 style="font-weight: 500; margin: 0 0 0.2rem 0">Summary:</h3>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <p style="margin: 0; color: #484b4c"><%= user_record.summary %></p>
+                    </td>
+                </tr>
+            <% end %>    
+            <% if @temporary_profile.languages %>
+                <tr>
+                    <td colspan="3">
+                        <h3 style="font-weight: 500; margin: 0 0 0.5rem 0">Languages:</h3>
+                    </td>
+                </tr>
+                <% @temporary_profile.languages.each do |lang| %>
+                    <tr>
+                        <td colspan="3">
+                            <p class="language_name" style="margin: 0; color: #484b4c"><%= lang['name'] %></p>
+                            <!-- <p class="language_level" style="margin: 0 0 0.5rem 0; color: #878787">Full professional</p> -->
+                        </td>
+                    </tr>
+                <% end %>    
+            <% end %>  
+            <% if @temporary_profile.courses %>  
+                <tr>
+                    <td colspan="3">
+                        <h3 style="font-weight: 500; margin: 0 0 0.2rem 0">Courses:</h3>
+                        <ul class="course_names" style="list-style: none; padding: 0; margin: 0">
+                            <li style="color: #878787; margin-bottom: 0.5rem"><%= @temporary_profile.courses.join(" , ") %></li>
+                        </ul>
+                    </td>
+                </tr>
+            <% end %>  
+            <% if @temporary_profile.certificates %>  
+                <tr>
+                    <td colspan="3">
+                        <h3 style="font-weight: 500; margin: 0 0 0.2rem 0">Certifications:</h3>
+                        <ul class="certificates" style="list-style: none; padding: 0; margin: 0">
+                            <li style="color: #878787; margin-bottom: 0.5rem"><%= @temporary_profile.certificates.join(" , ") %></li>
+                        </ul>
+                    </td>
+                </tr>
+            <% end %>    
+            <!-- <tr>
+                <td colspan="3">
+                    <h3 style="font-weight: 500; margin: 0 0 0.2rem 0">Honor & Award:</h3>
+                    <ul class="certificates" style="list-style: none; padding: 0; margin: 0">
+                        <li style="color: #878787; margin-bottom: 0.5rem">The Fulbright Scholarship Award</li>
+                    </ul>
+                </td>
+            </tr> -->
+            <% if @temporary_profile.organizations %>
+                <tr>
+                    <td>
+                        <h3 style="font-weight: 500; margin: 0 0 0.2rem 0">Organizations:</h3>
+                        <% @temporary_profile.organizations.each do |org| %>
+                            <ul class="Organization_names" style="list-style: none; padding: 0; margin: 0">
+                                <li style="color: #878787; margin-bottom: 0.5rem"><%= org['name'] %></li>
+                            </ul>
+                        <% end %>    
+                    </td>
+                </tr>
+            <% end %> 
+            <% if user_record.skills.present? %>
+                <tr>
+                    <td colspan="3">
+                        <h3 style="font-weight: 500; letter-spacing: 0.1rem">Skills:</h3>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <div style="display: flex; align-items: center; flex-wrap: wrap">
+                            <% user_record.skills.each do |skill| %>
+                                <p style="display: inline-block;margin: 0 0.5rem 0.4rem 0;color: #484b4c;background: #ebebed;border-radius: 0.3rem;padding: 0.5rem;font-size: 0.8rem;"><%= skill %></p>
+                            <% end %>
+                        </div>
+                    </td>
+                </tr>
+            <% end %>    
+        </table>
+    </body>
+    </html>
+<% end %>

@@ -1,0 +1,13 @@
+current directory: /data/home/ubuntu/Desktop/hiringplatform-74392-ruby/template-app/vendor/bundle/ruby/2.6.0/gems/json-2.6.1/ext/json
+/usr/local/rbenv/versions/2.6.5/bin/ruby -I /usr/local/rbenv/versions/2.6.5/lib/ruby/2.6.0 -r ./siteconf20220114-3769-wazduz.rb extconf.rb
+creating Makefile
+
+current directory: /data/home/ubuntu/Desktop/hiringplatform-74392-ruby/template-app/vendor/bundle/ruby/2.6.0/gems/json-2.6.1/ext/json
+make "DESTDIR=" clean
+
+current directory: /data/home/ubuntu/Desktop/hiringplatform-74392-ruby/template-app/vendor/bundle/ruby/2.6.0/gems/json-2.6.1/ext/json
+make "DESTDIR="
+make: Nothing to be done for 'all'.
+
+current directory: /data/home/ubuntu/Desktop/hiringplatform-74392-ruby/template-app/vendor/bundle/ruby/2.6.0/gems/json-2.6.1/ext/json
+make "DESTDIR=" install

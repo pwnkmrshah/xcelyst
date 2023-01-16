@@ -1,0 +1,35 @@
+<%= form_for :upload_resume_file, :url=>{:action=>"import_bulk_resume"},  html: {multipart: true} do |f| %>
+  <table>
+    <tr>
+      <td>
+        <label for="dump_file">
+          Select a Resume File :
+        </label>
+      </td>
+      <td>
+        <%= f.file_field :file,  multiple: true,  :required => true, :accept => 'application/pdf' %>
+      </td>
+      <td>
+        <%= submit_tag 'Submit', :class => 'custom-btn', :id => 'temp_account_bulk_upload' %>
+      </td>
+    </tr>
+  </table>
+<% end %>
+<style type="text/css">
+  .upload-hide {
+    display: none !important;
+  }
+  .custom-btn {
+    padding: 10px 15px !important;
+    width: auto !important;
+  }
+</style>
+<script type="text/javascript">
+  $("#temp_account_bulk_upload").on('click',function(event){
+    var $fileUpload = $("#upload_resume_file_file");
+    if (parseInt($fileUpload.get(0).files.length)>100){
+      event.preventDefault();
+      alert("You can only upload a maximum of 100 files");
+    }
+  });
+</script>

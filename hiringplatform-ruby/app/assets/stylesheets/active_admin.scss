@@ -1,0 +1,62 @@
+// SASS variable overrides must be declared before loading up Active Admin's styles.
+//
+// To view the variables that Active Admin provides, take a look at
+// `app/assets/stylesheets/active_admin/mixins/_variables.scss` in the
+// Active Admin source.
+//
+// For example, to change the sidebar width:
+// $sidebar-width: 242px;
+
+// Active Admin's got SASS!
+
+@import "active_admin/mixins";
+@import "arctic_admin/base";
+@import 'activeadmin_addons/all';
+@import 'activeadmin/quill_editor/quill.snow';
+@import 'activeadmin/quill_editor_input';
+
+// Overriding any non-variable SASS must be done after the fact.
+// For example, to change the default status-tag color:
+//
+//   .status_tag { background: #6090DB; }
+
+div.col-xs-4 img { max-width: 100%; }
+div.col-xs-6 img { max-width: 100%; }
+div.col-xs-8 img { max-width: 100%; }
+div.col-xs-8 { width: 200px; }
+div.col-xs-4 { width: 100px; }
+
+img {
+  max-width: 100%
+}
+
+.admin_icon {
+ max-width: 50px;
+ max-height : 50px;
+}
+.admin_splash_img_small {
+  max-width: 100px;
+  max-height : 100px;
+ }
+.admin_splash_img {
+ max-width: 300px;
+ max-height : 300px;
+}
+
+body.active_admin [data-aa-quill-editor] {
+  display: inline-block;
+  width: calc(60% - 2px);
+}
+
+.status_tag {
+  &.true { background: green; }
+  &.false { background: red; }
+}
+
+.admin_ai_macthings .pagination_information { 
+  display: none;
+}
+
+#bx_block_custom_user_subs_subscriptions, #test_domes{
+  display: none;
+}

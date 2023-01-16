@@ -1,0 +1,126 @@
+source 'https://rubygems.org'
+source 'https://gem.fury.io/engineerai'
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+
+ruby '2.6.5'
+
+# Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
+gem 'rails', '~> 6.0.3', '>= 6.0.3.6'
+# Use postgresql as the database for Active Record
+gem 'pg', '>= 0.18', '< 2.0'
+# Use Puma as the app server
+gem 'puma', '~> 4.1'
+# Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
+# gem 'jbuilder', '~> 2.7'
+# Use Active Model has_secure_password
+# gem 'bcrypt', '~> 3.1.7'
+
+# Use Active Storage variant
+# gem 'image_processing', '~> 1.2'
+gem 'ransack'
+# Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
+gem 'rack-cors'
+gem 'kaminari'
+
+group :development, :test do
+  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+  gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+  gem 'rspec-rails', '5.1.2'  
+  gem 'rspec-sonarqube-formatter', '1.5.0'
+end
+
+group :test do
+  gem 'mock_redis', '0.34.0'  
+  gem 'simplecov', '0.21.2'
+end
+
+group :development do
+  gem 'dotenv-rails'
+end
+
+gem 'twilio-ruby'
+# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
+gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+gem 'bx_block_favourites', '0.0.2'
+gem 'bx_block_payments', '0.1.3'
+gem 'bx_block_scheduling-d1f08754', '0.0.2', require: 'bx_block_scheduling'
+gem 'bx_block_privacy_settings', '0.0.1'
+gem 'bx_block_login-3d0582b5', '0.0.8', require: 'bx_block_login'
+gem 'bx_block_forgot_password-4de8968b', '0.0.6', require: 'bx_block_forgot_password'
+gem 'account_block', '0.0.28'
+gem 'bx_block_appointment_management-eb816fd3', '0.0.6', require: 'bx_block_appointment_management'
+#gem 'bx_block_listings_calendar', '0.1.2', require: 'bx_block_listings_calendar'
+gem 'bx_block_admin', '0.0.10'
+gem 'bx_block_contact_us-6e0a750f', '0.0.3', require: 'bx_block_contact_us'
+gem 'bx_block_data_import_export_csv-ec567cbb', '0.0.2', require: 'bx_block_data_import_export_csv'
+gem 'bx_block_roles_permissions-c50949d0', '0.0.6', require: 'bx_block_roles_permissions'
+gem 'bx_block_posts-3dc5b993', '0.0.12', require: 'bx_block_posts'
+gem 'bx_block_profile', '0.0.8', require: 'bx_block_profile'
+gem 'bx_block_profile_bio', '0.1.5'
+gem 'bx_block_settings-5412d427', '0.0.3', require: 'bx_block_settings'
+gem 'bx_block_sorting-a08a7b91', '0.0.2', require: 'bx_block_sorting'
+gem 'bx_block_filter_items-b1be1f37', '0.0.2', require: 'bx_block_filter_items'
+gem 'bx_block_location-99004202', '0.0.4', require: 'bx_block_location'
+gem 'bx_block_notifications-a22eb801', '0.0.3', require: 'bx_block_notifications'
+gem 'bx_block_email_notifications', '0.0.3'
+gem 'bx_block_advanced_search-23b25188', '0.0.2', require: 'bx_block_advanced_search'
+gem 'bx_block_categories-acd0763f', '0.0.8', require: 'bx_block_categories'
+gem 'bx_block_content_management', '0.0.2', require: 'bx_block_content_management'
+gem 'bx_block_custom_user_subs', '0.0.7'
+gem 'bx_block_payment_admin', '0.0.2'
+gem 'bx_block_upload_media-9de56634', '0.0.2', require: 'bx_block_upload_media'
+gem 'builder_base', '0.0.43'
+gem 'sassc-rails', '~> 2.1.0'
+gem 'activeadmin'
+gem 'active_admin_role'
+gem 'activeadmin_json_editor'
+gem 'active_admin_datetimepicker'
+gem 'sidekiq_alive'
+gem 'sidekiq', '~> 6.1.0'
+gem "yabeda-prometheus"    # Base
+gem "yabeda-rails"         #API endpoint monitoring
+gem "yabeda-http_requests" #External request monitoring
+gem "yabeda-puma-plugin"
+gem 'yabeda-sidekiq'
+gem 'bx_block_cors'
+gem 'acts-as-taggable-on'
+
+gem 'letter_opener', '~> 1.7'
+
+gem 'validate_url'
+gem 'validates_email_format_of'
+
+# for admin panel
+gem 'devise'
+gem 'arctic_admin'
+gem 'activeadmin_addons'
+gem 'activeadmin_quill_editor', '~> 0.3.0'
+gem 'nokogiri'
+
+gem 'aws-sdk-s3', '~> 1.95', '>= 1.95.1'
+
+gem 'whenever', '~> 1.0'
+
+gem 'country_select'
+
+# to generate pdf for dowload from database
+# gem 'wkhtmltopdf-binary'
+# gem 'wicked_pdf'
+gem 'wicked_pdf', '~> 2.1'
+
+
+# to create the fake names
+gem 'faker', '~> 2.21'
+gem 'elasticsearch-model'
+gem 'elasticsearch-rails'
+gem 'faraday'
+
+# for cron job
+
+gem 'sidekiq-cron', '~> 1.7'
+
+# mongo db setup
+gem 'mongoid', '~> 8.0', '>= 8.0.2'
+
+
+gem 'hashie', '~> 5.0'

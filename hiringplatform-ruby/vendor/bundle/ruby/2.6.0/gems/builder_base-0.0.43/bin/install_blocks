@@ -1,0 +1,123 @@
+#!/usr/bin/env ruby
+
+module BlocksInstaller
+  extend self
+
+  RAKE_TASKS = {
+    :migrations => 'railties:install:migrations',
+  }
+
+  GENERATORS = {
+    :blocks => 'builder_base:blocks:install',
+  }
+
+  class Params
+    attr_reader(*[
+      :errors,
+    ])
+
+    def initialize(args)
+      @errors = []
+      @args = args
+
+      if args.empty?
+        @blocks     = true
+        @migrations = true
+      end
+    end
+
+    def blocks
+      return @blocks if defined?(@blocks)
+      @blocks = @args.any?{|arg| arg == '--blocks' }
+    end
+
+    def migrations
+      return @migrations if defined?(@migrations)
+      @migrations = @args.any?{|arg| arg == '--migrations' }
+    end
+
+    def valid?
+      @errors = []
+      validate
+      @errors.empty?
+    end
+
+    def help
+      puts "USAGE: #{File.basename(__FILE__)} #{optional_flags_help_list}"
+    end
+
+    private
+
+    def validate
+      valid_args?
+    end
+
+    def valid_flags
+      [
+        '--blocks',
+        '--migrations',
+      ]
+    end
+
+    def optional_flags_help_list
+      valid_flags.map do |arg|
+        "[#{arg}]"
+      end.join ' '
+    end
+
+    def valid_args?
+      invalid = @args.filter do |arg|
+        !valid_flags.include? arg
+      end
+      return true if invalid.empty?
+
+      @errors << "Invalid parameters: #{invalid.join(', ')}"
+    end
+  end
+
+  def execute
+    params = Params.new(ARGV)
+
+    exit_process(params) unless params.valid?
+
+    rake(:migrations) if params.migrations
+    generate(:blocks) if params.blocks
+  end
+
+  private
+
+  def rake(key)
+    init_rake
+    Rake::Task[RAKE_TASKS[key]].invoke
+  end
+
+  def init_rake
+    return @init_rake if defined?(@init_rake)
+
+    require './config/application'
+
+    Rails.application.load_tasks
+
+    @init_rake = true
+  end
+
+  def generate(key)
+    init_generators
+    Rails::Generators.invoke GENERATORS[key]
+  end
+
+  def init_generators
+    return @init_generators if defined?(@init_generators)
+    require 'rails/generators'
+    require 'rails/version'
+    @init_generators = true
+  end
+
+  def exit_process(params)
+    STDERR.puts params.errors.join("\n")
+    params.help
+    exit 1
+  end
+end
+
+BlocksInstaller.execute
