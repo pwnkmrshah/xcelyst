@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <p>
+      Hello Admin,<br><br>
+
+      <%= @jd.role.account.first_name %> has <%= @type %> a <%= @jd.jd_type %> job description. You can check that job description by click on the below link.<br>
+
+      <%= link_to "Click Here", "#{@jd_url}" %><br><br>
+
+      Thank & Regards<br>
+      Hiring Support Team
+    </p>
+  </body>
+</html>

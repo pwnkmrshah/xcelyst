@@ -1,0 +1,181 @@
+/* line 1, app/assets/stylesheets/custom.scss */
+#jd_loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 99;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+/* line 12, app/assets/stylesheets/custom.scss */
+#jd_loader.visible {
+  display: flex;
+}
+
+/* line 15, app/assets/stylesheets/custom.scss */
+#jd_loader::after {
+  content: '';
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 5px solid rgba(255, 255, 255, 0.5);
+  border-top-color: #ffffff;
+  animation: spin 1s infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* line 34, app/assets/stylesheets/custom.scss */
+.align-dropdown {
+  display: flex;
+}
+
+/* line 36, app/assets/stylesheets/custom.scss */
+.align-dropdown > div {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  margin: 20px 10px;
+}
+
+/* line 41, app/assets/stylesheets/custom.scss */
+.align-dropdown > div:first-of-type {
+  margin-left: 0;
+}
+
+/* line 44, app/assets/stylesheets/custom.scss */
+.align-dropdown > div:last-of-type {
+  margin-right: 0;
+}
+
+/* line 46, app/assets/stylesheets/custom.scss */
+.align-dropdown > div:last-of-type button.button {
+  min-width: 200px;
+}
+
+/* line 50, app/assets/stylesheets/custom.scss */
+.align-dropdown > div > span {
+  flex: 1;
+}
+
+/* line 53, app/assets/stylesheets/custom.scss */
+.align-dropdown > div > label {
+  white-space: nowrap;
+  margin-right: 15px;
+}
+
+/* line 59, app/assets/stylesheets/custom.scss */
+.already-shortlisted td {
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+
+/* line 63, app/assets/stylesheets/custom.scss */
+.set-password-box {
+  width: 400px;
+}
+
+/* line 66, app/assets/stylesheets/custom.scss */
+.fs-16 {
+  font-size: 16px;
+}
+
+/* line 69, app/assets/stylesheets/custom.scss */
+.preview_popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  height: 90%;
+  overflow: auto;
+  z-index: 9;
+  background: white;
+  box-shadow: 0 0 30px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* line 80, app/assets/stylesheets/custom.scss */
+.preview_popup .preview_popup_close {
+  cursor: pointer;
+  position: sticky;
+  right: 0;
+  top: 0;
+  background: black;
+  padding: 10px;
+  line-height: 1;
+  color: #ffffff;
+}
+
+/* line 90, app/assets/stylesheets/custom.scss */
+.preview_popup .preview_popup_flex {
+  display: flex;
+  min-width: 1200px;
+}
+
+/* line 93, app/assets/stylesheets/custom.scss */
+.preview_popup .preview_popup_flex .preview_popup_content {
+  flex-basis: 40%;
+  max-width: 40%;
+  padding: 18px;
+}
+
+/* line 97, app/assets/stylesheets/custom.scss */
+.preview_popup .preview_popup_flex .preview_popup_content h4 {
+  color: #24325f;
+  font-size: 2.125rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  line-height: 1.235;
+  letter-spacing: 0.00735em;
+  text-transform: none;
+}
+
+/* line 106, app/assets/stylesheets/custom.scss */
+.preview_popup .preview_popup_flex .preview_popup_content .preview_popup_description {
+  margin: 24px 0;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  line-height: 1.75;
+  letter-spacing: 0.00938em;
+  text-transform: none;
+  color: darkslategray;
+  text-align: justify;
+}
+
+/* line 118, app/assets/stylesheets/custom.scss */
+.preview_popup .preview_popup_flex .preview_popup_image {
+  flex-basis: 60%;
+  max-width: 60%;
+  padding: 18px;
+}
+
+/* line 122, app/assets/stylesheets/custom.scss */
+.preview_popup .preview_popup_flex .preview_popup_image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* line 132, app/assets/stylesheets/custom.scss */
+body.hide-datepicker #ui-datepicker-div {
+  display: none !important;
+}
+
+/* line 136, app/assets/stylesheets/custom.scss */
+.admin_test_score_and_courses #title_bar {
+  display: none;
+}

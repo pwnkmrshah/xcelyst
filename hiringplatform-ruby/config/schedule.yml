@@ -1,0 +1,12 @@
+expire_otp:
+  cron: "*/1 * * * *"
+  class: "AccountBlock::ExpireOtpWorker"
+feedback_mail:
+  cron: "*/5 * * * *"
+  class: "BxBlockSchedule::ScheduleInterviewFeedbackWorker"
+feedback_nofi_mail:
+  cron: "30 11 * * *"
+  class: "BxBlockSchedule::InterviewerFeedbackNotiWorker"
+test_dome:
+  cron: "*/5 * * * *"
+  class: "BxBlockTestDome::FetchTestWorker"
