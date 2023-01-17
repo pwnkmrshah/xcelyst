@@ -24,7 +24,7 @@ module BxBlockBulkUpload
         subject = "File data uploaded successfully"
         body = "#{logs&.count} resume uploaded successfully please check the logs for the remaining data"
       else
-        logs_file = logs&.exception
+        logs_file = logs.errors&.map{|a| [a[:id], a[:errors]] }.to_h
         subject = "File now uplaoded some erros occured"
         body = "Please check the log file of the uploaded JSON file"
       end
