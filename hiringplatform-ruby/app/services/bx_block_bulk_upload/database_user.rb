@@ -24,9 +24,12 @@ module BxBlockBulkUpload
 
           x = data.deep_locate -> (key, value, object) { value.is_a?(String) && value.include?("\u0000") } # check the json contains the string null byte or not
 
-          @uid_arr << data['id'] if x.present?
-         
-          next if x.present? # if data contains the string null byte then it won't be save into the db.
+          if x.present?
+            @uid_arr << data['id'] 
+            @errors << {id: data['id'], errors: "Data contains the string null byte then it won't be save into the db."}
+            next
+          end
+          # next if x.present? # if data contains the string null byte then it won't be save into the db.
 
           # data = traverse(data)
 
@@ -103,7 +106,7 @@ module BxBlockBulkUpload
 
       def user_current_company(experience)
         return if experience.blank?
-        current_experience(experience).first['company']
+        current_experience(experience).first['company'] if current_experience(experience).first.present?
       end
 
       def user_city(location, experience)
@@ -149,7 +152,7 @@ module BxBlockBulkUpload
             @count += 1
 
             user_rec.create_temporary_user_profile(head_line: data['headLine'], languages: data['language'], organizations: data['organization'],
-              skills: data['skills'], education: data['education'], work_experience: data['experience'], courses: courses.split, certificates: certificates.split)
+              skills: data['skills'], education: data['education'], work_experience: data['experience'], courses: courses, certificates: certificates)
           end
         rescue => exception
           @errors << {id: data['id'], errors: exception}
@@ -237,5 +240,3 @@ module BxBlockBulkUpload
     end
   end
 end
-
-
