@@ -14,6 +14,29 @@ if (!localStorage.jd_id) {
 	localStorage.jd_id = '';
 }
 $(document).ready(function() {
+  $(".select-all-permission").click(function(e) {
+    e.preventDefault();
+    console.log("Link clicked");
+    var moduleName = $(this).data("module-name");
+    console.log("Module Name:", moduleName);
+    var rolePermissions = $(".role_permissions[data-module_name='" + moduleName + "']");
+    console.log("Role Permissions:", rolePermissions);
+    var allChecked = true;
+
+    rolePermissions.each(function() {
+      if (!$(this).prop("checked")) {
+        allChecked = false;
+        return false;
+      }
+    });
+
+    if (allChecked) {
+      rolePermissions.prop("checked", false);
+    } else {
+      rolePermissions.prop("checked", true);
+    }
+  });
+
 
 	$("form#edit_bx_block_database_download_limit").submit(function(e){
 		value = $('#bx_block_database_download_limit_per_page_limit').val() 

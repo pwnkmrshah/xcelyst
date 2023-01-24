@@ -136,3 +136,16 @@ body.hide-datepicker #ui-datepicker-div{
 .admin_test_score_and_courses #title_bar{
 	display: none;
 }
+
+.module-container {
+  display: flex;
+  align-items: center;
+}
+
+.module-name {
+  width: 30%;
+}
+
+.permission-container {
+  width: 70%;
+}
