@@ -74,6 +74,10 @@ module BxBlockDatabase
       per_page_limit = BxBlockDatabase::DownloadLimit.last.per_page_limit
 			total_data = data.total > 10000 ? 10000 : data.total
 			total_pages = total_data/(per_page_limit || 5)
+			pages = total_data % (per_page_limit || 5)
+			if pages > 0
+				total_pages += 1
+			end
 			if total_pages == 0
 				total_pages = 1
 			end
