@@ -43,12 +43,12 @@ module BxBlockDatabase
 			should = []
 			must = []
 			filter = []
-
-			page = 5*(query[:page] || 0).to_i
+			per_page_limit = BxBlockDatabase::DownloadLimit.last.per_page_limit
+			page = (per_page_limit || 5)*(query[:page] || 0).to_i
 			position = query[:title].present? ? (query[:title]) : "*"
 			s = {
 				"from": page,
-  				"size": 5,
+  				"size": per_page_limit || 5,
 				"track_total_hits": true,
           		"query": {
             		"bool": {
