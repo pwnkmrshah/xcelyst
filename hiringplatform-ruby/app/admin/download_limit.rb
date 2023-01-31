@@ -21,7 +21,7 @@ ActiveAdmin.register BxBlockDatabase::DownloadLimit, as: "DownloadLimit" do
   form do |f|
     f.inputs do
       f.input :no_of_downloads
-      f.input :per_page_limit
+      f.input :per_page_limit, required: true
     end
     f.actions
   end
