@@ -15,6 +15,23 @@ if (!localStorage.jd_id) {
 }
 $(document).ready(function() {
 
+	$('#bx_block_database_download_limit_per_page_limit').on('keypress',  function(e) {
+        if ((e.key==='.') || (e.key==='-')) {
+            e.preventDefault();
+        }
+    })
+
+	$('#bx_block_database_download_limit_per_page_limit').on('input',  function(e) {
+     	if ($(this).val() > 50) {
+            $('#bx_block_database_download_limit_per_page_limit').val(50)
+            e.preventDefault();
+        } else if ($(this).val() == 0) {
+        	$('#bx_block_database_download_limit_per_page_limit').val(1)
+            e.preventDefault();
+        }
+
+    })
+
 	$('body.admin_temporary_accounts input.collection_selection').on('change', function() {
 		if( $(this).prop('checked') == true ) {
 			if(localStorage.temporary_accounts == '') {
