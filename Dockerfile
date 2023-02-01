@@ -2,6 +2,7 @@ FROM ruby:2.6.5-alpine
 ARG RAILS_ENV=production
 ENV RAILS_ENV="${RAILS_ENV}"
 ENV APP_VERSION=${TAG}
+ENV AWS_REGION=eu-west-1
 RUN apk update
 RUN apk add bash build-base libxml2-dev libxslt-dev postgresql postgresql-dev nodejs vim yarn libc6-compat curl git which wkhtmltopdf ttf-ubuntu-font-family imagemagick
 RUN apk add --no-cache \
