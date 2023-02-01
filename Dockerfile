@@ -23,7 +23,6 @@ RUN mkdir /app/public/uploads
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
 RUN /bin/bash entrypoint.sh
-RUN rails assets:clobber
 RUN rails assets:precompile
 RUN rails db:migrate
 EXPOSE 3000
