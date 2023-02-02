@@ -23,7 +23,5 @@ RUN mkdir /app/public/uploads
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
 RUN /bin/bash entrypoint.sh
-RUN rails assets:precompile
-RUN rails db:migrate
 EXPOSE 3000
 CMD ["bundle", "exec", "rails", "server", "puma", "-b", "0.0.0.0", "-p", "3000"]
