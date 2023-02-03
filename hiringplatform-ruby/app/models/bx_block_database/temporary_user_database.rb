@@ -84,10 +84,11 @@ module BxBlockDatabase
 
 			if query[:location].present?
 				s[:query][:bool][:must] = [{
-					"match": {
-						"location": "#{query[:location]}"
-					}
-				  }]
+											"simple_query_string": {
+											  "fields": [ "location" ],
+											  "query": "#{query[:location]}"
+					    					}
+										}]
 			end
 			if query[:full_name].present?
 				s[:query][:bool][:must] = [{
