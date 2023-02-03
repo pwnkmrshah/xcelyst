@@ -43,12 +43,12 @@ module BxBlockDatabase
 			should = []
 			must = []
 			filter = []
-
-			page = 5*(query[:page] || 0).to_i
+			per_page_limit = BxBlockDatabase::DownloadLimit.last.per_page_limit
+			page = (per_page_limit || 5)*(query[:page] || 0).to_i
 			position = query[:title].present? ? (query[:title]) : "*"
 			s = {
 				"from": page,
-  				"size": 5,
+  				"size": per_page_limit || 5,
 				"track_total_hits": true,
           		"query": {
             		"bool": {
@@ -66,12 +66,12 @@ module BxBlockDatabase
 				}
 			}
 
-			must << {
-				"query_string": {
-						"query": "#{position}",
-						"default_field": "position.position"
-					}
-				}
+			# must << {
+			# 	"query_string": {
+			# 			"query": "#{position}",
+			# 			"default_field": "position.position"
+			# 		}
+			# 	}
 			if query.has_key?(:current)
 				must << {
 					"query_string": {
@@ -84,11 +84,17 @@ module BxBlockDatabase
 
 			if query[:location].present?
 				s[:query][:bool][:must] = [{
-					"query_string": {
-					  "query": "#{query[:location]}",
-					  "default_field": "location"
+					"match": {
+						"location": "#{query[:location]}"
 					}
 				  }]
+			end
+			if query[:full_name].present?
+				s[:query][:bool][:must] = [{
+					"match_phrase": {
+						"full_name": "#{query[:full_name]}"
+					}
+				}]
 			end
 			if query[:company].present?
 					s[:query][:bool][:should][0][:nested][:query][:bool][:must] << {
@@ -98,26 +104,34 @@ module BxBlockDatabase
 						}
 					}
 			end
+			if query[:title].present?
+					s[:query][:bool][:should][0][:nested][:query][:bool][:must] << {
+						"query_string": {
+						  "query": "#{query[:title]}",
+						  "default_field": "position.position"
+						}
+					}
+			end
 			if query[:keywords].present?
 				unless s[:query][:bool][:must].present?
 					s[:query][:bool][:must] = [{
 						"multi_match": {
 						"query": "#{query[:keywords]}",
-						"fields": ["full_name^10", "skills^5", "name"]
+						"fields": ["*"]
 						}
 					}]
 				else
 					s[:query][:bool][:must] << {
 						"multi_match": {
 						"query": "#{query[:keywords]}",
-						"fields": ["full_name^10", "skills^5", "name"]
+						"fields": ["*"]
 						}
 					}
 				end
 			end
 			if query[:experience].present?
 				start = (query[:experience][:started] || 0) * 12
-				ended = (query[:experience][:ended] || 100) * 12
+				ended = (query[:experience][:ended] || 99) * 12
 				unless s[:query][:bool][:must].present?
 					s[:query][:bool][:must] =  [{
 						"range": {"experience_month": {"gte": start ,"lte": ended}}
