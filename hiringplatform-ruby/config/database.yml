@@ -94,3 +94,12 @@ production:
   host: <%= ENV['TEMPLATE_DATABASE_HOSTNAME'] %>
   port: 5432
 
+#staging Database
+staging:
+  <<: *default
+  adapter: postgresql
+  database: <%= ENV['TEMPLATEAPP_DATABASE'] %>
+  username: <%= ENV['TEMPLATEAPP_DATABASE_USER'] %>
+  password: <%= ENV['TEMPLATEAPP_DATABASE_PASSWORD'] %>
+  host: <%= ENV['TEMPLATE_DATABASE_HOSTNAME'] %>
+  port: 5432

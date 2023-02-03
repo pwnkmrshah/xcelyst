@@ -24,9 +24,12 @@ module BxBlockBulkUpload
 
           x = data.deep_locate -> (key, value, object) { value.is_a?(String) && value.include?("\u0000") } # check the json contains the string null byte or not
 
-          @uid_arr << data['id'] if x.present?
-         
-          next if x.present? # if data contains the string null byte then it won't be save into the db.
+          if x.present?
+            @uid_arr << data['id'] 
+            @errors << {id: data['id'], errors: "Data contains the string null byte then it won't be save into the db."}
+            next
+          end
+          # next if x.present? # if data contains the string null byte then it won't be save into the db.
 
           # data = traverse(data)
 
@@ -42,11 +45,13 @@ module BxBlockBulkUpload
             certificates = user_certification(data['certification'])
             projects = user_projects(data['project'])
             courses = user_courses(data['course'])
+            experience = exp.split if user.experience.present?
+            experience_month = ( (experience.first.to_i * 12) || 0) +  (experience.third.to_i || 0) if experience.present?            
             begin
               user_rec = record.update(full_name: data['fullName'], photo_url: data['photo'],
                 position: data['experience'], location: data['locations'], contacts: data['contacts'], social_url: data['social'],
                 skills: data['skills'], name: data['fullName'], summary: data['summary'], title: nil, zipcode: nil, city: city, ready_to_move: false, experience: exp,
-                company: company, previous_work: prev_work, degree: education, job_projects: projects, lead_lists: nil)
+                company: company, previous_work: prev_work, degree: education, job_projects: projects, lead_lists: nil, experience_month: experience_month)
             
               if user_rec
                 @count += 1
@@ -103,7 +108,7 @@ module BxBlockBulkUpload
 
       def user_current_company(experience)
         return if experience.blank?
-        current_experience(experience).first['company']
+        current_experience(experience).first['company'] if current_experience(experience).first.present?
       end
 
       def user_city(location, experience)
@@ -142,14 +147,14 @@ module BxBlockBulkUpload
           user_rec = BxBlockDatabase::TemporaryUserDatabase.new(uid: data['id'], full_name: data['fullName'], photo_url: data['photo'],
             position: data['experience'], location: data['locations'], contacts: data['contacts'], social_url: data['social'],
             skills: data['skills'], name: data['fullName'], summary: data['summary'], title: nil, zipcode: nil, city: city, ready_to_move: false, experience: exp,
-            company: company, previous_work: prev_work, degree: education, job_projects: projects, lead_lists: nil)
+            company: company, previous_work: prev_work, degree: education, job_projects: projects, lead_lists: nil, experience_month: experience_month)
 
           if user_rec.save
 
             @count += 1
 
             user_rec.create_temporary_user_profile(head_line: data['headLine'], languages: data['language'], organizations: data['organization'],
-              skills: data['skills'], education: data['education'], work_experience: data['experience'], courses: courses.split, certificates: certificates.split)
+              skills: data['skills'], education: data['education'], work_experience: data['experience'], courses: courses, certificates: certificates)
           end
         rescue => exception
           @errors << {id: data['id'], errors: exception}
@@ -237,5 +242,3 @@ module BxBlockBulkUpload
     end
   end
 end
-
-

@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   mount Sidekiq::Web => "/sidekiq"
   mount ActionCable.server => '/cable'
 
+  root to: "admin/dashboard#index"
   namespace :account_block do
     resource :accounts do
       put :verify_otp
