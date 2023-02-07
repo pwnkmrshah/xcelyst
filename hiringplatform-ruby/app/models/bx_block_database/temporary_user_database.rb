@@ -106,19 +106,44 @@ module BxBlockDatabase
 					}
 			end
 			if query[:title].present?
-					s[:query][:bool][:should][0][:nested][:query][:bool][:must] << {
-						"query_string": {
-						  "query": "#{query[:title]}",
-						  "default_field": "position.position"
-						}
-					}
+				title = query[:title].split(' or ')
+				title_or_qry = title.reject{|a|a.include? 'and'}
+				rem_title = title.select{|a|a.include? 'and'}.join(' ')
+				title_and_qry = rem_title.split(' and ')
+				or_qry=[]
+				and_qry=[]
+				title_or_qry.each do |word|
+					or_qry << {
+	                    "match_phrase": {
+	                      "position.position": word
+	                    }
+	                  }
+				end
+				title_and_qry.each do |word|
+					and_qry << {
+	                    "match_phrase": {
+	                      "position.position": word
+	                    }
+	                  }
+				end
+				s[:query][:bool][:should][0][:nested][:query][:bool][:must] << {
+                		"bool": {
+						      "must": and_qry
+		    				}
+	        	}
+				s[:query][:bool][:should][0][:nested][:query][:bool][:must] << {
+                	"bool": {
+				      "should": or_qry
+    				}
+	        	}
 			end
 			if query[:keywords].present?
 				unless s[:query][:bool][:must].present?
 					s[:query][:bool][:must] = [{
 						"multi_match": {
 						"query": "#{query[:keywords]}",
-						"fields": ["*"]
+						"fields": ["*"],
+						"operator": "and"
 						}
 					}]
 				else
