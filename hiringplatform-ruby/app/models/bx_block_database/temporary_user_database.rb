@@ -66,12 +66,6 @@ module BxBlockDatabase
 				}
 			}
 
-			# must << {
-			# 	"query_string": {
-			# 			"query": "#{position}",
-			# 			"default_field": "position.position"
-			# 		}
-			# 	}
 			if query.has_key?(:current)
 				must << {
 					"query_string": {
@@ -83,12 +77,21 @@ module BxBlockDatabase
 			s[:query][:bool][:should][0][:nested][:query][:bool][:must] = must
 
 			if query[:location].present?
-				s[:query][:bool][:must] = [{
-											"simple_query_string": {
-											  "fields": [ "location" ],
-											  "query": "#{query[:location]}"
-					    					}
-										}]
+				query[:location].downcase!
+				location = query[:location].split(' or ')
+				qry = []
+				location.each do |word|
+					qry << {
+		                    "match_phrase": {
+		                      "location": word
+		                    }
+		                  }
+				end
+				s[:query][:bool][:must] = {
+                	"bool": {
+				      "should": qry
+    				}
+	        	}
 			end
 			if query[:full_name].present?
 				s[:query][:bool][:must] = [{
@@ -98,59 +101,115 @@ module BxBlockDatabase
 				}]
 			end
 			if query[:company].present?
-					s[:query][:bool][:should][0][:nested][:query][:bool][:must] << {
-						"query_string": {
-						  "query": "#{query[:company]}",
-						  "default_field": "position.company"
-						}
-					}
-			end
-			if query[:title].present?
-				title = query[:title].split(' or ')
-				title_or_qry = title.reject{|a|a.include? 'and'}
-				rem_title = title.select{|a|a.include? 'and'}.join(' ')
-				title_and_qry = rem_title.split(' and ')
-				or_qry=[]
-				and_qry=[]
-				title_or_qry.each do |word|
-					or_qry << {
-	                    "match_phrase": {
-	                      "position.position": word
-	                    }
-	                  }
-				end
-				title_and_qry.each do |word|
-					and_qry << {
-	                    "match_phrase": {
-	                      "position.position": word
-	                    }
-	                  }
-				end
-				s[:query][:bool][:should][0][:nested][:query][:bool][:must] << {
-                		"bool": {
-						      "must": and_qry
-		    				}
-	        	}
+				query[:company].downcase!
+				company = query[:company].split(' or ')
+				qry = []
+				company.each do |word|
+					qry << {
+		                    "match_phrase": {
+		                      "position.company": word
+		                    }
+		                  }
+				end					
 				s[:query][:bool][:should][0][:nested][:query][:bool][:must] << {
                 	"bool": {
-				      "should": or_qry
+				      "should": qry
     				}
-	        	}
+				}
+			end
+
+			if query[:title].present?
+				query[:title].downcase!
+
+				split_or_title = query[:title].split(" or ")
+				title_with_and = []
+				title_or_qry = []
+				title_and_qry = []
+				not_qry = []
+
+				split_or_title.each do |word|
+					if word.include?("and")
+						title_with_and << word
+					elsif word.include?("not")
+						not_qry << word
+					else
+						title_or_qry << word
+					end
+				end
+				if title_with_and.present?
+					split_and_title = title_with_and.join(", ").gsub(", ", " and ")
+					split_and_title = split_and_title.split(" and ")
+
+					split_and_title.each do |word|
+						if word.include?("not")
+							not_qry << word
+						else
+							title_and_qry << word
+						end
+					end
+				end
+
+			  	if not_qry.present?
+					not_qry = not_qry.join(', ').split(' not ')
+					title_not_qry = not_qry.map { |a| a.gsub("not ", "") }
+				end
+
+				or_qry = title_or_qry.map do |word|
+					{
+					  "match_phrase": {
+					    "position.position": word
+					  }
+					}
+				end
+
+				and_qry = title_and_qry.map do |word|
+					{
+					  "match_phrase": {
+					    "position.position": word
+					  }
+					}
+				end
+
+				not_qry = title_not_qry.map do |word|
+					{
+					  "match_phrase": {
+					    "position.position": word
+					  }
+					} 
+				end if title_not_qry.present?
+
+				s[:query][:bool][:should][0][:nested][:query][:bool][:must] << {
+					"bool": {
+					  "must": and_qry
+					}
+				}
+
+				s[:query][:bool][:should][0][:nested][:query][:bool][:must] << {
+					"bool": {
+					  "should": or_qry
+					}
+				}
+
+				unless not_qry.empty?
+					s[:query][:bool][:should][0][:nested][:query][:bool][:must_not] = not_qry
+				end
 			end
 			if query[:keywords].present?
+				opertor = query[:keywords].scan(/['"’]/).present? ? 'and' : 'or'
 				unless s[:query][:bool][:must].present?
 					s[:query][:bool][:must] = [{
 						"multi_match": {
 						"query": "#{query[:keywords]}",
 						"fields": ["*"],
-						"operator": "and"
+						"operator": opertor
 						}
 					}]
 				else
 					s[:query][:bool][:must] << {
 						"multi_match": {
 						"query": "#{query[:keywords]}",
-						"fields": ["*"]
+						"fields": ["*"],
+						"operator": opertor
 						}
 					}
 				end
