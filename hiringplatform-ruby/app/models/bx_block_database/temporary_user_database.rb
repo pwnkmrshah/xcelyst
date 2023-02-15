@@ -37,12 +37,10 @@ module BxBlockDatabase
 			)
 		end  
 
-		# Create by Punit 
+		# Create by Nishu
 		# Create the Elatic Search Quary Using the Params and aslo Search form Elastic Search 
 		def self.elastic_search(query)
-			should = []
-			must = []
-			filter = []
+			nested_must = []
 			per_page_limit = BxBlockDatabase::DownloadLimit.last.per_page_limit
 			page = (per_page_limit || 5)*(query[:page] || 0).to_i
 			position = query[:title].present? ? (query[:title]) : "*"
@@ -52,29 +50,28 @@ module BxBlockDatabase
 				"track_total_hits": true,
           		"query": {
             		"bool": {
-						"should": [
-							{
-								"nested": {
-									"path": "position",
-									"query": {
-										"bool": {}
+						"filter": [{
+							"nested": {
+								"path": "position",
+								"query": {
+									"bool": {
+										"must": nested_must
 									}
 								}
 							}
-						]
+						}]
 					}
 				}
 			}
-
 			if query.has_key?(:current)
-				must << {
+				current_filter = {
 					"query_string": {
 						"query": query[:current],
 						"default_field": "position.current"
 						}
 					}
+				nested_must << current_filter
 			end
-			s[:query][:bool][:should][0][:nested][:query][:bool][:must] = must
 
 			if query[:location].present?
 				query[:location].downcase!
@@ -87,7 +84,7 @@ module BxBlockDatabase
 		                    }
 		                  }
 				end
-				s[:query][:bool][:must] = {
+				s[:query][:bool][:filter] << {
                 	"bool": {
 				      "should": qry
     				}
@@ -110,131 +107,135 @@ module BxBlockDatabase
 		                      "position.company": word
 		                    }
 		                  }
-				end					
-				s[:query][:bool][:should][0][:nested][:query][:bool][:must] << {
-                	"bool": {
-				      "should": qry
-    				}
-				}
+				end
+				nested_must << {
+					"bool": {
+						"should": qry
+					}
+				} if qry.any?
 			end
 
 			if query[:title].present?
 				query[:title].downcase!
 
-				split_or_title = query[:title].split(" or ")
-				title_with_and = []
-				title_or_qry = []
-				title_and_qry = []
-				not_qry = []
-
-				split_or_title.each do |word|
-					if word.include?("and")
-						title_with_and << word
-					elsif word.include?("not")
-						not_qry << word
-					else
-						title_or_qry << word
-					end
-				end
-				if title_with_and.present?
-					split_and_title = title_with_and.join(", ").gsub(", ", " and ")
-					split_and_title = split_and_title.split(" and ")
-
-					split_and_title.each do |word|
-						if word.include?("not")
+				if query[:title].split.any? { |word| ['or', 'and', 'not'].include?(word.downcase) }
+					split_or_title = query[:title].split(" or ")
+					title_with_and = []
+					title_or_qry = []
+					title_and_qry = []
+					not_qry = []
+					split_or_title.each do |word|
+						if word.include?("and")
+							title_with_and << word
+						elsif word.include?("not")
 							not_qry << word
 						else
-							title_and_qry << word
+							title_or_qry << word
 						end
 					end
-				end
+					if title_with_and.present?
+						split_and_title = title_with_and.join(", ").gsub(", ", " and ")
+						split_and_title = split_and_title.split(" and ")
 
-			  	if not_qry.present?
-					not_qry = not_qry.join(', ').split(' not ')
-					title_not_qry = not_qry.map { |a| a.gsub("not ", "") }
-				end
+						split_and_title.each do |word|
+							if word.include?("not")
+								not_qry << word
+							else
+								title_and_qry << word
+							end
+						end
+					end
 
-				or_qry = title_or_qry.map do |word|
-					{
+				  	if not_qry.present?
+						not_qry = not_qry.join(', ').split(' not ')
+						title_not_qry = not_qry.map { |a| a.gsub("not ", "") }
+					end
+
+					or_qry = title_or_qry.map do |word|
+						{
+						  "match_phrase": {
+						    "position.position": word
+						  }
+						}
+					end
+
+					and_qry = title_and_qry.map do |word|
+						{
+						  "match_phrase": {
+						    "position.position": word
+						  }
+						}
+					end
+
+					not_qry = title_not_qry.map do |word|
+						{
+						  "match_phrase": {
+						    "position.position": word
+						  }
+						} 
+					end if title_not_qry.present?
+
+					nested_must << {
+						"bool": {
+							"should": and_qry
+						}
+					} if and_qry.any?
+				    
+				    nested_must << {
+						"bool": {
+							"should": or_qry
+						}
+					} if or_qry.any?
+				    
+					if not_qry.present?
+						s[:query][:bool][:must_not] ||= []
+
+						not_qry.each do |qry|
+							s[:query][:bool][:must_not] << {
+								"nested": {
+									"path": "position",
+									"query": {
+										"bool": {
+											"must": current_filter.present? ? [ qry, current_filter ] : qry
+										}
+									}
+								}
+							}
+						end
+					end
+				else
+					nested_must << {
 					  "match_phrase": {
-					    "position.position": word
+					    "position.position": query[:title]
 					  }
 					}
-				end
-
-				and_qry = title_and_qry.map do |word|
-					{
-					  "match_phrase": {
-					    "position.position": word
-					  }
-					}
-				end
-
-				not_qry = title_not_qry.map do |word|
-					{
-					  "match_phrase": {
-					    "position.position": word
-					  }
-					} 
-				end if title_not_qry.present?
-
-				s[:query][:bool][:should][0][:nested][:query][:bool][:must] << {
-					"bool": {
-					  "must": and_qry
-					}
-				}
-
-				s[:query][:bool][:should][0][:nested][:query][:bool][:must] << {
-					"bool": {
-					  "should": or_qry
-					}
-				}
-
-				unless not_qry.empty?
-					s[:query][:bool][:should][0][:nested][:query][:bool][:must_not] = not_qry
 				end
 			end
 			if query[:keywords].present?
 				opertor = query[:keywords].scan(/['"’]/).present? ? 'and' : 'or'
-				unless s[:query][:bool][:must].present?
-					s[:query][:bool][:must] = [{
-						"multi_match": {
-						"query": "#{query[:keywords]}",
-						"fields": ["*"],
-						"operator": opertor
-						}
-					}]
-				else
-					s[:query][:bool][:must] << {
+				s[:query][:bool][:filter] << {
 						"multi_match": {
 						"query": "#{query[:keywords]}",
 						"fields": ["*"],
 						"operator": opertor
 						}
 					}
-				end
 			end
 			if query[:experience].present?
 				start = (query[:experience][:started] || 0) * 12
 				ended = (query[:experience][:ended] || 99) * 12
-				unless s[:query][:bool][:must].present?
-					s[:query][:bool][:must] =  [{
-						"range": {"experience_month": {"gte": start ,"lte": ended}}
-					}]
-				else
-					s[:query][:bool][:must] << {
-						"range": {"experience_month": {"gte": start,"lte": ended}}
-					}
-				end
+				s[:query][:bool][:filter] << {
+					"range": {"experience_month": {"gte": start,"lte": ended}}
+				}
 			end
 
 			if query.has_key?(:watched) && query.has_key?(:ip_address)
 				ids = BxBlockDatabase::WatchedRecord.where(ip_address: query[:ip_address]).pluck(:temporary_user_database_id)
 				if query[:watched]
-					s[:query][:bool][:filter] = [{
+					s[:query][:bool][:filter] << {
 						"ids": {
 						  "values": ids
-						}}]
+						}}
 				elsif query.has_key?(:ip_address)
 					s[:query][:bool][:must_not] = [{
 						"ids": {
@@ -242,6 +243,9 @@ module BxBlockDatabase
 					}}]
 				end
 			end
+
+			nested_must.flatten!
+			p s[:query]
 			self.__elasticsearch__.search(s)
 		end
 
