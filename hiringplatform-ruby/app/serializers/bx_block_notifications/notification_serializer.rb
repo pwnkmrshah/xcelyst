@@ -18,24 +18,24 @@ module BxBlockNotifications
     attribute :notificable do |obj|
       case obj.notificable_type
       when "BxBlockShortlisting::ShortlistingCandidate"
-        role = obj.notificable.job_description.role
+        role = obj.notificable&.job_description&.role
         {
           role: role.name,
           job_id: role.job_description.id,
           role_id: role.id,
           client: role.account.user_full_name
-        }
+        } if role.present?
       when "BxBlockFeedback::InterviewFeedback"
-        role = obj.notificable.applied_jobs.role
+        role = obj.notificable&.applied_jobs&.role
         {
           role: role.name,
           role_id: role.id,
           client: role.account.user_full_name,
           applied_job_id:  obj.notificable.applied_jobs.id
-        }
+        } if role.present?
       when "BxBlockScheduling::ScheduleInterview"
         notificable = obj.notificable
-        role = obj.notificable.job_description.role
+        role = obj.notificable&.job_description&.role
         {
           role: role.name,
           role_id: role.id,
@@ -50,7 +50,7 @@ module BxBlockNotifications
           second_slot: notificable.second_slot,
           third_slot: notificable.third_slot,
           updated_at: notificable.updated_at
-        }
+        } if role.present?
       end
     end
 
