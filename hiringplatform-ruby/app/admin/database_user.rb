@@ -66,7 +66,7 @@ ActiveAdmin.register BxBlockDatabase::TemporaryUserDatabase, as: "Database User"
       end
       row :current_position do |obj|
       	data = ""
-      	obj.position.each do |pos|
+      	obj.position&.each do |pos|
       		if pos['current'].present? && pos['current']
       			data = "#{pos['position']} in #{pos['company']}, #{pos['location']}"
       		end
@@ -75,7 +75,7 @@ ActiveAdmin.register BxBlockDatabase::TemporaryUserDatabase, as: "Database User"
       end
       row :previous_designation do |obj|
       	designations = []
-      	obj.position.each do |pos|
+      	obj.position&.each do |pos|
       		unless pos['current'].present? && pos['current']
       			designations << "#{pos['position']} in (#{pos['company']}, #{pos['location']}) "
       		end
