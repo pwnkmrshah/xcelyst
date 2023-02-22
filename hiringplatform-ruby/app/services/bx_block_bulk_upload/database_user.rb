@@ -47,6 +47,12 @@ module BxBlockBulkUpload
             courses = user_courses(data['course'])
             experience = exp.split if record.experience.present?
             experience_month = ( (experience.first.to_i * 12) || 0) +  (experience.third.to_i || 0) if experience.present?
+            cur_flag = true
+            data['experience'].map do |exp|
+              exp['current'] = cur_flag if exp['current']
+              cur_flag = false
+            end
+
             begin
               user_rec = record.update(full_name: data['fullName'], photo_url: data['photo'],
                 position: data['experience'], location: data['locations'], contacts: data['contacts'], social_url: data['social'],
@@ -145,9 +151,13 @@ module BxBlockBulkUpload
 
         experience = exp.split if exp.present?
         experience_month = ( (experience.first.to_i * 12) || 0) +  (experience.third.to_i || 0) if experience.present?
+        cur_flag = true
+        data['experience'].map do |exp|
+          exp['current'] = cur_flag if exp['current']
+          cur_flag = false
+        end
 
         begin
-
           user_rec = BxBlockDatabase::TemporaryUserDatabase.new(uid: data['id'], full_name: data['fullName'], photo_url: data['photo'],
             position: data['experience'], location: data['locations'], contacts: data['contacts'], social_url: data['social'],
             skills: data['skills'], name: data['fullName'], summary: data['summary'], title: nil, zipcode: nil, city: city, ready_to_move: false, experience: exp,
