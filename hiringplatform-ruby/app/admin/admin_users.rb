@@ -41,4 +41,22 @@ ActiveAdmin.register AdminUser do
     end
     f.actions
   end
+
+  controller do
+    def create
+      admin_user = AdminUser.new(admin_params)
+      if admin_user.save
+        admin_role_id = params[:admin_user][:admin_role_user_attributes][:admin_role_id]
+        admin_user.create_admin_role_user(admin_role_id: admin_role_id)
+        redirect_to admin_admin_users_path, message: 'Admin role created successfully.'
+      else
+        redirect_to new_admin_admin_user_path, error: 'Admin role not created.'
+      end
+    end
+
+    private
+    def admin_params
+       params.require(:admin_user).permit(:email, :password, :password_confirmation)
+    end
+  end
 end

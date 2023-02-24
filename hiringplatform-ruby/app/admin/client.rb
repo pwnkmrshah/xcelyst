@@ -1,5 +1,5 @@
 ActiveAdmin.register AccountBlock::Account, as: "Client" do
-	menu parent: "Platform Users", label: "Client"
+	menu parent: ["Platform Users",  "Client"], label: "Client", if: proc { current_admin_user.present? && current_admin_user.can_read_account_block_for_client?(current_admin_user) }
 	
 	permit_params :id, :email, :first_name, :last_name, :password, :password_confirmation, :current_city, :user_role, :reset_password_token, :activated
 

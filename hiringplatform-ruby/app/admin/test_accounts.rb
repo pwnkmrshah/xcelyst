@@ -1,5 +1,5 @@
 ActiveAdmin.register AccountBlock::Account, as: "Test Account" do
-    menu label: "Test Accounts"
+    menu label: "Test Accounts", if: proc { current_admin_user.present? && current_admin_user.can_read_account_block_for_test_account?(current_admin_user) }  
     actions :index, :show
 
     index do
