@@ -1,5 +1,6 @@
 docker-build:
   # Use the official docker image.
+  # triggering 
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   tags:
     - ssh
