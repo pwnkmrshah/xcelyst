@@ -31,13 +31,13 @@ ActiveAdmin.register AdminUser do
   form do |f|
     f.inputs do
       f.input :email
+      f.input :password
+      f.input :password_confirmation
       f.inputs 'Admin Role' do
         f.fields_for :admin_role_user, f.object.admin_role_user || BxBlockAdminRolePermission::AdminRoleUser.new do |r|
           r.input :admin_role, label: 'Role', as: :select, collection: BxBlockAdminRolePermission::AdminRole.all.map {|r| [r.name, r.id]}
         end
       end
-      f.input :password
-      f.input :password_confirmation
     end
     f.actions
   end

@@ -137,15 +137,22 @@ body.hide-datepicker #ui-datepicker-div{
 	display: none;
 }
 
-.module-container {
-  display: flex;
-  align-items: center;
+.admin-role-input{
+  margin-left: -20%;
 }
 
-.module-name {
-  width: 30%;
+.module-name{
+  margin-left: 5%;
 }
 
-.permission-container {
-  width: 70%;
+.permissions{
+	padding: 2%;
+  margin-left: 5%;
+}
+
+.submit-admin-role{
+	position: relative;
+  height: 40px;
+  width: max-content !important;
+  left: 40%;
 }

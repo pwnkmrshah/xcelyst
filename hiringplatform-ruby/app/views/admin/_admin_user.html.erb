@@ -1,0 +1,41 @@
+<% url = action_name == "new" ? admin_admin_users_path : admin_admin_user_path %>
+
+<div class="admin-user-form">
+  <%= form_with(model: @admin_user, url: url, local: true) do |form| %>
+
+    <fieldset class="inputs">
+      <ol>
+        <li class="email input required">
+          <%= form.label :email, "Email<abbr title='required'>*</abbr>".html_safe, class: "label" %>
+          <%= form.email_field :email, required: true %>
+        </li>
+        <li class="password input required">
+          <%= form.label :password, "Password<abbr title='required'>*</abbr>".html_safe, class: "label" %>
+          <%= form.password_field :password, required: true, maxlength: 128 %>
+        </li>
+
+        <li class="password input">
+          <%= form.label :password_confirmation, "Password confirmation", class: "label" %>
+          <%= form.password_field :password_confirmation, required: true %>
+        </li>
+        <li class="password input">
+          <%= form.fields_for :admin_role_user, @admin_user.admin_role_user || BxBlockAdminRolePermission::AdminRoleUser.new do |admin_role_user_form| %>
+            <%= admin_role_user_form.label :admin_role_id, "Role", class: "label" %>
+            <%= admin_role_user_form.collection_select :admin_role_id, BxBlockAdminRolePermission::AdminRole.all, :id, :name, { prompt: true }, { class: 'select2-hidden-accessible',  'data-select2-id': 'admin_user_admin_role_user_attributes_admin_role_id', tabindex: '-1', 'aria-hidden': 'true' } %>
+            <%= admin_role_user_form.hidden_field :id %>
+          <% end %>
+        </li>
+      </ol>
+    </fieldset>
+    <fieldset class="actions">
+      <ol>
+        <li class="action input_action ">
+          <%= form.submit 'Update Admin user', data: {'disable-with': "Update Admin user"} %>
+        </li>
+        <li class="cancel">
+          <%= link_to 'Cancel', admin_admin_users_path %>
+        </li>
+      </ol>
+    </fieldset>
+  <% end %>
+</div>

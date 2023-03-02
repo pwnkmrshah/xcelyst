@@ -5,6 +5,7 @@ ActiveAdmin.setup do |config|
   # for each of the active admin pages.
   #
   config.site_title = "Hiring Platform"
+  config.load_paths << "#{Rails.root}/app/admin/helpers"
 
   meta_tags_options = { viewport: "width=device-width, initial-scale=1" }
   config.meta_tags = meta_tags_options

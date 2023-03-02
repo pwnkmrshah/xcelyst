@@ -1,0 +1,32 @@
+<%  if action_name == "new"
+      url = admin_admin_roles_path
+      button_label = 'Create Role'
+    else
+      url = admin_admin_role_path
+      button_label = 'Update'
+    end
+ url = %>
+<%= form_with(model: @admin_role, url: url, local: true) do |form| %>
+  <h3><li class="input admin-role-input">
+    <%= form.label :name, class: 'label' do %>
+      Name<span class="mandatory">*</span>
+    <% end %>
+    <%= form.text_field :name, required: true %>
+  </li></h3>
+  <% module_names&.each do |module_name| %>
+    <% permissions = module_permissions(module_name) %>
+    <div class="module-name">
+     <b> <%= check_box_tag module_name, 'admin_permission_ids', nil, class: 'select-all-permission', data: {'module-name': module_name} %>
+      <%= label_tag module_name, module_name.humanize %> </b>
+      <div class="permissions">
+        <% permissions&.each do |permission| %>
+          <label class="block-label">
+            <%= form.check_box :admin_permission_ids, { multiple: true, data: { 'module-name': module_name } }, permission.id %>
+            <%= permission_name(permission) %>
+          </label><br>
+        <% end %><br>
+      </div>
+    </div>
+  <% end %>
+  <%= form.submit button_label, class: 'submit-admin-role'%>
+<% end %>

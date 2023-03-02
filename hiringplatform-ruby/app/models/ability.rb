@@ -24,7 +24,7 @@ class Ability
     if user.email == 'admin@xcelyst.com'
       can :manage, [ActiveAdmin::Page, BxBlockAdminRolePermission::AdminRole, AdminUser]
     else
-      can :manage, [ActiveAdmin::Page, BxBlockAdminRolePermission::AdminRole, AdminUser]
+      can :manage, [ActiveAdmin::Page]
     end
     user ||= User.new # guest user (not logged in)
 

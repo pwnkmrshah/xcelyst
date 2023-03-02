@@ -7,6 +7,7 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 AdminUser.create(email: 'admin@xcelyst.com', password: 'password', password_confirmation: 'password') if AdminUser.find_by_email('admin@xcelyst.com').blank?
+BxBlockAdminRolePermission::AdminRole.create(name: 'Super Admin')
 
 AccountBlock::UserResume.all.each do |resume|
     resume.account.update(document_id: resume.document_id)
@@ -63,3 +64,11 @@ BxBlockAdminRolePermission::AdminPermission.transaction do
   end  
 end
 
+# Create Super Admin Role and add this role to super admin
+super_admin = AdminUser.find_by(email: 'admin@xcelyst.com') 
+super_admin_role = BxBlockAdminRolePermission::AdminRole.find_by(name: 'Super Admin') 
+super_admin.create_admin_role_user(admin_role_id: super_admin_role.id) 
+all_permissions = BxBlockAdminRolePermission::AdminPermission.pluck(:id)
+all_permissions.each do |id|
+  super_admin_role.admin_role_permissions.create(admin_permission_id: id)
+end
