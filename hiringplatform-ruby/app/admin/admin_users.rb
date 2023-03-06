@@ -1,7 +1,6 @@
 ActiveAdmin.register AdminUser do
-  # menu label: "Admin User", priority: 3
-
-  permit_params :email, :password, :password_confirmation, :admin_role, :otp, admin_role_user_attributes: [:id, :admin_role_id]
+  menu label: "Admin User", priority: 3
+  permit_params :email, :password, :password_confirmation, :enable_2FA
 
   index do
     selectable_column
@@ -34,11 +33,7 @@ ActiveAdmin.register AdminUser do
       f.input :email
       f.input :password
       f.input :password_confirmation
-      f.inputs 'Admin Role' do
-        f.fields_for :admin_role_user, f.object.admin_role_user || BxBlockAdminRolePermission::AdminRoleUser.new do |r|
-          r.input :admin_role, label: 'Role', as: :select, collection: BxBlockAdminRolePermission::AdminRole.all.map {|r| [r.name, r.id]}
-        end
-      end
+      f.input :enable_2FA
     end
     f.actions
   end
