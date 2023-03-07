@@ -7,7 +7,7 @@ module BxBlockAdmin
     # created by akash deep
     # validate the admin email and password and send him a otp.
     def create
-      admin = AdminUser.find_by(email: params[:email])
+      admin = UserAdmin.find_by(email: params[:email])
       if admin && admin.valid_password?(params[:password])
         generate_pin_and_valid_date admin
         BxBlockAdmin::OtpVerificationMailer.with(admin: admin).request_otp.deliver_now
@@ -57,9 +57,9 @@ module BxBlockAdmin
     def admin_user
       validate_json_web_token
       if @token.admin_id.present?
-        @admin = AdminUser.find(@token.admin_id)
+        @admin = UserAdmin.find(@token.admin_id)
       elsif @token.auth_admin_id.present?
-        @admin = AdminUser.find(@token.auth_admin_id)
+        @admin = UserAdmin.find(@token.auth_admin_id)
       else
         return render json: { errors: [token: 'Invalid token'] }, status: :bad_request
       end

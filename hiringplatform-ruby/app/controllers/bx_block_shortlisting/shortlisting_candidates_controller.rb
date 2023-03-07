@@ -47,13 +47,13 @@ module BxBlockShortlisting
           chat = BxBlockWhatsapp::WhatsappChat.find_or_create_by(
 						user_id: user.id,
 						user_type: user.class.name,
-						admin_user_id: AdminUser.first.id
+						admin_user_id: UserAdmin.first.id
 					)
 					messages = BxBlockWhatsapp::WhatsappMessage.create(
 						whatsapp_chat_id: chat.id,
 						message: params[:message],
-						sender_type: "AdminUser",
-						sender_id: AdminUser.first.id,
+						sender_type: "UserAdmin",
+						sender_id: UserAdmin.first.id,
 						receiver_type: user.class.name,
 						receiver_id: user.id
 					)
@@ -99,13 +99,13 @@ module BxBlockShortlisting
           chat = BxBlockWhatsapp::WhatsappChat.find_or_create_by(
 						user_id: user.id,
 						user_type: user.class.name,
-						admin_user_id: AdminUser.first.id
+						admin_user_id: UserAdmin.first.id
 					)
 					messages = BxBlockWhatsapp::WhatsappMessage.create(
 						whatsapp_chat_id: chat.id,
 						message: params[:message],
-						sender_type: "AdminUser",
-						sender_id: AdminUser.first.id,
+						sender_type: "UserAdmin",
+						sender_id: UserAdmin.first.id,
 						receiver_type: user.class.name,
 						receiver_id: user.id
 					)

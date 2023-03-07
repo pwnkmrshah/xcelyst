@@ -7,7 +7,8 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 AdminUser.create(email: 'admin@xcelyst.com', password: 'password', password_confirmation: 'password') if AdminUser.find_by_email('admin@xcelyst.com').blank?
-BxBlockAdminRolePermission::AdminRole.create(name: 'Super Admin')
+UserAdmin.create(email: 'admin@xcelyst.com', password: 'password', password_confirmation: 'password') if UserAdmin.find_by_email('admin@xcelyst.com').blank?
+BxBlockAdminRolePermission::AdminRole.create(name: 'Super Admin') if BxBlockAdminRolePermission::AdminRole.find_by(name: 'Super Admin').blank?
 
 AccountBlock::UserResume.all.each do |resume|
     resume.account.update(document_id: resume.document_id)
@@ -35,14 +36,14 @@ end
 # Define the required permissions for each module
 module_permissions = {
   "rejected candidate" => ["browse"],
-  "database user" => ["browse", "upload", "delete"],
+  "database user" => ["browse", "upload_json_file", "import_json", "delete"],
   "ai macthing" => ["browse_ai_macthing"],
-  "candidate" => ["browse_candidate", "edit_candidate", "delete_candidate", "send_message", "download"],
+  "candidate" => ["browse_candidate", "edit_candidate", "delete_candidate", "bulk_send_messages_to_account", "download"],
   "client" => ["browse_client", "new_client", "edit_client", "delete_client"],
   "test accounts" => ["browse_test_account"],
   "job description" => ["browse"],
   "shortlist candidate" => ["browse_shortlist_candidate", "delete_shortlist_candidate"],
-  "temporary account" => ["browse", "permanent", "upload", "delete"]
+  "temporary account" => ["browse", "permanent", "upload_resume_file", "import_bulk_resume", "bulk_send_messages", "make_permanent_account", "delete"]
 }
 
 # Create permissions for each module if they do not exist
@@ -65,9 +66,9 @@ BxBlockAdminRolePermission::AdminPermission.transaction do
 end
 
 # Create Super Admin Role and add this role to super admin
-super_admin = AdminUser.find_by(email: 'admin@xcelyst.com') 
+super_admin = UserAdmin.find_by(email: 'admin@xcelyst.com') 
 super_admin_role = BxBlockAdminRolePermission::AdminRole.find_by(name: 'Super Admin') 
-super_admin.create_admin_role_user(admin_role_id: super_admin_role.id) 
+super_admin.create_admin_role_user(admin_role_id: super_admin_role.id) unless super_admin.admin_role_user.present?
 all_permissions = BxBlockAdminRolePermission::AdminPermission.pluck(:id)
 all_permissions.each do |id|
   super_admin_role.admin_role_permissions.create(admin_permission_id: id)

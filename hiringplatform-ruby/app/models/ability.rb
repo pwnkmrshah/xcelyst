@@ -14,6 +14,13 @@ class Ability
     'edit' => [:update],
     'edit_candidate' => [:update],
     'edit_client' => [:update],
+    'upload_resume_file' => [:upload_resume_file],
+    'upload_json_file' => [:upload_json_file],
+    'make_permanent_account' => [:make_permanent_account],
+    'bulk_send_messages' => [:bulk_send_messages],
+    'import_bulk_resume' => [:import_bulk_resume],
+    'import_json' => [:import_json],
+    'bulk_send_messages_to_account' => [:bulk_send_messages_to_account],
     'delete' => [:destroy],
     'delete_candidate' => [:destroy],
     'delete_client' => [:destroy],
@@ -22,7 +29,7 @@ class Ability
 
   def initialize(user)
     if user.email == 'admin@xcelyst.com'
-      can :manage, [ActiveAdmin::Page, BxBlockAdminRolePermission::AdminRole, AdminUser]
+      can :manage, [ActiveAdmin::Page, BxBlockAdminRolePermission::AdminRole, UserAdmin]
     else
       can :manage, [ActiveAdmin::Page]
     end
@@ -73,7 +80,7 @@ class Ability
       when 'shortlisted candidate' then BxBlockShortlisting::ShortlistingCandidate
       when 'social media links'    then BxBlockContentManagement::SocialMediaLink
       when 'sub category'          then BxBlockDomainSubCategory::DomainSubCategory
-      when 'temporary account'     then BxBlockDatabase::TemporaryUserDatabase
+      when 'temporary account'     then AccountBlock::TemporaryAccount
       when 'terms & condition'     then BxBlockInformation::TermCondition
       when 'account block'         then AccountBlock::Account
     else nil

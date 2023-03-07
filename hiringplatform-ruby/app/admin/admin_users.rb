@@ -1,6 +1,7 @@
 ActiveAdmin.register AdminUser do
-  menu label: "Admin User", priority: 3
-  permit_params :email, :password, :password_confirmation, admin_role_user_attributes: [:id, :admin_role_id, :_destroy]
+  # menu label: "Admin User", priority: 3
+
+  permit_params :email, :password, :password_confirmation, :admin_role, :otp, admin_role_user_attributes: [:id, :admin_role_id]
 
   index do
     selectable_column

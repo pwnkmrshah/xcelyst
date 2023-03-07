@@ -18,6 +18,7 @@
           <%= form.label :password_confirmation, "Password confirmation", class: "label" %>
           <%= form.password_field :password_confirmation, required: true %>
         </li>
+<<<<<<< HEAD
         <li class="password input">
           <%= form.fields_for :admin_role_user, @admin_user.admin_role_user || BxBlockAdminRolePermission::AdminRoleUser.new do |admin_role_user_form| %>
             <%= admin_role_user_form.label :admin_role_id, "Role", class: "label" %>
@@ -25,6 +26,8 @@
             <%= admin_role_user_form.hidden_field :id %>
           <% end %>
         </li>
+=======
+>>>>>>> 806c6664 (add new admin module)
       </ol>
     </fieldset>
     <fieldset class="actions">
