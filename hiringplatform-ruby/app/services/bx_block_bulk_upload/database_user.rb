@@ -36,6 +36,7 @@ module BxBlockBulkUpload
           record = BxBlockDatabase::TemporaryUserDatabase.find_by(uid: data['id'])
           puts record&.id
           if record.present?
+            begin
             exp = calculate_experience(data['experience'], data['experienceYears']) # calculate the overall experience
             # exp_month = experience_month(exp) # calculate the overall experience into months.
             education = user_degree(data['education'])
@@ -53,7 +54,6 @@ module BxBlockBulkUpload
               cur_flag = false
             end
 
-            begin
               user_rec = record.update(full_name: data['fullName'], photo_url: data['photo'],
                 position: data['experience'], location: data['locations'], contacts: data['contacts'], social_url: data['social'],
                 skills: data['skills'], name: data['fullName'], summary: data['summary'], title: nil, zipcode: nil, city: city, ready_to_move: false, experience: exp,
@@ -82,14 +82,14 @@ module BxBlockBulkUpload
         s3.delete_object(bucket: ENV["AWS_BUCKET"], key: file)
         # File.delete(file_path)
 
-        return OpenStruct.new(count: @count, uid_arr: @uid_arr, errors: @errors)
+        return OpenStruct.new(count: @count, uid_arr: @uid_arr, errors: @errors, file: file)
         
       end
 
       private
       def user_courses(courses)
         return if courses.blank?
-        courses.map{ |course| course['name'] }
+        courses&.map{ |course| course.present? && course['name'] }
       end
 
       def user_projects(projects)
@@ -139,25 +139,25 @@ module BxBlockBulkUpload
       # created by akash deep
       # create record into the db.
       def create_temp_user_db_record data
-        exp = calculate_experience(data['experience'], data['experienceYears']) # calculate the overall experience
-        # exp_month = experience_month(exp)
-        education = user_degree(data['education'])
-        city = user_city(data['locations'], data['experience'])
-        company = user_current_company(data['experience'])
-        prev_work = user_prev_exp(data['experience'])
-        certificates = user_certification(data['certification'])
-        projects = user_projects(data['project'])
-        courses = user_courses(data['course'])
-
-        experience = exp.split if exp.present?
-        experience_month = ( (experience.first.to_i * 12) || 0) +  (experience.third.to_i || 0) if experience.present?
-        cur_flag = true
-        data['experience'].map do |exp|
-          exp['current'] = cur_flag if exp['current']
-          cur_flag = false
-        end
-
         begin
+          exp = calculate_experience(data['experience'], data['experienceYears']) # calculate the overall experience
+          # exp_month = experience_month(exp)
+          education = user_degree(data['education'])
+          city = user_city(data['locations'], data['experience'])
+          company = user_current_company(data['experience'])
+          prev_work = user_prev_exp(data['experience'])
+          certificates = user_certification(data['certification'])
+          projects = user_projects(data['project'])
+          courses = user_courses(data['course']) if data['course'].present?
+
+          experience = exp.split if exp.present?
+          experience_month = ( (experience.first.to_i * 12) || 0) +  (experience.third.to_i || 0) if experience.present?
+          cur_flag = true
+          data['experience'].map do |exp|
+            exp['current'] = cur_flag if exp['current']
+            cur_flag = false
+          end
+
           user_rec = BxBlockDatabase::TemporaryUserDatabase.new(uid: data['id'], full_name: data['fullName'], photo_url: data['photo'],
             position: data['experience'], location: data['locations'], contacts: data['contacts'], social_url: data['social'],
             skills: data['skills'], name: data['fullName'], summary: data['summary'], title: nil, zipcode: nil, city: city, ready_to_move: false, experience: exp,
