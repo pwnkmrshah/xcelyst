@@ -10,6 +10,10 @@ module BxBlockBulkUpload
         file_data.each do |file|
           if file.content_type.include?("application/pdf")
             process_resume_parsing file
+          elsif file.content_type.include?("application/docx")
+            process_resume_parsing file
+          elsif file.content_type.include?("application/doc")
+            process_resume_parsing file
           elsif file.content_type.include?("text/plain")
             x = BxBlockBulkUpload::DatabaseUser.save_database_user(file)
             return OpenStruct.new(count: x.count)
