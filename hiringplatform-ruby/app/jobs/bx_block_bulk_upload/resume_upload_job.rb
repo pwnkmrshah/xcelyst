@@ -9,7 +9,7 @@ module BxBlockBulkUpload
         ext = name.split('.').last
         # path = Rails.root.join("public/uploads/#{name}")
         # if File.exists?(path)
-          if ext == "pdf"
+          if (ext == "pdf" || ext == "docx" || ext == "doc")
             begin
               BxBlockBulkUpload::ResumeUpload.process_resume_parsing(name)
               @count += 1
@@ -36,7 +36,7 @@ module BxBlockBulkUpload
         subject = "File now uplaoded some erros occured"
         body = "Please check the log file of the uploaded resumes"
       end
-      BxBlockAdmin::LogFileSendMailer.send_file(subject, body, logs_file).deliver_now
+      BxBlockAdmin::LogFileSendMailer.send_file(subject, body, logs_file, 'logs.txt').deliver_now
     end
   end
 end
