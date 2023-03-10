@@ -125,7 +125,8 @@ module BxBlockBulkUpload
             last_name = name[1] if name.present?
             
             record = AccountBlock::TemporaryAccount.create(first_name: first_name, last_name: last_name, email: email, phone_no: @ph_no)      # ( for normal process  )
-
+            temp_email = "#{first_name}#{last_name}#{record.id}@yopmail.com".downcase
+            record.update(email: temp_email) unless @ph_no.present? || email.present?
             create_parsed_json_file respObj, record
 
             # AccountBlock::TempAccount.create(temporary_account_id: record.id, parsed_resume: respObj)
