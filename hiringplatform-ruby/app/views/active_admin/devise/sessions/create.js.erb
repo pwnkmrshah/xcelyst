@@ -1,6 +1,6 @@
 <% if (@is_valid && @is_required_2fa == false) || (@is_valid && @otp_valid == true && @is_required_2fa == true)%>
   window.location.href = "/admin";
-<% elsif @is_valid && @is_required_2fa && params[:admin_user][:otp].blank? %>
+<% elsif @is_valid && @is_required_2fa && params[:user_admin][:otp].blank? && session[:user_admin].present? %>
   $("#admin_user_login_form").hide();
   $("#admin_user_login_form_2fa").html("<%= escape_javascript(render partial: 'active_admin/devise/sessions/enable_2fa', locals: { admin_user: @admin_user } ) %>");
 <% elsif @is_valid && @is_required_2fa && @otp_valid == false %>

@@ -35,7 +35,7 @@ ActiveAdmin.register UserAdmin do
       f.input :password
       f.input :password_confirmation
       f.input :admin_role, label: 'Role', as: :select, collection: BxBlockAdminRolePermission::AdminRole.all.map {|r| [r.name, r.id]}
-      f.input :otp, as: :boolean
+      f.input :enable_2FA, as: :boolean
     end
     f.actions
   end
@@ -72,7 +72,7 @@ ActiveAdmin.register UserAdmin do
     private
 
 def admin_params
-  params.require(:user_admin).permit(:email, :password, :password_confirmation, admin_role_user_attributes: [:id, :admin_role_id])
+  params.require(:user_admin).permit(:email, :password, :password_confirmation, :enable_2FA, admin_role_user_attributes: [:id, :admin_role_id])
 end
 
   end

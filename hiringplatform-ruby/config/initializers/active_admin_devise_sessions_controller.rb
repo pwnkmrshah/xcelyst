@@ -5,18 +5,18 @@ class ActiveAdmin::Devise::SessionsController
     @otp_valid = false
     @is_valid = false
     @is_required_2fa = false
-    @admin_user = AdminUser.find_by_email(params[:admin_user][:email].presence || session[:admin_user][:email])
-    if @admin_user.present? && @admin_user.valid_password?(params[:admin_user][:password].presence || session[:admin_user][:password])
+    @admin_user = UserAdmin.find_by_email(params[:user_admin][:email].presence || session[:user_admin][:email])
+    if @admin_user.present? && @admin_user.valid_password?(params[:user_admin][:password].presence || session[:user_admin][:password])
       @is_valid = true
       if @admin_user.enable_2FA
         @is_required_2fa = true
-        if params[:admin_user][:otp].blank?
+        if params[:user_admin][:otp].blank? && session[:user_admin].blank?
           Admin::UserMailer.two_factor_authentication(@admin_user).deliver 
-          session[:admin_user] = {}
-          session[:admin_user][:email] = params[:admin_user][:email]
-          session[:admin_user][:password] = params[:admin_user][:password]
+          session[:user_admin] = {}
+          session[:user_admin][:email] = params[:user_admin][:email].presence || session[:user_admin][:email]
+          session[:user_admin][:password] = params[:user_admin][:password].presence || session[:user_admin][:password]
         end  
-        if params[:admin_user][:otp].present? && params[:admin_user][:otp] == @admin_user.otp.to_s
+        if params[:user_admin][:otp].present? && params[:user_admin][:otp] == @admin_user.otp.to_s
           @otp_valid = true
           login
         end
@@ -34,8 +34,8 @@ class ActiveAdmin::Devise::SessionsController
 
   def login
     set_flash_message(:notice, :signed_in)
-    sign_in(:admin_user, @admin_user)
+    sign_in(:user_admin, @admin_user)
     @admin_user.update(otp: nil)
-    session[:admin_user] = {}
+    session[:user_admin] = {}
   end
 end
