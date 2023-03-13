@@ -123,10 +123,15 @@ module BxBlockBulkUpload
             name = full_name.split if full_name.present?
             first_name = name[0] if name.present?
             last_name = name[1] if name.present?
-            
-            record = AccountBlock::TemporaryAccount.create(first_name: first_name, last_name: last_name, email: email, phone_no: @ph_no)      # ( for normal process  )
-            temp_email = "#{first_name}#{last_name}#{record.id}@yopmail.com".downcase
-            record.update(email: temp_email) unless @ph_no.present? || email.present?
+
+            if email.present? || @ph_no.present?
+              record = AccountBlock::TemporaryAccount.create(first_name: first_name, last_name: last_name, email: email, phone_no: @ph_no)      # ( for normal process  )
+            else
+              temp_email = "#{full_name}@yopmail.com".downcase
+              temp_email = temp_email.gsub(' ','')
+              record = AccountBlock::TemporaryAccount.find_or_create_by(first_name: first_name, last_name: last_name, email: temp_email, phone_no: nil)
+            end
+
             create_parsed_json_file respObj, record
 
             # AccountBlock::TempAccount.create(temporary_account_id: record.id, parsed_resume: respObj)
