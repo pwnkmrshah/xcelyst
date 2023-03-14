@@ -90,12 +90,12 @@ module BxBlockBulkUpload
               @ph_no = respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Phones'][0].strip
             end
           end
-
+          uniq_string = SecureRandom.hex(2)
           email_ac = AccountBlock::TemporaryAccount.find_by(email: email) if email.present?
           phone_ac = AccountBlock::TemporaryAccount.find_by(phone_no: @ph_no) if @ph_no.present?
           if email_ac.present?
 
-            email_ac.update(document_id: email_ac.id)  # ( for normal process  )
+            email_ac.update(document_id: uniq_string)  # ( for normal process  )
 
             create_parsed_json_file respObj, email_ac
 
@@ -107,7 +107,7 @@ module BxBlockBulkUpload
 
           elsif phone_ac.present?
             
-            phone_ac.update(document_id: phone_ac.id)  # ( for normal process  )
+            phone_ac.update(document_id: uniq_string)  # ( for normal process  )
 
             create_parsed_json_file respObj, phone_ac
 
@@ -123,8 +123,15 @@ module BxBlockBulkUpload
             name = full_name.split if full_name.present?
             first_name = name[0] if name.present?
             last_name = name[1] if name.present?
-            
-            record = AccountBlock::TemporaryAccount.create(first_name: first_name, last_name: last_name, email: email, phone_no: @ph_no)      # ( for normal process  )
+
+            if email.present? || @ph_no.present?
+              record = AccountBlock::TemporaryAccount.create(first_name: first_name, last_name: last_name, email: email, phone_no: @ph_no)      # ( for normal process  )
+            else
+              
+              temp_email = "#{full_name}#{uniq_string}@yopmail.com".downcase
+              temp_email = temp_email.gsub(' ','')
+              record = AccountBlock::TemporaryAccount.create(first_name: first_name, last_name: last_name, email: temp_email, phone_no: nil)
+            end
 
             create_parsed_json_file respObj, record
 
@@ -134,7 +141,7 @@ module BxBlockBulkUpload
 
             if record.present?
               attach_resume_file record, file, resp   # ( for background job process )
-              update_document_id = record.update(document_id: record.id)
+              update_document_id = record.update(document_id: uniq_string)
             end
 
           end  
