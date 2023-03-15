@@ -138,7 +138,15 @@ module BxBlockSovren
               end
             end
             
+            if jd['MinimumYears'].blank?
+              return OpenStruct.new(success?: false, errors: "Sovren do not return MinimumYears")
+            end
+
             exp = BxBlockPreferredOverallExperiences::PreferredOverallExperiences.find_by! minimum_experience: jd['MinimumYears']['Value']
+
+            if exp.blank?
+              return OpenStruct.new(success?: false, errors: "Minimum Experience is not mapped to our records")
+            end
 
             job_des = BxBlockJobDescription::JobDescription.create!(preferred_overall_experience_id: exp.id, parsed_jd: data['Value'], jd_type: 'automatic', 
               parsed_jd_transaction_id: data['Info']['TransactionId'], role_id: role.id, job_title: jd['JobTitles'].present? ? jd['JobTitles']['MainJobTitle'] : nil,
