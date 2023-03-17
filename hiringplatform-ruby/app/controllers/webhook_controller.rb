@@ -31,15 +31,15 @@ class WebhookController < ApplicationController
 					chat = BxBlockWhatsapp::WhatsappChat.find_or_create_by(
 						user_id: user.id,
 						user_type: user.class.name,
-						admin_user_id: AdminUser.first.id
+						admin_user_id: UserAdmin.first.id
 					)
 					messages = BxBlockWhatsapp::WhatsappMessage.create(
 						whatsapp_chat_id: chat.id,
 						message: message["text"]["body"],
 						sender_type: user.class.name,
 						sender_id: user.id,
-						receiver_type: "AdminUser",
-						receiver_id: AdminUser.first.id
+						receiver_type: "UserAdmin",
+						receiver_id: UserAdmin.first.id
 					)
 					if chat.whatsapp_messages.count == 1
 						ActionCable.server.broadcast("whatsapp_new_chat", BxBlockAdmin::WhatsappChatSerializer.new(chat))
