@@ -1,5 +1,5 @@
 ActiveAdmin.register BxBlockManager::Manager, as: "Manager" do
-  menu label: "Manager"
+  menu parent: ["Platform Users",  "Client"], label: "Hiring Manager"
   permit_params :name, :email, :account_id
 
   index do

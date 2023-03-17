@@ -136,3 +136,23 @@ body.hide-datepicker #ui-datepicker-div{
 .admin_test_score_and_courses #title_bar{
 	display: none;
 }
+
+.admin-role-input{
+  margin-left: -20%;
+}
+
+.module-name{
+  margin-left: 5%;
+}
+
+.permissions{
+	padding: 2%;
+  margin-left: 5%;
+}
+
+.submit-admin-role{
+	position: relative;
+  height: 40px;
+  width: max-content !important;
+  left: 40%;
+}

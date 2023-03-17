@@ -1,0 +1,21 @@
+<!-- admin_role_show.html.erb -->
+<% admin_role = admin_role(params[:id]) %>
+<% admin_permissions = admin_role.admin_permissions %>
+<div class="show-page-container">
+  <h3>Role: <%= admin_role&.name %></h3>
+
+  <% module_names.each do |module_name| %>
+    <% permissions = module_permissions(module_name) %>
+    <div class="module-name">
+     <b> <%= label_tag module_name, module_name.humanize %> </b>
+      <div class="permissions">
+        <% permissions.each do |permission| %>
+          <label class="block-label">
+            <%= check_box_tag "admin_role[admin_permission_ids][]", permission.id, admin_permissions.include?(permission), { multiple: true, data: { 'module-name': module_name } } %>
+            <%= permission_name(permission) %>
+          </label><br>
+        <% end %><br>
+      </div>
+    </div>
+  <% end %>
+</div>
