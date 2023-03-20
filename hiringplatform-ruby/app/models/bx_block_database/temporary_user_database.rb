@@ -252,49 +252,91 @@ module BxBlockDatabase
 		# created by punit parmar
 		# to show the auto suggestion while user start typing on the screen.
 		def self.auto_suggection(query)
-			s = self.__elasticsearch__.search({
-							"_source": [],
-							"size": 0,
-							"query": {
-								"nested": {
-									"path": "position",
-									"query": {
-										"bool": {
-											"must": [
-												{
-													"wildcard": {
-														"position.#{query[:key]}": {
-															"value": "#{query[:value]}*" 
-													}
-													}
-												}
-											]
-										}
-									}
-								}
-							},
-						
-						"aggs": {
-								"positions": {
-									"nested": {
-										"path": "position"
-									},
-									"aggs": {
-										"auto_complete": {
-											"terms": {
-												"field": "position.#{query[:key]}.keyword",
-												"order": {
-														"_count": "desc"
-													},
-												"size": 10
-						
-											}
-										}
-									}
-								}
-							}
-					}).response["aggregations"]["positions"]["auto_complete"]["buckets"]&.map{ |s| s["key"] }
+			if query[:key] == "location"
+			    s = {
+			      from: 0,
+			      size: 10,
+			      track_total_hits: true,
+			      query: {
+			        bool: {
+			          filter: []
+			        }
+			      },
+			      _source: ["location"]
+			    }
+
+			    if query[:value].present?
+					location = query[:value].split(' or ')
+					qry = location.map do |word|
+						{
+						  match_phrase_prefix: {
+						    location: {
+								query: word
+						    }
+						  }
+						}
+					end
+					s[:query][:bool][:filter] << {
+			        	bool: {
+			          		should: qry
+			        	}
+			      	}
+			    end
+
+			    response = __elasticsearch__.search(s)
+			    locations = response.response.dig("hits", "hits")&.map { |hit| hit["_source"]["location"]&.dig(0) }.uniq
+
+			    locations&.flatten&.sort_by do |location|
+					[location.split(", ").size, location.downcase.include?("united kingdom") ? 0 : 1]
+				end
+			else
+				s = {
+				  from: 0,
+				  size: 10,
+				  track_total_hits: true,
+				  query: {
+				    nested: {
+				      path: "position",
+				      query: {
+				        bool: {
+				          filter: []
+				        }
+				      }
+				    }
+				  },
+				  _source: []
+				}
+
+				if query[:value].present?
+				  data = query[:value].split(' or ')
+				  qry = data.map do |word|
+				    {
+				      match_phrase_prefix: {
+				        "position.#{query[:key]}": {
+				          query: word
+				        }
+				      }
+				    }
+				  end
+				  s[:query][:nested][:query][:bool][:filter] = qry
+				else
+				  # Add a match_all query to retrieve all records
+				  s[:query][:nested][:query][:bool][:filter] = [{ match_all: {} }]
+				end
+
+				response = __elasticsearch__.search(s)
+
+				hits = response.response.dig("hits", "hits")
+				matching_companies = hits.map { |hit| hit.dig("_source", "position") }.flatten.map { |p| p["#{query[:key]}"] }.uniq
+				if data.present?
+					qry_response = data&.map do |string|
+					  matching_companies.select { |str| str&.match?(/#{Regexp.escape(string)}/i) }
+					end
+					qry_response&.flatten
+				else
+					matching_companies&.flatten
+				end
+			end
 		end
-    
 	end
 end
