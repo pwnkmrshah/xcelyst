@@ -150,7 +150,7 @@ module BxBlockSovren
     end
 
     def jd_params
-      params.permit(:position, :name, :jd_file, managers: [])
+      params.permit(:position, :name, :jd_file, :identifier, managers: [])
     end
 
     
