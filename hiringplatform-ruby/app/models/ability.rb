@@ -3,7 +3,7 @@ class Ability
 
   PERMISSIONS = {
     'browse' => [:read],
-    'browse_ai_macthing' => [:read],
+    'browse_ai_matching' => [:read],
     'browse_candidate' => [:read],
     'browse_client' => [:read],
     'browse_test_account' => [:read],
@@ -29,7 +29,7 @@ class Ability
 
   def initialize(user)
     if user.email == 'admin@xcelyst.com'
-      can :manage, [ActiveAdmin::Page, BxBlockAdminRolePermission::AdminRole, UserAdmin]
+      can :manage, [ActiveAdmin::Page, BxBlockAdminRolePermission::AdminRole, UserAdmin, BxBlockCfzoomintegration3::ZoomMeeting, BxBlockCfzoomintegration3::Zoom]
     else
       can :manage, [ActiveAdmin::Page]
     end
@@ -38,7 +38,7 @@ class Ability
     return unless user.admin_role.present?
 
     user.admin_role.admin_permissions.each do |permission|
-      account_block = ["ai macthing", "candidate", "client", "test accounts", "shortlist candidate"].include? permission.module_name.downcase
+      account_block = ["ai matching", "candidate", "client", "test accounts", "shortlist candidate"].include? permission.module_name.downcase
       if account_block
         module_name = 'account block'
       else
