@@ -1,5 +1,5 @@
 ActiveAdmin.register BxBlockManager::Interviewer, as: "Interviewer" do
-	menu parent: "Platform Users", label: "Interviewer"
+    menu parent: ["Platform Users",  "Client"], label: "Interviewer"
     permit_params :name, :email, :client_id
   
     index do

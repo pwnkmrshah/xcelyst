@@ -22,7 +22,7 @@ module BxBlockRolesPermissions
           return render json: { error: "Only client admin can do this action." }, status: :unprocessable_entity
         end
       elsif @token.admin_id.present?
-        @admin = AdminUser.find_by(id: @token.admin_id)
+        @admin = UserAdmin.find_by(id: @token.admin_id)
         unless @admin.present?
           return render json: { error: 'Invalid Admin User.' }, status: :unprocessable_entity
         end

@@ -1,6 +1,5 @@
 ActiveAdmin.register AccountBlock::Account, as: "Shortlist Candidate" do
-  menu label: "Shortlist Candidate"
-
+  menu label: "Shortlist Candidate", if: proc { current_user_admin.present? && current_user_admin.can_read_account_block_for_shortlist_candidate?(current_user_admin) }  
   permit_params :client_id, :job_description_id
   actions :index
 

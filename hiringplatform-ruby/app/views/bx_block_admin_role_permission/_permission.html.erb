@@ -1,0 +1,9 @@
+<%#byebug%>
+<%#= hidden_field_tag :role, role.id %>
+
+
+<% #module_name = BxBlockAdminRolePermission::AdminPermission.pluck(:module_name)&.uniq %>
+
+  <% permissions = BxBlockAdminRolePermission::AdminPermission.all.pluck(:name)&.uniq %>
+
+  <%= form.input :permission_id, as: :check_boxes, collection:     permissions %>

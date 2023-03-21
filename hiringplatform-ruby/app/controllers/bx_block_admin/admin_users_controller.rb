@@ -33,7 +33,7 @@ module BxBlockAdmin
                 message = BxBlockWhatsapp::WhatsappMessage.create(
                     whatsapp_chat_id: chat.id,
                     message: params[:message],
-                    sender_type: "AdminUser",
+                    sender_type: "UserAdmin",
                     sender_id: current_user.id,
                     receiver_type: user.class.name,
                     receiver_id: user.id
@@ -77,7 +77,7 @@ module BxBlockAdmin
             def current_user
                 token = request.headers[:token] || params[:token]
                 @token = BuilderJsonWebToken::JsonWebToken.decode(token)
-                AdminUser.find(@token.admin_id)
+                UserAdmin.find(@token.admin_id)
             end
       
     end
