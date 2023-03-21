@@ -37,7 +37,7 @@ end
 module_permissions = {
   "rejected candidate" => ["browse"],
   "database user" => ["browse", "upload_json_file", "import_json", "delete"],
-  "ai macthing" => ["browse_ai_macthing"],
+  "ai matching" => ["browse_ai_matching"],
   "candidate" => ["browse_candidate", "edit_candidate", "delete_candidate", "bulk_send_messages_to_account", "download"],
   "client" => ["browse_client", "new_client", "edit_client", "delete_client"],
   "test accounts" => ["browse_test_account"],
