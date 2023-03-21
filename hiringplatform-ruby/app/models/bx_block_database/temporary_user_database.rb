@@ -212,15 +212,56 @@ module BxBlockDatabase
 				end
 			end
 			if query[:keywords].present?
-				opertor = query[:keywords].scan(/['"’]/).present? ? 'and' : 'or'
-				s[:query][:bool][:filter] << {
-						"multi_match": {
-						"query": "#{query[:keywords]}",
-						"fields": ["*"],
-						"operator": opertor
-						}
-					}
+				keyword = format_keyword(query[:keywords])
+				keywords_or_qry = keyword[:or_qry]
+				keywords_and_qry = keyword[:and_qry]
+				keywords_not_qry = keyword[:not_qry]
+				or_qry = keywords_or_qry.map do |word|
+					{
+			          "multi_match": {
+			            "query": word,
+			            "fields": ["*"],
+			            "operator": "and",
+			            "type": "phrase"
+			          }
+			        }
+				end if keywords_or_qry.present?
+
+				and_qry = keywords_and_qry.map do |word|
+					{
+			          "multi_match": {
+			            "query": word,
+			            "fields": ["*"],
+			            "operator": "and",
+			            "type": "phrase"
+			          }
+			        }
+				end if keywords_and_qry.present?
+
+				not_qry = keywords_not_qry.map do |word|
+					{
+			          "multi_match": {
+			            "query": word,
+			            "fields": ["*"],
+			            "operator": "and",
+			            "type": "phrase"
+			          }
+			        } 
+				end if keywords_not_qry.present?
+				s[:query][:bool][:filter] ||= []
+				s[:query][:bool][:filter] << or_qry if or_qry&.any?
+				s[:query][:bool][:filter] << and_qry if and_qry&.any?
+				s[:query][:bool][:filter].flatten!
+
+				if not_qry.present?
+					not_qry.each do |qry|
+						s[:query][:bool][:must_not] ||= []
+						s[:query][:bool][:must_not] << not_qry
+					end
+					s[:query][:bool][:must_not].flatten!
+				end
 			end
+
 			if query[:experience].present?
 				start = (query[:experience][:started] || 0) * 12
 				ended = (query[:experience][:ended] || 99) * 12
@@ -249,13 +290,55 @@ module BxBlockDatabase
 			self.__elasticsearch__.search(s)
 		end
 
+		def self.format_keyword(arr)
+			arr = split_keywords(arr)
+			or_qry = []
+			and_qry = []
+			not_qry = []
+
+			index = 0
+			while index < arr.length
+				if arr[index] == "or"
+					or_qry << arr[index-1] if index > 0 && arr[index-1] != "and"
+					or_qry << arr[index+1] if index < arr.length - 1 && arr[index+1] != "and"
+				elsif arr[index] == "and"
+					and_qry << arr[index-1] if index > 0 && arr[index-1] != "or"
+					and_qry << arr[index+1] if index < arr.length - 1 && arr[index+1] != "or"
+				elsif arr[index] == "not"
+					not_qry << arr[index+1]
+				else
+					or_qry << arr[index]
+				end
+				index += 1
+			end
+			or1 = or_qry - not_qry
+			and1 = and_qry - or_qry
+			{ or_qry: or1, and_qry: and1, not_qry: not_qry  }
+		end
+
+		def self.split_keywords(arr)
+			arr = arr.split
+			indices = arr.each_index.select { |i| arr[i].include?("\"") }
+			pairs = indices.each_slice(2).to_a
+
+			result = []
+			start_index = 0
+			pairs.each do |pair|
+				end_index = pair[0]
+				result.concat(arr[start_index..(end_index-1)])
+				result << arr[pair[0]..pair[1]].join(' ').delete_prefix('"').delete_suffix('"')
+				start_index = pair[1]+1 if pair[1].present?
+			end
+			result.concat(arr[start_index..])
+		end
+		
 		# created by punit parmar
 		# to show the auto suggestion while user start typing on the screen.
 		def self.auto_suggection(query)
 			if query[:key] == "location"
 			    s = {
 			      from: 0,
-			      size: 10,
+			      size: 1000,
 			      track_total_hits: true,
 			      query: {
 			        bool: {
@@ -285,9 +368,10 @@ module BxBlockDatabase
 
 			    response = __elasticsearch__.search(s)
 			    locations = response.response.dig("hits", "hits")&.map { |hit| hit["_source"]["location"]&.dig(0) }.uniq
-
-			    locations&.flatten&.sort_by do |location|
-					[location.split(", ").size, location.downcase.include?("united kingdom") ? 0 : 1]
+			    if locations.present?
+				    locations&.flatten&.sort_by do |location|
+				    	[location.split(", ").size, (location.downcase.include?("united")) ? 0 : 1]
+					end[0..9]
 				end
 			else
 				s = {
