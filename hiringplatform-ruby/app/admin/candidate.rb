@@ -1,5 +1,5 @@
 ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
-    menu parent: "Platform Users", label: "Candidate"
+    menu parent: "Platform Users", label: "Candidate", if: proc { current_user_admin.present? && current_user_admin.can_read_account_block_for_candidate?(current_user_admin) }
 
     permit_params :id, :email, :first_name, :last_name, :current_city, :phone_number#, :password, :password_confirmation, :user_role, :reset_password_token
     

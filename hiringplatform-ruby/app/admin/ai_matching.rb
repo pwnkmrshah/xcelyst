@@ -1,5 +1,5 @@
 ActiveAdmin.register AccountBlock::Account, as: "AI Macthing" do
-  menu label: "AI Macthing", priority: 6
+  menu label: "AI Macthing", priority: 6, if: proc { current_user_admin.present? && current_user_admin.can_read_account_block_for_ai_matching?(current_user_admin) }
   config.paginate = false
   config.filters = false
 

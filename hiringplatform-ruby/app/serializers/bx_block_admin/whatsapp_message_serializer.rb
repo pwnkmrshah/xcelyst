@@ -6,7 +6,7 @@ module BxBlockAdmin
   end
 
   attributes :type do |obj|
-    if obj.sender.class.name == "AdminUser"
+    if obj.sender.class.name == "UserAdmin"
       "send"
     else
       "receiver"

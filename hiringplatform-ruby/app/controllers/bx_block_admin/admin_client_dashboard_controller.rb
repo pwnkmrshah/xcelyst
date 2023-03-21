@@ -31,7 +31,7 @@ module BxBlockAdmin
         def admin_user
             token = request.headers[:token] || params[:token]
             @token = BuilderJsonWebToken::JsonWebToken.decode(token)
-            @admin = AdminUser.find(@token.admin_id)
+            @admin = UserAdmin.find(@token.admin_id)
             unless @admin.present?
                 return render json: { message: "Only Admin is authorize for this request." }
             end

@@ -15,6 +15,46 @@ if (!localStorage.jd_id) {
 }
 $(document).ready(function() {
 
+	$('.submit-admin-role').on('click', function(e) {
+		if ($('#bx_block_admin_role_permission_admin_role_name').val().trim() === '') {
+			e.preventDefault();
+			alert('Name is required.')
+			return false;
+		}
+	});
+
+	$('.select-all-permission').click(function() {
+	  // Get the module name
+	  var moduleName = $(this).data('module-name');
+
+	  // Check or uncheck all permission check boxes for that module
+	  $('input[name="bx_block_admin_role_permission_admin_role[admin_permission_ids][]"][data-module-name="' + moduleName + '"]').prop('checked', $(this).prop('checked'));
+
+	  // Check if any permission checkbox for that module is unchecked
+	  if ($('input[name="bx_block_admin_role_permission_admin_role[admin_permission_ids][]"][data-module-name="' + moduleName + '"]:not(:checked)').length) {
+	    // Uncheck the select-all checkbox
+	    $('.select-all-permission[data-module-name="' + moduleName + '"]').prop('checked', false);
+	  } else {
+	    // Check the select-all checkbox
+	    $('.select-all-permission[data-module-name="' + moduleName + '"]').prop('checked', true);
+	  }
+	});
+
+	// When a permission checkbox is clicked
+	$('input[name="bx_block_admin_role_permission_admin_role[admin_permission_ids][]"]').click(function() {
+	  // Get the module name
+	  var moduleName = $(this).data('module-name');
+
+	  // Check if any permission checkbox for that module is unchecked
+	  if ($('input[name="bx_block_admin_role_permission_admin_role[admin_permission_ids][]"][data-module-name="' + moduleName + '"]:not(:checked)').length) {
+	    // Uncheck the select-all checkbox
+	    $('.select-all-permission[data-module-name="' + moduleName + '"]').prop('checked', false);
+	  } else {
+	    // Check the select-all checkbox
+	    $('.select-all-permission[data-module-name="' + moduleName + '"]').prop('checked', true);
+	  }
+	});
+
 	$("form#edit_bx_block_database_download_limit").submit(function(e){
 		value = $('#bx_block_database_download_limit_per_page_limit').val() 
 		if ((value == '') || (value == 0)) {
