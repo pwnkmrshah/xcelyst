@@ -98,10 +98,11 @@ module BxBlockSovren
         'Sovren-AccountId' => ENV['SOVREN_ID'] || '14044560', # use your account id here
         'Sovren-ServiceKey' => ENV['SOVREN_KEY'] || 'qQ8I+UkWFIRC0p9fx0GDq5wDCAw75mgNJERyB+RO', # use your service key here
       }
-
+     
       req = Net::HTTP::Post.new(uri.path, initheader = headers)
       req.body = data
       res = https.request(req)
+     
       # Parse the response body into an object
       respObj = JSON.parse(res.body)
       create_job_description params, current_user, respObj, client_jd, identifier
@@ -115,6 +116,7 @@ module BxBlockSovren
       if jd.present?
         begin
           ActiveRecord::Base.transaction(isolation: :serializable) do
+            exp = nil
             # if section is used when client try to update the automate job description.
             if client_jd.present?
               role = client_jd.role.update!(params.except(:jd_file))
@@ -130,7 +132,7 @@ module BxBlockSovren
               return OpenStruct.new(success?: true, obj: client_jd)
             else
               if !params["is_closed"] && params["position"].to_i > 0
-                role = BxBlockRolesPermissions::Role.new(params.except(:jd_file))
+                role = BxBlockRolesPermissions::Role.new(params.except(:jd_file, :identifier))
                 role.account_id = current_user.id
                 return OpenStruct.new(success?: false, errors: role.errors ) unless role.save!
               else
@@ -138,11 +140,12 @@ module BxBlockSovren
               end
             end
             
-            if jd['MinimumYears'].blank?
-              return OpenStruct.new(success?: false, errors: "Sovren do not return MinimumYears")
+            # Sovren is not handeling the minimum years properly there for we have to diable the validation once issue is fixed for sovrne we should enable it.
+            if exp.nil? && jd['MinimumYears'].blank?
+              exp = BxBlockPreferredOverallExperiences::PreferredOverallExperiences.first
+            else
+              exp = BxBlockPreferredOverallExperiences::PreferredOverallExperiences.find_by! minimum_experience: jd['MinimumYears']['Value']
             end
-
-            exp = BxBlockPreferredOverallExperiences::PreferredOverallExperiences.find_by! minimum_experience: jd['MinimumYears']['Value']
 
             if exp.blank?
               return OpenStruct.new(success?: false, errors: "Minimum Experience is not mapped to our records")
