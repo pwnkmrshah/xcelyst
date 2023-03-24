@@ -151,9 +151,10 @@ module BxBlockSovren
               return OpenStruct.new(success?: false, errors: "Minimum Experience is not mapped to our records")
             end
 
+            salary =  jd['JobMetadata']['PlainText'].match(/SALARY:\r\n.*/).to_s.gsub("SALARY:",'').squish.to_s
             job_des = BxBlockJobDescription::JobDescription.create!(preferred_overall_experience_id: exp.id, parsed_jd: data['Value'], jd_type: 'automatic', 
               parsed_jd_transaction_id: data['Info']['TransactionId'], role_id: role.id, job_title: jd['JobTitles'].present? ? jd['JobTitles']['MainJobTitle'] : nil,
-              location: jd['CurrentLocation'].present? ? jd['CurrentLocation']['Municipality'] : nil, jd_file: params[:jd_file])
+              location: jd['CurrentLocation'].present? ? jd['CurrentLocation']['Municipality'] : nil, jd_file: params[:jd_file], minimum_salary: salary)
 
             # create_index_for_jd data, current_user, job_des.try(:document_id) # Indexing for JD along with document ID
 
