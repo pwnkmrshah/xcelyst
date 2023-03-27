@@ -182,6 +182,11 @@ Rails.application.routes.draw do
     get 'download_pdf/:id', to: 'temporary_user_databases#download_pdf'
   end
 
+  namespace :bx_block_job do 
+    resources :job_database, only: [:index, :create]
+    get "suggestions", to: "job_database#suggestions"
+  end
+
   namespace :bx_block_cfzoomintegration3 do
     resources :zoom_meetings, only: [:show]
     post 'interview', to: 'zoom_meetings#get_schedule_interview'
