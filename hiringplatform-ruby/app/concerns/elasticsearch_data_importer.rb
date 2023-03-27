@@ -1,6 +1,6 @@
 module ElasticsearchDataImporter
     def self.import
-      [BxBlockDatabase::TemporaryUserDatabase].each do |model_to_search|
+      [BxBlockDatabase::TemporaryUserDatabase, BxBlockJob::JobDatabase].each do |model_to_search|
         model_to_search.__elasticsearch__.create_index!(force: true)
         model_to_search.find_in_batches(batch_size: 200) do |records|
           bulk_index(records, model_to_search)

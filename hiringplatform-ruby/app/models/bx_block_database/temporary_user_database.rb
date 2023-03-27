@@ -28,7 +28,7 @@ module BxBlockDatabase
 				only: [:id, :full_name, :title, :zipcode, :city, :status, :ready_to_move, :name, :location, :experience, :company, :previous_work, :skills, :degree, :job_projects, :position, :experience_month],
 				include: {
 					temporary_user_profile: {
-							only: [:skills, :courses, :certificates, :work_experience, :languages, :education, :organizations]
+							only: [:head_line, :linkedin_url, :honor_awards, :skills, :courses, :certificates, :work_experience, :languages, :education, :organizations]
 					},
 					watched_records: {
 							only: [:temporary_user_database_id, :ip_address]
