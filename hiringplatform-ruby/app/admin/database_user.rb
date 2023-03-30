@@ -107,6 +107,12 @@ ActiveAdmin.register BxBlockDatabase::TemporaryUserDatabase, as: "Database User"
       end
       row :social_url
       row :summary
+      row :honor_awards do |obj|
+      	obj.temporary_user_profile&.honor_awards
+      end
+      row :linkedin_url do |obj|
+      	obj.temporary_user_profile&.linkedin_url
+      end
   	end
 	end
 
