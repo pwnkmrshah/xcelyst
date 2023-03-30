@@ -114,8 +114,9 @@ module BxBlockSovren
       jd = data['Value']['JobData']
 
       if jd.present?
+        job_des = nil
         begin
-          ActiveRecord::Base.transaction(isolation: :serializable) do
+          ActiveRecord::Base.transaction do
             exp = nil
             # if section is used when client try to update the automate job description.
             if client_jd.present?
@@ -154,18 +155,15 @@ module BxBlockSovren
             salary =  jd['JobMetadata']['PlainText'].match(/SALARY:\r\n.*/).to_s.gsub("SALARY:",'').squish.to_s
             job_des = BxBlockJobDescription::JobDescription.create!(preferred_overall_experience_id: exp.id, parsed_jd: data['Value'], jd_type: 'automatic', 
               parsed_jd_transaction_id: data['Info']['TransactionId'], role_id: role.id, job_title: jd['JobTitles'].present? ? jd['JobTitles']['MainJobTitle'] : nil,
-              location: jd['CurrentLocation'].present? ? jd['CurrentLocation']['Municipality'] : nil, jd_file: params[:jd_file], minimum_salary: salary)
+              location: jd['CurrentLocation'].present? ? jd['CurrentLocation']['Municipality'] : nil, minimum_salary: salary, jd_file: params[:jd_file])
 
             # create_index_for_jd data, current_user, job_des.try(:document_id) # Indexing for JD along with document ID
-
             sovren_score_jd_to_resumes data, job_des.try(:id)
 
             job_des.update(document_id: identifier)
-            
-            url_generation current_user, job_des, identifier # UI generation for JD TO RESUME
-
-            return OpenStruct.new(success?: true, obj: job_des.reload)
           end
+          url_generation current_user, job_des, identifier # UI generation for JD TO RESUME
+          return OpenStruct.new(success?: true, obj: job_des.reload)
         rescue Exception => e
           return OpenStruct.new(success?: false, errors: e)
         end
