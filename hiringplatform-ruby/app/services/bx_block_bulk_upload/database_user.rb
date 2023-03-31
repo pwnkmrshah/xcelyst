@@ -66,7 +66,7 @@ module BxBlockBulkUpload
 
                 if record.temporary_user_profile.present?
                   record.temporary_user_profile.update(head_line: data['headLine'], languages: data['language'], organizations: data['organization'],
-                    skills: data['skills'], education: data['education'], work_experience: data['experience'], courses: courses, certificates: certificates)
+                    skills: data['skills'], education: data['education'], work_experience: data['experience'], courses: data['course'], certificates: data['certification'], linkedin_url: data['linkedIn'], honor_awards: data['honorAward'])
                 end
               end
             rescue => exception
@@ -168,7 +168,7 @@ module BxBlockBulkUpload
             @count += 1
 
             user_rec.create_temporary_user_profile(head_line: data['headLine'], languages: data['language'], organizations: data['organization'],
-              skills: data['skills'], education: data['education'], work_experience: data['experience'], courses: courses, certificates: certificates)
+                    skills: data['skills'], education: data['education'], work_experience: data['experience'], courses: data['course'], certificates: data['certification'], linkedin_url: data['linkedIn'], honor_awards: data['honorAward'])
           end
         rescue => exception
           @errors << {id: data['id'], errors: exception}
