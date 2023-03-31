@@ -112,17 +112,20 @@ module BxBlockSovren
 
     def self.create_job_description params, current_user, data, client_jd, identifier
       jd = data['Value']['JobData']
-
       if jd.present?
         job_des = nil
         begin
-          ActiveRecord::Base.transaction do
+  
+          ActiveRecord::Base.transaction(isolation: :serializable) do
+  
             exp = nil
             # if section is used when client try to update the automate job description.
             if client_jd.present?
               role = client_jd.role.update!(params.except(:jd_file))
               
+  
               exp = BxBlockPreferredOverallExperiences::PreferredOverallExperiences.find_by! minimum_experience: jd['MinimumYears']['Value']
+  
               client_jd.update!(preferred_overall_experience_id: exp.id, parsed_jd: data['Value'], job_title: jd['JobTitles'].present? ? jd['JobTitles']['MainJobTitle'] : nil,
                 parsed_jd_transaction_id: data['Info']['TransactionId'], location: jd['CurrentLocation'].present? ? jd['CurrentLocation']['Municipality'] : nil,
                 jd_file: params[:jd_file]
@@ -159,11 +162,11 @@ module BxBlockSovren
 
             # create_index_for_jd data, current_user, job_des.try(:document_id) # Indexing for JD along with document ID
             sovren_score_jd_to_resumes data, job_des.try(:id)
-
             job_des.update(document_id: identifier)
+            job_des = url_generation current_user, job_des, identifier # UI generation for JD TO RESUME
+            return OpenStruct.new(success?: true, obj: job_des)
           end
-          url_generation current_user, job_des, identifier # UI generation for JD TO RESUME
-          return OpenStruct.new(success?: true, obj: job_des.reload)
+          
         rescue Exception => e
           return OpenStruct.new(success?: false, errors: e)
         end
@@ -298,8 +301,9 @@ module BxBlockSovren
       
       # Store URL in JD
       jd_data = BxBlockJobDescription::JobDescription.find_by(id: job_des.id)
-      (sovren_url.present? && jd_data.present?) ? jd_data.update(sovren_ui_url: sovren_url.fetch("url") ) : jd_data.update(sovren_ui_url: " ")
-      end  
+      sovren_url.present? ? jd_data.update(sovren_ui_url: sovren_url.fetch("url") ) : jd_data.update(sovren_ui_url: " ")
+      jd_data
+    end  
 
 
     # send_post_request
