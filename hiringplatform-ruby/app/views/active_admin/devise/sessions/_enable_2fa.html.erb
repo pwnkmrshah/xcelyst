@@ -1,6 +1,6 @@
 <%= active_admin_form_for(admin_user, as: :user_admin, url: send(:"user_admin_session_path"), html: {method: "post", remote: true, id: "session_new_with_2fa", onsubmit: "return validateForm()" }) do |f|
   f.inputs do
-    f.input :otp, label: "Enter otp", input_html: { required: true, value: "" }
+    f.input :otp, label: "Please enter your OTP received on your email", input_html: { type: :text, required: true, value: "" }
   end
   f.actions do
     f.action :submit, label: t('active_admin.devise.login.submit'), button_html: { value: t('active_admin.devise.login.submit') }
