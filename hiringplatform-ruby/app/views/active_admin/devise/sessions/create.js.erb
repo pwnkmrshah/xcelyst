@@ -1,10 +1,14 @@
+$('#user_admin_otp_input span').remove()
 <% if (@is_valid && @is_required_2fa == false) || (@is_valid && @otp_valid == true && @is_required_2fa == true)%>
   window.location.href = "/admin";
-<% elsif @is_valid && @is_required_2fa && params[:user_admin][:otp].blank? && session[:user_admin].present? %>
+<% elsif @is_valid && @is_required_2fa && params.dig(:user_admin, :otp).blank? && session[:user_admin].present? %>
   $("#admin_user_login_form").hide();
   $("#admin_user_login_form_2fa").html("<%= escape_javascript(render partial: 'active_admin/devise/sessions/enable_2fa', locals: { admin_user: @admin_user } ) %>");
+  <% if params[:user_admin].has_key?(:otp) && params[:user_admin][:otp].blank? %>
+    $('#user_admin_otp_input').append("<span style='color: red;'>"+ "Please enter the otp" +'</span>');
+  <% end %>
 <% elsif @is_valid && @is_required_2fa && @otp_valid == false %>
-  alert("Invalid otp");
+  $('#user_admin_otp_input').append("<span style='color: red;'>"+ "Invalid otp" +'</span>');
 <% else %>
-  alert("Invalid email and password");
-<%end%>
+  $('#user_admin_otp_input').append("<span style='color: red;'>"+ "Invalid email and password" +'</span>');
+<% end %>
