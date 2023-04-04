@@ -57,7 +57,7 @@ module BxBlockBulkUpload
               user_rec = record.update(full_name: data['fullName'], photo_url: data['photo'],
                 position: data['experience'], location: data['locations'], contacts: data['contacts'], social_url: data['social'],
                 skills: data['skills'], name: data['fullName'], summary: data['summary'], title: nil, zipcode: nil, city: city, ready_to_move: false, experience: exp,
-                company: company, previous_work: prev_work, degree: education, job_projects: projects, lead_lists: nil, experience_month: experience_month)
+                company: company, previous_work: prev_work, degree: education, job_projects: data['project'], lead_lists: nil, experience_month: experience_month)
             
               if user_rec
                 @count += 1
@@ -66,7 +66,7 @@ module BxBlockBulkUpload
 
                 if record.temporary_user_profile.present?
                   record.temporary_user_profile.update(head_line: data['headLine'], languages: data['language'], organizations: data['organization'],
-                    skills: data['skills'], education: data['education'], work_experience: data['experience'], courses: courses, certificates: certificates)
+                    skills: data['skills'], education: data['education'], work_experience: data['experience'], courses: data['course'], certificates: data['certification'], linkedin_url: data['linkedIn'], honor_awards: data['honorAward'])
                 end
               end
             rescue => exception
@@ -161,14 +161,14 @@ module BxBlockBulkUpload
           user_rec = BxBlockDatabase::TemporaryUserDatabase.new(uid: data['id'], full_name: data['fullName'], photo_url: data['photo'],
             position: data['experience'], location: data['locations'], contacts: data['contacts'], social_url: data['social'],
             skills: data['skills'], name: data['fullName'], summary: data['summary'], title: nil, zipcode: nil, city: city, ready_to_move: false, experience: exp,
-            company: company, previous_work: prev_work, degree: education, job_projects: projects, lead_lists: nil, experience_month: experience_month)
+            company: company, previous_work: prev_work, degree: education, job_projects: data['project'], lead_lists: nil, experience_month: experience_month)
 
           if user_rec.save
 
             @count += 1
 
             user_rec.create_temporary_user_profile(head_line: data['headLine'], languages: data['language'], organizations: data['organization'],
-              skills: data['skills'], education: data['education'], work_experience: data['experience'], courses: courses, certificates: certificates)
+                    skills: data['skills'], education: data['education'], work_experience: data['experience'], courses: data['course'], certificates: data['certification'], linkedin_url: data['linkedIn'], honor_awards: data['honorAward'])
           end
         rescue => exception
           @errors << {id: data['id'], errors: exception}

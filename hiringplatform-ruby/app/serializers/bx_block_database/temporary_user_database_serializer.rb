@@ -15,7 +15,6 @@ module BxBlockDatabase
 		  :previous_work,
 			:skills,
 		  :degree,
-		  :job_projects,
 		  :lead_lists,
 			:created_at,
 			:updated_at,
@@ -28,6 +27,17 @@ module BxBlockDatabase
 
 		attributes :temporary_user_profile do |obj|
 			obj.temporary_user_profile
+		end
+
+		attributes :job_projects do |obj|
+			job_projects = obj.job_projects
+			if job_projects.present? && job_projects.slice(0..1).include?("[{")
+				job_projects = job_projects.gsub(/"(\w+)"=>/, '"\1":')
+				JSON.parse(job_projects) if job_projects.present?
+			else
+				job_projects
+			end
+
 		end
 
 		attributes :total_pdf_downloads do |obj|
