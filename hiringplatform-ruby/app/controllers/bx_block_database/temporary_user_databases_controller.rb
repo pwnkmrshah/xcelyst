@@ -72,6 +72,7 @@ module BxBlockDatabase
 		
 		def pagination_data data
       per_page_limit = BxBlockDatabase::DownloadLimit.last.per_page_limit
+			total_profile = data.total 
 			total_data = data.total > 10000 ? 10000 : data.total
 			total_pages = total_data/(per_page_limit || 5)
 			pages = total_data % (per_page_limit || 5)
@@ -82,6 +83,7 @@ module BxBlockDatabase
 				total_pages = 1
 			end
 			{
+				total_profile: total_profile,
 				total_record: total_data,
 				limit_value: per_page_limit,
 				total_pages:  total_pages,
