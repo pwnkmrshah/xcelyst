@@ -48,6 +48,15 @@ module BxBlockAdmin
       end
     end
 
+    def resend_otp
+      @admin = UserAdmin.find_by(email: params[:email])
+      binding.pry
+      Admin::UserMailer.two_factor_authentication(@admin).deliver if @admin
+      respond_to do |format|
+        format.js
+      end
+    end
+
     private
 
     def encode(id, user_type)

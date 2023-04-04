@@ -1,0 +1,7 @@
+$('#user_admin_otp_input span').remove();
+
+<% if @admin.present? %>
+  $("#admin_user_login_form_2fa").html("<%= escape_javascript(render partial: 'active_admin/devise/sessions/enable_2fa', locals: { admin_user: @admin_user } ) %>");
+<% else %>
+  $('#user_admin_otp_input').append("<span style='color: red;'>"+ "Could not resend OTP, please try again" +'</span>');
+<% end %>
