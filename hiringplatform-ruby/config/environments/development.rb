@@ -38,8 +38,7 @@ Rails.application.configure do
     enable_starttls_auto: true,
     openssl_verify_mode: "none"
   }
-
-  config.action_mailer.delivery_method = :letter_opener
+  config.action_mailer.delivery_method = :smtp
   config.action_mailer.perform_deliveries = true
   
   config.active_job.queue_adapter = :sidekiq

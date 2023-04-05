@@ -8,7 +8,7 @@
   end
 
   div do
-    link_to("Resend Otp", bx_block_admin_resend_otp_path(email: admin_user&.email), method: :get, remote: true, class: "btn btn-secondary")
+    link_to("Resend OTP", bx_block_admin_resend_otp_path(email: admin_user&.email), method: :get, remote: true, class: "btn btn-secondary")
   end
 end
 %>
@@ -21,7 +21,7 @@ end
       var charCode = (event.which) ? event.which : event.keyCode;
       if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
         event.preventDefault();
-        $('#user_admin_otp_input').append("<span style='color: red;'>"+ "Incorrect Otp,only digits are allowed" +'</span>');
+        $('#user_admin_otp_input').append("<span style='color: red;'>"+ "Only numeric values are allowed" +'</span>');
       }
     });
   });
