@@ -2,15 +2,16 @@
   f.inputs do
     f.input :otp, label: "Please enter your OTP received on your email", input_html: { type: :text, pattern: "\d*", required: true, value: "" }
   end
-
+  
   f.actions do
     f.action :submit, label: t('active_admin.devise.login.submit'), button_html: { value: t('active_admin.devise.login.submit') }
   end
-
+  
   div do
-    link_to("Resend OTP", bx_block_admin_resend_otp_path(email: admin_user&.email), method: :get, remote: true, class: "btn btn-secondary")
+    link_to("Resend OTP", bx_block_admin_resend_otp_path(email: admin_user&.email), method: :get, remote: true, class: "btn btn-secondary resend-otp", type: "script")  
   end
-end
+    span "", class: 'response-message'
+  end 
 %>
 
 <%= render partial: "active_admin/devise/shared/links" %>
