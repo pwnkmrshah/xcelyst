@@ -23,7 +23,9 @@ ActiveAdmin.register UserAdmin do
       row :current_sign_in_at
       row :sign_in_count
       row :created_at
-      row :enable_2FA, as: :boolean
+      row '2Factor Authentication' do |object|
+        object.enable_2FA
+      end
     end
     active_admin_comments
   end
