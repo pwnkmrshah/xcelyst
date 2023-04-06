@@ -48,6 +48,19 @@ module BxBlockAdmin
       end
     end
 
+    def resend_otp
+      @admin = UserAdmin.find_by(email: params[:email])
+      if @admin
+        Admin::UserMailer.two_factor_authentication(@admin).deliver 
+        @response = { success: true, message: 'OTP resend successfully!' }
+      else
+        @response = { success: false, message: 'Invalid email address' }
+      end
+      respond_to do |format|
+        format.js { render layout: false, content_type: 'text/javascript' }
+      end
+    end
+
     private
 
     def encode(id, user_type)

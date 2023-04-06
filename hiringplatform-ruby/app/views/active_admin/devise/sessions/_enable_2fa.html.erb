@@ -1,20 +1,29 @@
-<%= active_admin_form_for(admin_user, as: :user_admin, url: send(:"user_admin_session_path"), html: {method: "post", remote: true, id: "session_new_with_2fa", onsubmit: "return validateForm()" }) do |f|
+<%= active_admin_form_for(admin_user, as: :user_admin, url: send(:"user_admin_session_path"), html: {method: "post", remote: true, id: "session_new_with_2fa" }) do |f|
   f.inputs do
-    f.input :otp, label: "Enter otp", input_html: { required: true, value: "" }
+    f.input :otp, label: "Please enter your OTP received on your email", input_html: { type: :text, pattern: "\d*", required: true, value: "" }
   end
+  
   f.actions do
     f.action :submit, label: t('active_admin.devise.login.submit'), button_html: { value: t('active_admin.devise.login.submit') }
   end
-end
+  
+  div do
+    link_to("Resend OTP", bx_block_admin_resend_otp_path(email: admin_user&.email), method: :get, remote: true, class: "btn btn-secondary resend-otp", type: "script")  
+  end
+    span "", class: 'response-message'
+  end 
 %>
-<%= render partial: "active_admin/devise/shared/links" %>
 
+<%= render partial: "active_admin/devise/shared/links" %>
 <script type="text/javascript">
-  function validateForm() {
-    var otp = $("#user_admin_otp").val();
-    if (otp == "") {
-      alert("Please enter otp");
-      return false;
-    }
-  }
+  $(document).ready(function() {
+    $("#user_admin_otp").keypress(function(event) {
+      $('#user_admin_otp_input span').remove()
+      var charCode = (event.which) ? event.which : event.keyCode;
+      if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
+        event.preventDefault();
+        $('#user_admin_otp_input').append("<span style='color: red;'>"+ "Only numeric values are allowed" +'</span>');
+      }
+    });
+  });
 </script>
