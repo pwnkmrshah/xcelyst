@@ -1,0 +1,9 @@
+<%if @response[:success] %>
+  $('.response-message').css('display', 'inline')
+  $('.response-message').css('color', 'green')
+  $('.response-message').html("<%= @response[:message] %>")
+<%else%>
+  $('.response-message').css('display', 'inline')
+  $('.response-message').css('color', 'red')
+  $('.response-message').html("<%= @response[:message] %>")
+<%end%>
