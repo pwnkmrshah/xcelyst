@@ -212,6 +212,7 @@ module BxBlockDatabase
 				end
 			end
 			if query[:keywords].present?
+				query[:keywords].downcase!
 				keyword = format_keyword(query[:keywords])
 				keywords_or_qry = keyword[:or_qry]
 				keywords_and_qry = keyword[:and_qry]
