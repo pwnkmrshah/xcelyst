@@ -122,17 +122,15 @@ module BxBlockSovren
             # if section is used when client try to update the automate job description.
             if client_jd.present?
               role = client_jd.role.update!(params.except(:jd_file))
-              
-  
+            
               exp = BxBlockPreferredOverallExperiences::PreferredOverallExperiences.find_by! minimum_experience: jd['MinimumYears']['Value']
   
-              client_jd.update!(preferred_overall_experience_id: exp.id, parsed_jd: data['Value'], job_title: jd['JobTitles'].present? ? jd['JobTitles']['MainJobTitle'] : nil,
+              client_jd.update!(preferred_overall_experience_id: exp&.id, parsed_jd: data['Value'], job_title: jd['JobTitles'].present? ? jd['JobTitles']['MainJobTitle'] : nil,
                 parsed_jd_transaction_id: data['Info']['TransactionId'], location: jd['CurrentLocation'].present? ? jd['CurrentLocation']['Municipality'] : nil,
                 jd_file: params[:jd_file]
               )
 
               # url_generation current_user, client_jd.try(:id) # UI generation for JD TO RESUME
-
               return OpenStruct.new(success?: true, obj: client_jd)
             else
               if !params["is_closed"] && params["position"].to_i > 0
@@ -144,19 +142,15 @@ module BxBlockSovren
               end
             end
             
-            # Sovren is not handeling the minimum years properly there for we have to diable the validation once issue is fixed for sovrne we should enable it.
-            if exp.nil? && jd['MinimumYears'].blank?
-              exp = BxBlockPreferredOverallExperiences::PreferredOverallExperiences.first
-            else
-              exp = BxBlockPreferredOverallExperiences::PreferredOverallExperiences.find_by! minimum_experience: jd['MinimumYears']['Value']
-            end
-
-            if exp.blank?
-              return OpenStruct.new(success?: false, errors: "Minimum Experience is not mapped to our records")
-            end
+            max_year = jd["JobMetadata"]["PlainText"].match(/MaximumYears:\r\n.*/).to_s.gsub("MaximumYears:",'').squish.to_i rescue 0
+            min_year = jd["JobMetadata"]["PlainText"].match(/MinimumYears:\r\n.*/).to_s.gsub("MinimumYears:",'').squish.to_i rescue 0
+            experiences_year = min_year.zero? && max_year.zero? ? "0" : "#{min_year}-#{max_year}" 
+            exp = BxBlockPreferredOverallExperiences::PreferredOverallExperiences.new(minimum_experience: min_year, maximum_experience: max_year, experiences_year: experiences_year)
+            exp.save(validate: false)
 
             salary =  jd['JobMetadata']['PlainText'].match(/SALARY:\r\n.*/).to_s.gsub("SALARY:",'').squish.to_s
-            job_des = BxBlockJobDescription::JobDescription.create!(preferred_overall_experience_id: exp.id, parsed_jd: data['Value'], jd_type: 'automatic', 
+            
+            job_des = BxBlockJobDescription::JobDescription.create!(preferred_overall_experience_id: exp&.id, parsed_jd: data['Value'], jd_type: 'automatic', 
               parsed_jd_transaction_id: data['Info']['TransactionId'], role_id: role.id, job_title: jd['JobTitles'].present? ? jd['JobTitles']['MainJobTitle'] : nil,
               location: jd['CurrentLocation'].present? ? jd['CurrentLocation']['Municipality'] : nil, minimum_salary: salary, jd_file: params[:jd_file])
 
