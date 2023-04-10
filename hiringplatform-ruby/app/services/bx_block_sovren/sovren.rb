@@ -141,15 +141,16 @@ module BxBlockSovren
                 return OpenStruct.new(success?: false, errors: "wrong parameters.")
               end
             end
-            
+             
             max_year = jd["JobMetadata"]["PlainText"].match(/MaximumYears:\r\n.*/).to_s.gsub("MaximumYears:",'').squish.to_i rescue 0
             min_year = jd["JobMetadata"]["PlainText"].match(/MinimumYears:\r\n.*/).to_s.gsub("MinimumYears:",'').squish.to_i rescue 0
-            experiences_year = min_year.zero? && max_year.zero? ? "0" : "#{min_year}-#{max_year}" 
-            exp = BxBlockPreferredOverallExperiences::PreferredOverallExperiences.new(minimum_experience: min_year, maximum_experience: max_year, experiences_year: experiences_year)
-            exp.save(validate: false)
-
-            salary =  jd['JobMetadata']['PlainText'].match(/SALARY:\r\n.*/).to_s.gsub("SALARY:",'').squish.to_s
+            experiences_year = min_year.zero? ? "0" : max_year.zero? ? "NA" : "#{min_year}-#{max_year}"
+            level = nil
+            grade = nil
+            exp = BxBlockPreferredOverallExperiences::PreferredOverallExperiences.new(minimum_experience: min_year, maximum_experience: max_year, experiences_year: experiences_year, level: level , grade: grade)
+            exp.save
             
+            salary =  jd['JobMetadata']['PlainText'].match(/SALARY:\r\n.*/).to_s.gsub("SALARY:",'').squish.to_s           
             job_des = BxBlockJobDescription::JobDescription.create!(preferred_overall_experience_id: exp&.id, parsed_jd: data['Value'], jd_type: 'automatic', 
               parsed_jd_transaction_id: data['Info']['TransactionId'], role_id: role.id, job_title: jd['JobTitles'].present? ? jd['JobTitles']['MainJobTitle'] : nil,
               location: jd['CurrentLocation'].present? ? jd['CurrentLocation']['Municipality'] : nil, minimum_salary: salary, jd_file: params[:jd_file])
