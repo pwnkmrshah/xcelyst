@@ -51,7 +51,6 @@ module BxBlockSovren
       create_parsed_json_file respObj
       # AccountBlock::UserParsedResume.create(user_resume_id: @user_resume.id, account_id: user_id, parsed_resume: respObj)
 
-
       create_preferred_skills respObj  #store skills
 
       create_index_for_resume respObj
@@ -74,6 +73,7 @@ module BxBlockSovren
 
     # To Parse JD -> send JD to sovren
     def self.jd_parser params, current_user, client_jd,identifier
+      return update_role(params, client_jd) if params[:jd_file] == "undefined"
       file_path = params[:jd_file]
       file_data = IO.binread(file_path)
       modified_date = File.mtime(file_path).to_s[0,10]
@@ -108,7 +108,14 @@ module BxBlockSovren
       create_job_description params, current_user, respObj, client_jd, identifier
     end
 
-    private 
+    private
+
+    def self.update_role(params, client_jd)
+      client_jd.role.update!(params.except(:jd_file))
+      return OpenStruct.new(success?: true, obj: client_jd)
+    rescue Exception => e
+      return OpenStruct.new(success?: false, errors: e)
+    end
 
     def self.create_job_description params, current_user, data, client_jd, identifier
       jd = data['Value']['JobData']
@@ -145,13 +152,11 @@ module BxBlockSovren
             min_year = jd.dig("MinimumYears", "Value") || 0
             max_year = jd.dig("MaximumYears", "Value") || 0
             experiences_year = if min_year.zero? && max_year.zero?
-                                "NA"
+                                0
                               elsif min_year.zero? && !max_year.zero?
                                 max_year
                               elsif !min_year.zero? && max_year.zero?
                                 min_year
-                              elsif min_year == max_year
-                                min_year  
                               else
                                 "#{min_year}-#{max_year}"
                               end
