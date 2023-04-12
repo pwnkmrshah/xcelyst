@@ -141,10 +141,20 @@ module BxBlockSovren
                 return OpenStruct.new(success?: false, errors: "wrong parameters.")
               end
             end
-             
-            max_year = jd["JobMetadata"]["PlainText"].match(/MaximumYears:\r\n.*/).to_s.gsub("MaximumYears:",'').squish.to_i rescue 0
-            min_year = jd["JobMetadata"]["PlainText"].match(/MinimumYears:\r\n.*/).to_s.gsub("MinimumYears:",'').squish.to_i rescue 0
-            experiences_year = min_year.zero? ? "0" : max_year.zero? ? "NA" : "#{min_year}-#{max_year}"
+
+            min_year = jd.dig("MinimumYears", "Value") || 0
+            max_year = jd.dig("MaximumYears", "Value") || 0
+            experiences_year = if min_year.zero? && max_year.zero?
+                                "NA"
+                              elsif min_year.zero? && !max_year.zero?
+                                max_year
+                              elsif !min_year.zero? && max_year.zero?
+                                min_year
+                              elsif min_year == max_year
+                                min_year  
+                              else
+                                "#{min_year}-#{max_year}"
+                              end
             level = nil
             grade = nil
             exp = BxBlockPreferredOverallExperiences::PreferredOverallExperiences.new(minimum_experience: min_year, maximum_experience: max_year, experiences_year: experiences_year, level: level , grade: grade)
