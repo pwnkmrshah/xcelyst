@@ -31,7 +31,6 @@ module BxBlockSovren
         @user_resume = AccountBlock::UserResume.create(resume_id: SecureRandom.uuid, account_id: user_id, resume_file: base_64_file)
       end
 
-
       data = {
         "DocumentAsBase64String" => base_64_file,
         "DocumentLastModified" => modified_date
@@ -124,19 +123,14 @@ module BxBlockSovren
         begin
   
           ActiveRecord::Base.transaction(isolation: :serializable) do
-  
-            exp = nil
             # if section is used when client try to update the automate job description.
             if client_jd.present?
               role = client_jd.role.update!(params.except(:jd_file))
-            
-              exp = BxBlockPreferredOverallExperiences::PreferredOverallExperiences.find_by! minimum_experience: jd['MinimumYears']['Value']
-  
-              client_jd.update!(preferred_overall_experience_id: exp&.id, parsed_jd: data['Value'], job_title: jd['JobTitles'].present? ? jd['JobTitles']['MainJobTitle'] : nil,
+              exp = find_or_create_exp(jd)
+              client_jd.update!(preferred_overall_experience_id: exp.id, parsed_jd: data['Value'], job_title: jd['JobTitles'].present? ? jd['JobTitles']['MainJobTitle'] : nil,
                 parsed_jd_transaction_id: data['Info']['TransactionId'], location: jd['CurrentLocation'].present? ? jd['CurrentLocation']['Municipality'] : nil,
                 jd_file: params[:jd_file]
               )
-
               # url_generation current_user, client_jd.try(:id) # UI generation for JD TO RESUME
               return OpenStruct.new(success?: true, obj: client_jd)
             else
@@ -148,25 +142,10 @@ module BxBlockSovren
                 return OpenStruct.new(success?: false, errors: "wrong parameters.")
               end
             end
-
-            min_year = jd.dig("MinimumYears", "Value") || 0
-            max_year = jd.dig("MaximumYears", "Value") || 0
-            experiences_year = if min_year.zero? && max_year.zero?
-                                0
-                              elsif min_year.zero? && !max_year.zero?
-                                max_year
-                              elsif !min_year.zero? && max_year.zero?
-                                min_year
-                              else
-                                "#{min_year}-#{max_year}"
-                              end
-            level = nil
-            grade = nil
-            exp = BxBlockPreferredOverallExperiences::PreferredOverallExperiences.new(minimum_experience: min_year, maximum_experience: max_year, experiences_year: experiences_year, level: level , grade: grade)
-            exp.save
             
+            exp = find_or_create_exp(jd)
             salary =  jd['JobMetadata']['PlainText'].match(/SALARY:\r\n.*/).to_s.gsub("SALARY:",'').squish.to_s           
-            job_des = BxBlockJobDescription::JobDescription.create!(preferred_overall_experience_id: exp&.id, parsed_jd: data['Value'], jd_type: 'automatic', 
+            job_des = BxBlockJobDescription::JobDescription.create!(preferred_overall_experience_id: exp.id, parsed_jd: data['Value'], jd_type: 'automatic', 
               parsed_jd_transaction_id: data['Info']['TransactionId'], role_id: role.id, job_title: jd['JobTitles'].present? ? jd['JobTitles']['MainJobTitle'] : nil,
               location: jd['CurrentLocation'].present? ? jd['CurrentLocation']['Municipality'] : nil, minimum_salary: salary, jd_file: params[:jd_file])
 
@@ -183,6 +162,28 @@ module BxBlockSovren
       else
         return OpenStruct.new(success?: false, errors: data['Value']['ParsingResponse']['Message'])
       end
+    end
+
+    def self.find_or_create_exp(jd)
+      min_year = jd.dig("MinimumYears", "Value") || 0
+      max_year = jd.dig("MaximumYears", "Value") || 0
+      experiences_year = if min_year.zero? && max_year.zero?
+                          0
+                        elsif min_year.zero? && !max_year.zero?
+                          max_year
+                        elsif !min_year.zero? && max_year.zero?
+                          min_year
+                        else
+                          "#{min_year}-#{max_year}"
+                        end
+
+      exp = BxBlockPreferredOverallExperiences::PreferredOverallExperiences.find_or_create_by(
+        minimum_experience: min_year,
+        maximum_experience: max_year,
+        experiences_year: experiences_year,
+        level: nil,
+        grade: nil)
+      exp
     end
 
     def create_preferred_skills obj
