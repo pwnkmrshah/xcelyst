@@ -23,6 +23,7 @@ module BxBlockRolesPermissions
         {
           job_description_id: job.id,
           job_title: job.job_title,
+          jd_file: job.jd_file.service_url,
           degree: job.degree,
           fieldOfStudy: job.fieldOfStudy,
           role_title: job.role_title,

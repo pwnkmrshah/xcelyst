@@ -198,6 +198,7 @@ Rails.application.routes.draw do
     put 'otp_verify', to: 'admin_login#otp_verify'
     put 'refresh_token', to: 'admin_login#refresh_token'
     post 'logout', to: 'admin_login#logout'
+    get 'resend_otp', to: 'admin_login#resend_otp'
 
     get 'client/search', to: 'admin_client_dashboard#client_search'
     get "/fetch_whatsapp_chats", to: "admin_users#fetch_whatsapp_chats"
