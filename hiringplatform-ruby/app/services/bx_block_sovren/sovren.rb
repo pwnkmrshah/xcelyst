@@ -31,7 +31,6 @@ module BxBlockSovren
         @user_resume = AccountBlock::UserResume.create(resume_id: SecureRandom.uuid, account_id: user_id, resume_file: base_64_file)
       end
 
-
       data = {
         "DocumentAsBase64String" => base_64_file,
         "DocumentLastModified" => modified_date
@@ -50,7 +49,6 @@ module BxBlockSovren
 
       create_parsed_json_file respObj
       # AccountBlock::UserParsedResume.create(user_resume_id: @user_resume.id, account_id: user_id, parsed_resume: respObj)
-
 
       create_preferred_skills respObj  #store skills
 
@@ -74,6 +72,7 @@ module BxBlockSovren
 
     # To Parse JD -> send JD to sovren
     def self.jd_parser params, current_user, client_jd,identifier
+      return update_role(params, client_jd) if params[:jd_file] == "undefined"
       file_path = params[:jd_file]
       file_data = IO.binread(file_path)
       modified_date = File.mtime(file_path).to_s[0,10]
@@ -98,39 +97,45 @@ module BxBlockSovren
         'Sovren-AccountId' => ENV['SOVREN_ID'] || '14044560', # use your account id here
         'Sovren-ServiceKey' => ENV['SOVREN_KEY'] || 'qQ8I+UkWFIRC0p9fx0GDq5wDCAw75mgNJERyB+RO', # use your service key here
       }
-
+     
       req = Net::HTTP::Post.new(uri.path, initheader = headers)
       req.body = data
       res = https.request(req)
+     
       # Parse the response body into an object
       respObj = JSON.parse(res.body)
       create_job_description params, current_user, respObj, client_jd, identifier
     end
 
-    private 
+    private
+
+    def self.update_role(params, client_jd)
+      client_jd.role.update!(params.except(:jd_file))
+      return OpenStruct.new(success?: true, obj: client_jd)
+    rescue Exception => e
+      return OpenStruct.new(success?: false, errors: e)
+    end
 
     def self.create_job_description params, current_user, data, client_jd, identifier
       jd = data['Value']['JobData']
-
       if jd.present?
+        job_des = nil
         begin
+  
           ActiveRecord::Base.transaction(isolation: :serializable) do
             # if section is used when client try to update the automate job description.
             if client_jd.present?
               role = client_jd.role.update!(params.except(:jd_file))
-              
-              exp = BxBlockPreferredOverallExperiences::PreferredOverallExperiences.find_by! minimum_experience: jd['MinimumYears']['Value']
+              exp = find_or_create_exp(jd)
               client_jd.update!(preferred_overall_experience_id: exp.id, parsed_jd: data['Value'], job_title: jd['JobTitles'].present? ? jd['JobTitles']['MainJobTitle'] : nil,
                 parsed_jd_transaction_id: data['Info']['TransactionId'], location: jd['CurrentLocation'].present? ? jd['CurrentLocation']['Municipality'] : nil,
                 jd_file: params[:jd_file]
               )
-
               # url_generation current_user, client_jd.try(:id) # UI generation for JD TO RESUME
-
               return OpenStruct.new(success?: true, obj: client_jd)
             else
               if !params["is_closed"] && params["position"].to_i > 0
-                role = BxBlockRolesPermissions::Role.new(params.except(:jd_file))
+                role = BxBlockRolesPermissions::Role.new(params.except(:jd_file, :identifier))
                 role.account_id = current_user.id
                 return OpenStruct.new(success?: false, errors: role.errors ) unless role.save!
               else
@@ -138,28 +143,47 @@ module BxBlockSovren
               end
             end
             
-            exp = BxBlockPreferredOverallExperiences::PreferredOverallExperiences.find_by! minimum_experience: jd['MinimumYears']['Value']
-
+            exp = find_or_create_exp(jd)
+            salary =  jd['JobMetadata']['PlainText'].match(/SALARY:\r\n.*/).to_s.gsub("SALARY:",'').squish.to_s           
             job_des = BxBlockJobDescription::JobDescription.create!(preferred_overall_experience_id: exp.id, parsed_jd: data['Value'], jd_type: 'automatic', 
               parsed_jd_transaction_id: data['Info']['TransactionId'], role_id: role.id, job_title: jd['JobTitles'].present? ? jd['JobTitles']['MainJobTitle'] : nil,
-              location: jd['CurrentLocation'].present? ? jd['CurrentLocation']['Municipality'] : nil, jd_file: params[:jd_file])
+              location: jd['CurrentLocation'].present? ? jd['CurrentLocation']['Municipality'] : nil, minimum_salary: salary, jd_file: params[:jd_file])
 
             # create_index_for_jd data, current_user, job_des.try(:document_id) # Indexing for JD along with document ID
-
             sovren_score_jd_to_resumes data, job_des.try(:id)
-
             job_des.update(document_id: identifier)
-            
-            url_generation current_user, job_des, identifier # UI generation for JD TO RESUME
-
-            return OpenStruct.new(success?: true, obj: job_des.reload)
+            job_des = url_generation current_user, job_des, identifier # UI generation for JD TO RESUME
+            return OpenStruct.new(success?: true, obj: job_des)
           end
+          
         rescue Exception => e
           return OpenStruct.new(success?: false, errors: e)
         end
       else
         return OpenStruct.new(success?: false, errors: data['Value']['ParsingResponse']['Message'])
       end
+    end
+
+    def self.find_or_create_exp(jd)
+      min_year = jd.dig("MinimumYears", "Value") || 0
+      max_year = jd.dig("MaximumYears", "Value") || 0
+      experiences_year = if min_year.zero? && max_year.zero?
+                          0
+                        elsif min_year.zero? && !max_year.zero?
+                          max_year
+                        elsif !min_year.zero? && max_year.zero?
+                          min_year
+                        else
+                          "#{min_year}-#{max_year}"
+                        end
+
+      exp = BxBlockPreferredOverallExperiences::PreferredOverallExperiences.find_or_create_by(
+        minimum_experience: min_year,
+        maximum_experience: max_year,
+        experiences_year: experiences_year,
+        level: nil,
+        grade: nil)
+      exp
     end
 
     def create_preferred_skills obj
@@ -288,8 +312,9 @@ module BxBlockSovren
       
       # Store URL in JD
       jd_data = BxBlockJobDescription::JobDescription.find_by(id: job_des.id)
-      (sovren_url.present? && jd_data.present?) ? jd_data.update(sovren_ui_url: sovren_url.fetch("url") ) : jd_data.update(sovren_ui_url: " ")
-      end  
+      sovren_url.present? ? jd_data.update(sovren_ui_url: sovren_url.fetch("url") ) : jd_data.update(sovren_ui_url: " ")
+      jd_data
+    end  
 
 
     # send_post_request
