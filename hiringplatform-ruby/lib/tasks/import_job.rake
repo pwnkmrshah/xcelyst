@@ -6,11 +6,9 @@ require 'httparty'
 namespace :import_jobs do
   desc 'Import job data from JSON files for all companies'
   task :all_companies => :environment do
-
     companies_url = "#{ENV['GET_COMPANY_URL']}/api/get/companies"
-  response = HTTParty.get(companies_url)
-  companies_json = JSON.parse(response.body)
-    byebug
+    response = HTTParty.get(companies_url)
+    companies_json = JSON.parse(response.body)
     companies_json.each do |company|
       get_company_details(company['id'])
     end
@@ -29,7 +27,7 @@ namespace :import_jobs do
     end
     res_data = JSON.parse(res.body)
     file_url = res_data['data']['json_file_url']
-      get_company_data(file_url)
+    get_company_data(file_url)
   end
 
   def get_company_data(file_url)
