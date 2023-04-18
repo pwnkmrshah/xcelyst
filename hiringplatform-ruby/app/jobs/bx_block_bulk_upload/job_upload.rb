@@ -10,7 +10,7 @@ module BxBlockBulkUpload
         # Log the exception
         puts "An error occurred: #{e.message}"
       end
-      send_logs_email(logs)
+      send_logs_email(logs) if logs.present?
     end
 
     def send_logs_email(logs)
