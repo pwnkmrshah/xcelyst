@@ -8,7 +8,7 @@ namespace :import_jobs do
   task :all_companies => :environment do
     companies_url = "#{ENV['GET_COMPANY_URL']}/api/get/companies"
     response = HTTParty.get(companies_url)
-    companies_json = JSON.parse(response.body)
+    companies_json = JSON.parse(response.body)["data"]
     companies_json.each do |company|
       get_company_details(company['id'])
     end
@@ -37,7 +37,7 @@ namespace :import_jobs do
     temp_file.write(URI.open(file_url).read)
     f_name = temp_file.path
     logs = BxBlockBulkUpload::JobDatabase.save_job(f_name)
-    send_logs_email(logs)
+    send_logs_email(logs) if logs.present?
     temp_file.close
     temp_file.unlink
   end
