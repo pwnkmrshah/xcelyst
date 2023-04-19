@@ -6,9 +6,9 @@ module BxBlockBulkUpload
       # this method is used to save the json file records into database.
       # all the records should be differentiate by the uid field which is unique and any uid present already
       # in the db. It will update that record.
-      def save_job(file)
+      def save_job(file, company_id = nil)
         file_content = File.read(file)
-        return nil if file_content.blank?
+        return nil if file_content.blank? || company_id.nil?
 
         data = JSON.parse(file_content)
 
@@ -20,24 +20,31 @@ module BxBlockBulkUpload
         
         logs = [] # Keep track of exception records and their reasons
 
+        puts "Start: Destroying all BxBlockJob::JobDatabase for company_uid = #{company_id}"
+        # Destroy all job for particular company_id
+        # Because Python API scrap in every 3 days, we will not this particular company_id until then
+        # Once we have new data, then we will insert again by below "each" loop
+        BxBlockJob::JobDatabase.where(company_uid: company_id).destroy_all
+        puts "End: Destroying all BxBlockJob::JobDatabase for company_uid = #{company_id}"
+
         jobs.each do |job|
           begin
-            jd_data = BxBlockJob::JobDatabase.find_or_initialize_by(job_uid: job['id'])
-            jd_data.update!(
-              company_name: (job['Company_Name'] || job['company_name']),
-              url: (job['url'] || job['url']),
-              job_uid: (job['id'] || job['id']),
-              job_title: (job['Job_Title'] || job['job_title']),
-              location: (job['Location'] || job['location']),
-              date_published: (job['Date_Published'] || job['date_published']),
-              business_area: (job['Business_Area'] || job['business_area']),
-              area_domain: (job['Area_Domain'] || job['area_domain']),
-              reference_code: (job['Reference_Code'] || job['reference_code']),
-              employment: (job['Employment'] || job['employment']),
-              responsibilities: (job['Responsibilities'] || job['responsibilities']),
-              skills: (job['Skills'] || job['skills']),
-              apply_for_job_url: (job['Apply_for_job_url'] || job['apply_for_job_url']),
-              description: (job['Description'] || job['description'])&.flatten!
+            BxBlockJob::JobDatabase.create!(
+              company_uid: job['company_id'],
+              company_name: job['company_name'],
+              url: job['url'],
+              job_uid: job['id'],
+              job_title: job['job_title'],
+              location: job['location'],
+              date_published: job['date_published'],
+              business_area: job['business_area'],
+              area_domain: job['area_domain'],
+              reference_code: job['reference_code'],
+              employment: job['employment'],
+              responsibilities: job['responsibilities'],
+              skills: job['skills'],
+              apply_for_job_url: job['apply_for_job_url'],
+              description: job['description']&.flatten!
             )
             success_count += 1
           rescue => e
@@ -45,6 +52,10 @@ module BxBlockBulkUpload
             logs << { id: job['id'], reason: e.message } # Add the exception record ID and reason to the logs array
           end
         end
+
+        # TODO: If exception_count is Zero, then call a Python API to update this particular company_id status
+        # So that, in next iteration we do not fetch this particular company until next scraping at Python API
+        # Once Python API will do another scraping, again we will get the updated data. We will go same again.
 
         # Return a hash with the success and exception counts and the logs
         { success_count: success_count, exception_count: exception_count, logs: logs, file: file}
