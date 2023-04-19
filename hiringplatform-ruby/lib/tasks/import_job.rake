@@ -27,16 +27,16 @@ namespace :import_jobs do
     end
     res_data = JSON.parse(res.body)
     file_url = res_data['data']['json_file_url']
-    get_company_data(file_url)
+    get_company_data(file_url, company_id)
   end
 
-  def get_company_data(file_url)
+  def get_company_data(file_url, company_id)
     # Download the file and extract its contents
     temp_file = Tempfile.new('file.txt')
     temp_file.binmode
     temp_file.write(URI.open(file_url).read)
     f_name = temp_file.path
-    logs = BxBlockBulkUpload::JobDatabase.save_job(f_name)
+    logs = BxBlockBulkUpload::JobDatabase.save_job(f_name, company_id)
     send_logs_email(logs) if logs.present?
     temp_file.close
     temp_file.unlink

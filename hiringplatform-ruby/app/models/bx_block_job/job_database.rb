@@ -14,7 +14,7 @@ module BxBlockJob
 
     def as_indexed_json(options = {})
       self.as_json(
-        only: [:url, :job_uid, :job_title, :location, :date_published, :business_area, :area_domain, :reference_code, :employment, :responsibilities, :skills, :apply_for_job_url, :description, :company_name, :company_logo] 
+        only: [:url, :job_uid, :job_title, :location, :date_published, :business_area, :area_domain, :reference_code, :employment, :responsibilities, :skills, :apply_for_job_url, :description, :company_name, :company_logo, :company_uid]
       )
     end  
 

@@ -4,7 +4,8 @@ module BxBlockJob
 		attributes *[
 			:id,
 			:url,
-			:company_name,
+			:company_uid,
+      :company_name,
 			:company_logo,
 			:job_uid,
 			:job_title,
