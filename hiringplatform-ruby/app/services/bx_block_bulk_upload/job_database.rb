@@ -20,12 +20,12 @@ module BxBlockBulkUpload
         
         logs = [] # Keep track of exception records and their reasons
 
-        puts "Start: Destroying all BxBlockJob::JobDatabase for company_uid = #{company_id}"
-        # Destroy all job for particular company_id
-        # Because Python API scrap in every 3 days, we will not this particular company_id until then
-        # Once we have new data, then we will insert again by below "each" loop
-        BxBlockJob::JobDatabase.where(company_uid: company_id).destroy_all
-        puts "End: Destroying all BxBlockJob::JobDatabase for company_uid = #{company_id}"
+        # puts "Start: Destroying all BxBlockJob::JobDatabase for company_uid = #{company_id}"
+        # # Destroy all job for particular company_id
+        # # Because Python API scrap in every 3 days, we will not this particular company_id until then
+        # # Once we have new data, then we will insert again by below "each" loop
+        # BxBlockJob::JobDatabase.where(company_uid: company_id).destroy_all
+        # puts "End: Destroying all BxBlockJob::JobDatabase for company_uid = #{company_id}"
 
         jobs.each do |job|
           begin
