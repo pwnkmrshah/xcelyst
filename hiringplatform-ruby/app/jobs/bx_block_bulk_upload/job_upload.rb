@@ -2,10 +2,10 @@ module BxBlockBulkUpload
   class JobUpload < BxBlockBulkUpload::ApplicationJob 
     queue_as :default
 
-    def perform(f_name)
+    def perform(f_name, company_id = nil)
       begin
         ext = f_name.split('.').last
-        logs = BxBlockBulkUpload::JobDatabase.save_job(f_name)# if ext == "txt"
+        logs = BxBlockBulkUpload::JobDatabase.save_job(f_name, company_id)# if ext == "txt"
       rescue => e
         # Log the exception
         puts "An error occurred: #{e.message}"
