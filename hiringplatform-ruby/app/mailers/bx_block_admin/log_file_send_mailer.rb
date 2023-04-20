@@ -3,7 +3,7 @@ module BxBlockAdmin
   
       def send_file(subject, body, logs, file_name)
         attachments[file_name] = logs.to_s
-        mail(to: "info@xcelyst.com", from: 'builder.bx_dev@engineer.ai', subject: subject, body: body)
+        mail(to: ENV['EMAIL_ADDRESS'], from: 'builder.bx_dev@engineer.ai', subject: subject, body: body)
       end
   
     end
