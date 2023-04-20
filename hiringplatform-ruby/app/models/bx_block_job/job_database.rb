@@ -96,16 +96,16 @@ module BxBlockJob
 
           must_qry << {
             "bool": {
-              "should": and_qry
+              "must": and_qry
             }
           } if and_qry.any?
-            
+
           must_qry << {
             "bool": {
               "should": or_qry
             }
           } if or_qry.any?
-            
+
           if not_qry.present?
             s[:query][:bool][:must_not] ||= []
 
