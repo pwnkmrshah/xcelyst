@@ -33,7 +33,7 @@ module BxBlockBulkUpload
       temp_file.write(URI.open(file_url).read)
       f_name = temp_file.path
       logs = BxBlockBulkUpload::JobDatabase.save_job(f_name, company_id)
-      send_logs_email(logs) if logs.present?
+      # send_logs_email(logs) if logs.present?
       temp_file.close
       temp_file.unlink
     end
