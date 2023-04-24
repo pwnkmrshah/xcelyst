@@ -179,10 +179,13 @@ module BxBlockJob
           } 
         end if keywords_not_qry.present?
 
-        s[:query][:bool][:filter] ||= []
-        s[:query][:bool][:filter] << or_qry if or_qry&.any?
-        s[:query][:bool][:filter] << and_qry if and_qry&.any?
-        s[:query][:bool][:filter].flatten!
+        s[:query][:bool][:must] ||= []
+        s[:query][:bool][:must] << and_qry if and_qry&.any?
+        s[:query][:bool][:must].flatten!
+
+        s[:query][:bool][:should] ||= []
+        s[:query][:bool][:should] << or_qry if or_qry&.any?
+        s[:query][:bool][:should].flatten!
 
         if not_qry.present?
           not_qry.each do |qry|
@@ -310,7 +313,6 @@ module BxBlockJob
       and_qry = []
       not_qry = []
       index = 0
-
       while index < arr.length
         if arr[index] == "or"
           or_qry << arr[index-1] if index > 0 && arr[index-1] != "and"
@@ -320,16 +322,15 @@ module BxBlockJob
           and_qry << arr[index+1] if index < arr.length - 1 && arr[index+1] != "or"
         elsif arr[index] == "not"
           not_qry << arr[index+1]
-        else
-          or_qry << arr[index]
         end
         index += 1
       end
 
       or1 = or_qry - not_qry
       and1 = and_qry - or_qry
+      or1 = arr if or1.empty? && and_qry.empty? && not_qry.empty?
 
-      { or_qry: or1, and_qry: and1, not_qry: not_qry  }
+      { or_qry: or1, and_qry: and1, not_qry: not_qry }
     end
 
     def self.split_keywords(arr)
