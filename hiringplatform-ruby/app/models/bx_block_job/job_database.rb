@@ -146,6 +146,19 @@ module BxBlockJob
         keywords_or_qry = keyword[:or_qry]
         keywords_and_qry = keyword[:and_qry]
         keywords_not_qry = keyword[:not_qry]
+        plain_qry = keyword[:original_arr]
+
+        plain_qry = plain_qry.map do |word|
+          {
+            "multi_match": {
+              "query": word,
+              "fields": ["*"],
+              "operator": "and",
+              "type": "phrase"
+            }
+          }
+        end if plain_qry.present?
+
         or_qry = keywords_or_qry.map do |word|
           {
             "multi_match": {
@@ -186,6 +199,10 @@ module BxBlockJob
         s[:query][:bool][:should] ||= []
         s[:query][:bool][:should] << or_qry if or_qry&.any?
         s[:query][:bool][:should].flatten!
+
+        s[:query][:bool][:filter] ||= []
+        s[:query][:bool][:filter] << plain_qry if plain_qry&.any?
+        s[:query][:bool][:filter].flatten!
 
         if not_qry.present?
           not_qry.each do |qry|
@@ -312,15 +329,16 @@ module BxBlockJob
       or_qry = []
       and_qry = []
       not_qry = []
+      original_arr = []
       index = 0
       while index < arr.length
-        if arr[index] == "or"
+        if arr[index].downcase == "or"
           or_qry << arr[index-1] if index > 0 && arr[index-1] != "and"
           or_qry << arr[index+1] if index < arr.length - 1 && arr[index+1] != "and"
-        elsif arr[index] == "and"
+        elsif arr[index].downcase == "and"
           and_qry << arr[index-1] if index > 0 && arr[index-1] != "or"
           and_qry << arr[index+1] if index < arr.length - 1 && arr[index+1] != "or"
-        elsif arr[index] == "not"
+        elsif arr[index].downcase == "not"
           not_qry << arr[index+1]
         end
         index += 1
@@ -328,9 +346,9 @@ module BxBlockJob
 
       or1 = or_qry - not_qry
       and1 = and_qry - or_qry
-      or1 = arr if or1.empty? && and_qry.empty? && not_qry.empty?
+      original_arr = arr if or1.empty? && and_qry.empty? && not_qry.empty?
 
-      { or_qry: or1, and_qry: and1, not_qry: not_qry }
+      { or_qry: or1, and_qry: and1, not_qry: not_qry, original_arr: original_arr }
     end
 
     def self.split_keywords(arr)
@@ -351,5 +369,3 @@ module BxBlockJob
     end
   end
 end
-
-
