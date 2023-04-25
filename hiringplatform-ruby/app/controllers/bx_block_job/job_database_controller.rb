@@ -36,7 +36,7 @@ module BxBlockJob
 
     def pagination_data data
       per_page_limit = BxBlockDatabase::DownloadLimit.last.per_page_limit
-      total_data = data.total > 10000 ? data.total : 10000
+      total_data = data.total
       total_pages = total_data/(per_page_limit || 5)
       pages = total_data % (per_page_limit || 5)
       if pages > 0
