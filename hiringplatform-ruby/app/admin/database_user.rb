@@ -12,7 +12,7 @@ ActiveAdmin.register BxBlockDatabase::TemporaryUserDatabase, as: "Database User"
 		column :full_name
 		column :current_position do |obj|
     	data = ""
-			obj.position && obj.position.each do |pos|
+			obj.position&.each do |pos|
 				if pos['current'].present? && pos['current']
 					data = "#{pos['position']} in #{pos['company']}, #{pos['location']}"
 				end
