@@ -20,9 +20,10 @@ set :output, "log/cron_log.log"
 
 
 every 1.minute do
-    rake 'delete_otp'
+  rake 'delete_otp'
 end
 
-every 5.minute do
-    rake "test:update_test_data"
-end
+# TODO: Need to confirm this
+# every 1.day, at: ['10:00 am', '10:00 pm'] do
+#   rake "import_jobs:all_companies"
+# end
