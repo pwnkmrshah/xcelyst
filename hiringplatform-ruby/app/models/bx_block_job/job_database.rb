@@ -189,7 +189,7 @@ module BxBlockJob
               "operator": "and",
               "type": "phrase"
             }
-          } 
+          }
         end if keywords_not_qry.present?
 
         s[:query][:bool][:must] ||= []
@@ -238,7 +238,7 @@ module BxBlockJob
               "location": word
             }
           }
-        end     
+        end
         s[:query][:bool][:must] << {
           "bool": {
             "should": qry
@@ -256,7 +256,7 @@ module BxBlockJob
               "company_name": word
             }
           }
-        end     
+        end
         s[:query][:bool][:must] << {
           "bool": {
             "should": qry
@@ -325,6 +325,7 @@ module BxBlockJob
     end
 
     def self.format_keyword(arr)
+      full_string = arr
       arr = split_keywords(arr)
       or_qry = []
       and_qry = []
@@ -340,14 +341,22 @@ module BxBlockJob
           and_qry << arr[index+1] if index < arr.length - 1 && arr[index+1] != "or"
         elsif arr[index].downcase == "not"
           not_qry << arr[index+1]
+        else
+          original_arr << arr[index]
         end
         index += 1
       end
 
       or1 = or_qry - not_qry
       and1 = and_qry - or_qry
-      original_arr = arr if or1.empty? && and_qry.empty? && not_qry.empty?
-
+      original_arr = original_arr - or1 - and1 - not_qry
+      
+      if arr.include?(full_string.gsub("\"", ""))
+        and1 = [full_string.gsub("\"", "")]
+        original_arr = []
+        or1 = []
+        not_qry = []
+      end
       { or_qry: or1, and_qry: and1, not_qry: not_qry, original_arr: original_arr }
     end
 
