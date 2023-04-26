@@ -20,12 +20,14 @@ module BxBlockBulkUpload
         
         logs = [] # Keep track of exception records and their reasons
 
-        # puts "Start: Destroying all BxBlockJob::JobDatabase for company_uid = #{company_id}"
-        # # Destroy all job for particular company_id
-        # # Because Python API scrap in every 3 days, we will not this particular company_id until then
-        # # Once we have new data, then we will insert again by below "each" loop
-        # BxBlockJob::JobDatabase.where(company_uid: company_id).destroy_all
-        # puts "End: Destroying all BxBlockJob::JobDatabase for company_uid = #{company_id}"
+        puts "BxBlockBulkUpload::JobDatabase || Start: Destroying all BxBlockJob::JobDatabase for company_uid = #{company_id}"
+        # Destroy all job for particular company_id
+        # Because Python API scrap in every 3 days, we will not this particular company_id until then
+        # Once we have new data, then we will insert again by below "each" loop
+        bx_block_jobs = BxBlockJob::JobDatabase.where(company_uid: company_id)
+        puts "BxBlockBulkUpload::JobDatabase || Total count of BxBlockJob::JobDatabase for company_uid = #{company_id} is: #{bx_block_jobs.count}"
+        bx_block_jobs.destroy_all
+        puts "BxBlockBulkUpload::JobDatabase || End: Destroying all BxBlockJob::JobDatabase for company_uid = #{company_id}"
 
         jobs.each do |job|
           begin
@@ -53,9 +55,24 @@ module BxBlockBulkUpload
           end
         end
 
-        # TODO: If exception_count is Zero, then call a Python API to update this particular company_id status
+        # If exception_count is Zero, then call a Python API to update this particular company_id status
         # So that, in next iteration we do not fetch this particular company until next scraping at Python API
         # Once Python API will do another scraping, again we will get the updated data. We will go same again.
+        if exception_count.zero?
+          puts "BxBlockBulkUpload::JobDatabase || Updating company status for company_id: #{company_id}"
+          companies_url = "#{ENV['GET_COMPANY_URL']}api/get/job/status"
+          response = HTTParty.post(
+            companies_url,
+            body: {
+              env: ENV['RAILS_ENV'],
+              company_id: company_id,
+              status: 1
+            }
+          )
+        else
+          puts "BxBlockBulkUpload::JobDatabase || exception_count is not zero for company_id: #{company_id}"
+          puts "BxBlockBulkUpload::JobDatabase || Exception count: #{exception_count}"
+        end
 
         # Return a hash with the success and exception counts and the logs
         { success_count: success_count, exception_count: exception_count, logs: logs, file: file}

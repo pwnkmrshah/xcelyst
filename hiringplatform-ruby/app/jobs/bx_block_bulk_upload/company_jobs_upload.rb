@@ -1,3 +1,4 @@
+
 require 'open-uri'
 require 'json'
 require 'httparty'
@@ -10,7 +11,10 @@ module BxBlockBulkUpload
       return if company_id.nil?
 
       companies_url = URI("#{ENV['GET_COMPANY_URL']}api/get/job/details")
-      params = { company_id: company_id }
+      params = {
+        env: ENV['RAILS_ENV'],
+        company_id: company_id
+      }
       headers = { 'Content-Type': 'application/json' }
       
       req = Net::HTTP::Post.new(companies_url, headers)
