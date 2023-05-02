@@ -22,9 +22,3 @@ set :output, "log/cron_log.log"
 every 1.minute do
   rake 'delete_otp'
 end
-
-# TODO: Once go for production, need to run once in a day
-# every 1.day, at: '2:00 am' do
-every 45.minute do
-  rake 'import_jobs:all_companies'
-end

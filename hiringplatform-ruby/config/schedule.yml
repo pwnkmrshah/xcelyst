@@ -10,3 +10,6 @@ feedback_nofi_mail:
 test_dome:
   cron: "*/5 * * * *"
   class: "BxBlockTestDome::FetchTestWorker"
+fetch_companies:
+  cron: "*/30 * * * *"
+  class: "BxBlockBulkUpload::AllCompaniesFetchWorker"
