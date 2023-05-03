@@ -16,7 +16,7 @@ module BxBlockContentManagement
         when "Text"
           content_text = content_type.content_text
           if content_text
-            render json: {data: content_text.as_json(only: [:id, :headline, :synopsis, :content, :affiliation,  :hyperlink, :images])}
+            render_success(content_text.as_json(only: [:id, :headline, :synopsis, :content, :affiliation,  :hyperlink, :images]))
           else
             render json: {error: "content not found"}, status: :unprocessable_entity
           end
@@ -27,28 +27,28 @@ module BxBlockContentManagement
             content_video = video.last(2)
           end
           if content_video
-            render json: {data: content_video.as_json(only: [:id, :separate_section, :headline, :description, :thumbnails, :image, :video_url])}
+            render_success(content_video.as_json(only: [:id, :separate_section, :headline, :description, :thumbnails, :image, :video_url]))
           else
             render json: {error: "content not found"}, status: :unprocessable_entity
           end
         when "AudioPodcast"
           audio_podcast = content_type.audio_podcast
           if audio_podcast
-            render json: {data: audio_podcast.as_json(only: [:id, :heading, :description, :image, :audio_url])}
+            render_success(audio_podcast.as_json(only: [:id, :heading, :description, :image, :audio_url]))
           else
             render json: {error: "content not found"}, status: :unprocessable_entity
           end
         when "Epub"
           epub = content_type.epub
           if epub
-            render json: {data: epub.as_json(only: [:id, :heading, :description, :pdfs])}
+            render_success(epub.as_json(only: [:id, :heading, :description, :pdfs]))
           else
             render json: {error: "content not found"}, status: :unprocessable_entity
           end
         when "MemberBio"
           member_bio = content_type.member_bio
           if member_bio
-            render json: {data: member_bio.as_json(only: [:id, :name, :description, :position, :social_media_links, :image])}
+            render_success(member_bio.as_json(only: [:id, :name, :description, :position, :social_media_links, :image]))
           else
             render json: {error: "content not found"}, status: :unprocessable_entity
           end
@@ -121,6 +121,18 @@ module BxBlockContentManagement
     def get_social_media_link
       links = SocialMediaLink.all
       render json: {data: links}, status: :ok
+    end
+
+    private
+
+    def render_success(msg, code = :ok)
+      if msg.class == Hash
+        msg.merge!(is_hide_job_menu: ENV['MENU_JOBS'])
+      else
+        msg << {is_hide_job_menu: ENV['MENU_JOBS']}
+      end
+
+      render json: {data: msg}, status: code
     end
   end
 end
