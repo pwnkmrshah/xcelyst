@@ -1,4 +1,5 @@
 require 'sidekiq/web'
+require 'sidekiq/cron/web'
 require "action_cable/engine"
 
 Rails.application.routes.draw do

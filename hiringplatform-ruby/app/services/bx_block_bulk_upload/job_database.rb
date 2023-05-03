@@ -43,10 +43,10 @@ module BxBlockBulkUpload
               area_domain: job['area_domain'],
               reference_code: job['reference_code'],
               employment: job['employment'],
-              responsibilities: job['responsibilities'],
-              skills: job['skills'],
+              responsibilities: format_data(job['responsibilities']),
+              skills: format_data(job['skills']),
               apply_for_job_url: job['apply_for_job_url'],
-              description: job['description']&.flatten!
+              description: format_data(job['description'])
             )
             success_count += 1
           rescue => e
@@ -76,6 +76,15 @@ module BxBlockBulkUpload
 
         # Return a hash with the success and exception counts and the logs
         { success_count: success_count, exception_count: exception_count, logs: logs, file: file}
+      end
+
+      private
+
+      def format_data(data)
+        formatted_data = Array.wrap(data).flatten&.select{ |datum| datum.present? }
+        return nil if formatted_data.blank?
+
+        formatted_data
       end
     end
   end
