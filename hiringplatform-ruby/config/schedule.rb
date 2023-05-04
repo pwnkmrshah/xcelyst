@@ -20,9 +20,5 @@ set :output, "log/cron_log.log"
 
 
 every 1.minute do
-    rake 'delete_otp'
-end
-
-every 5.minute do
-    rake "test:update_test_data"
+  rake 'delete_otp'
 end
