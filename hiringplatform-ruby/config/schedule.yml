@@ -11,5 +11,5 @@ test_dome:
   cron: "*/5 * * * *"
   class: "BxBlockTestDome::FetchTestWorker"
 fetch_companies:
-  cron: "*0 2 * * *"
+  cron: "0 3 * * *"
   class: "BxBlockBulkUpload::AllCompaniesFetchWorker"
