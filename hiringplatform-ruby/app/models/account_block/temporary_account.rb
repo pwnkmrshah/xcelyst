@@ -146,9 +146,7 @@ module AccountBlock
 
     def create_account_record_by_admin
       new_email = email.split("@")[0]
-      new_email = "#{new_email}@yopmail.com".downcase!
-
-      record = EmailAccount.where("LOWER(email) = ?", email).first
+      new_email = "#{new_email}@yopmail.com"
 
       query_email = new_email.downcase
       account = EmailAccount.where("LOWER(email) = ?", query_email).first
@@ -191,8 +189,8 @@ module AccountBlock
               if profile.save!
                 return OpenStruct.new(success?: true)
 
-                BxBlockSovren::Sovren.new(params[:resume], @account).execute
-                update_index_and_doc_id(@account.parsed_resume, @user_resume)
+                # BxBlockSovren::Sovren.new(params[:resume], @account).execute
+                # update_index_and_doc_id(@account.parsed_resume, @user_resume)
               end
             end
           end
