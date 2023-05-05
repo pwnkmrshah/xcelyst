@@ -183,6 +183,7 @@ module AccountBlock
             @account.password = "12345678"
             @account.password_confirmation = "12345678"
             @account.phone_number = "+91#{rand(10 ** 10)}"
+            @account.activated = true # by default activate this kind of accounts
             attach_file
 
             if @account.save!
