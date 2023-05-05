@@ -58,10 +58,12 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
 		column :actions do |item|
 			links = []
 			links << link_to("Permanent", make_permanent_account_admin_temporary_account_path(item), method: :put, class: "button", style: "font-size: 15px;margin: 1px")
+      links << link_to("Temporary By Admin", temporary_make_permanent_account_admin_temporary_account_path(item), method: :put, class: "button", style: "font-size: 15px;margin: 1px")
     	links << link_to('Delete', admin_temporary_account_path(item), method: :delete, confirm: 'Are you sure?', class: "button", style: "font-size: 15px;margin: 1px")
     	links.join(' ').html_safe
   	end 
 	end
+
 
 	member_action :make_permanent_account, method: :put do
     x = resource.permanent!
@@ -70,6 +72,16 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
     else
     	flash[:error] = "This record has incomplete fields."
     	redirect_to admin_temporary_accounts_path
+    end
+  end
+
+  member_action :temporary_make_permanent_account, method: :put do
+    x = resource.permanent_by_admin!
+    if x.success?
+      redirect_to admin_temporary_accounts_path, notice: "Moved to Normal Account!"
+    else
+      flash[:error] = "This record has incomplete fields."
+      redirect_to admin_temporary_accounts_path
     end
   end
 	

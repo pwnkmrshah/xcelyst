@@ -20,6 +20,16 @@ module AccountBlock
 			end
 		end
 
+    def permanent_by_admin!
+      x = create_account_record_by_admin
+      if x.success?
+        update(is_permanent: true)
+        return OpenStruct.new(success?: true)
+      else
+        return OpenStruct.new(success?: false, errors: x.errors)
+      end
+    end
+
     def get_parsed_resume_data 
       if self.parse_resume.present?
         if self.parse_resume.attached?
@@ -133,6 +143,64 @@ module AccountBlock
 
     	end
 		end
+
+    def create_account_record_by_admin
+      new_email = email.split("@")[0]
+      new_email = "#{new_email}@yopmail.com".downcase!
+
+      record = EmailAccount.where("LOWER(email) = ?", email).first
+
+      query_email = new_email.downcase
+      account = EmailAccount.where("LOWER(email) = ?", query_email).first
+      if account.present?
+        return OpenStruct.new(success?: false, errors: "Account Already present with this email.")
+      else
+        begin
+          ActiveRecord::Base.transaction(isolation: :serializable) do
+            self.email = new_email
+            @account = EmailAccount.new(self.attributes.slice(*whitelisted_fields).merge!(user_role: 'candidate',is_converted_account: true))
+
+            # parsed_resume = self.parsed_resume.present? ? self.parsed_resume : get_parsed_resume_data
+
+            parsed_resume = get_parsed_resume_data
+
+            # parsed_resume = self.parsed_resume.present? ? self.parsed_resume : TempAccount.find_by(temporary_account_id: self.id).parsed_resume
+
+            if parsed_resume.present?
+              if parsed_resume['Value'].present?
+                if parsed_resume['Value']['ResumeData'].present?
+                  if parsed_resume['Value']['ResumeData']['ContactInformation'].present?
+                    if parsed_resume['Value']['ResumeData']['ContactInformation']['Location'].present?
+                      if parsed_resume['Value']['ResumeData']['ContactInformation']['Location']['Municipality'].present?
+                        @account.current_city = parsed_resume['Value']['ResumeData']['ContactInformation']['Location']['Municipality']
+                      end
+                    end
+                  end
+                end
+              end
+            end
+
+            @account.password = "12345678"
+            @account.password_confirmation = "12345678"
+            @account.phone_number = "+91#{rand(10 ** 10)}"
+            attach_file
+
+            if @account.save!
+              profile = BxBlockProfile::Profile.new(account_id: @account.id)
+              if profile.save!
+                return OpenStruct.new(success?: true)
+
+                BxBlockSovren::Sovren.new(params[:resume], @account).execute
+                update_index_and_doc_id(@account.parsed_resume, @user_resume)
+              end
+            end
+          end
+        rescue Exception => e
+          return OpenStruct.new(success?: false, errors: e)
+        end
+
+      end
+    end
 
 		def whitelisted_fields
 			fields = %w[email first_name last_name]
