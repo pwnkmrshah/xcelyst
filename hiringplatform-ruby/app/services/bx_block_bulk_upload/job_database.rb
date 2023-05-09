@@ -81,7 +81,7 @@ module BxBlockBulkUpload
       private
 
       def format_data(data)
-        formatted_data = Array.wrap(data).flatten&.select{ |datum| datum.present? }
+        formatted_data = Array.wrap(data).flatten&.select{ |datum| datum.present? && datum != "null" }
         return nil if formatted_data.blank?
 
         formatted_data
