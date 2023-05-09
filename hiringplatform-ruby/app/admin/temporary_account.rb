@@ -80,7 +80,11 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
     if x.success?
       redirect_to admin_temporary_accounts_path, notice: "Moved to Normal Account!"
     else
-      flash[:error] = "This record has incomplete fields."
+		if x.errors == "Account Already present with this email."
+			flash[:error] = "Account Already present with this email."
+		else
+			flash[:error] = "This record has incomplete fields."
+		end
       redirect_to admin_temporary_accounts_path
     end
   end
