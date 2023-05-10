@@ -30,6 +30,11 @@ module BxBlockJob
           "bool": {
             "must": must_qry
           }
+        },
+        "sort": {
+          "date_published": {
+            "order": "desc"
+          }
         }
       }
 

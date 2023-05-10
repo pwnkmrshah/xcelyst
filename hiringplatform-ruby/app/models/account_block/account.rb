@@ -14,7 +14,9 @@ module AccountBlock
     before_create :generate_pin_and_valid_date
     before_save { self.email.downcase! }
     # after_create :send_pin_via_sms
-    validates_format_of :first_name, :last_name, :with => /^[a-zA-Z\s]*$/, :multiline => true, message: "Number or special character not allowed"
+    # validates_format_of :first_name, :last_name, :with => /^[a-zA-Z\s]*$/, :multiline => true, message: "Number or special character not allowed"
+    # "." is present in last_name so we are removing "*$" made_by_sadhna
+    validates_format_of :first_name, :last_name, :with => /^[a-zA-Z\s]/, :multiline => true, message: "Number or special character not allowed"
     validates_format_of :current_city, :with => /^[a-zA-Z\s()]*$/, :multiline => true, message: "Number or special character not allowed"
     validates_presence_of :first_name, :last_name, :current_city, :email, presence: true
     # validates_presence_of :resume_url, present: true, if: -> { self.user_role == "candidate"}
