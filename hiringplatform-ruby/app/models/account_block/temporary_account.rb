@@ -20,14 +20,25 @@ module AccountBlock
 			end
 		end
 
+    def permanent_by_admin!
+      x = create_account_record_by_admin
+      if x.success?
+        update(is_permanent: true)
+        return OpenStruct.new(success?: true)
+      else
+        return OpenStruct.new(success?: false, errors: x.errors)
+      end
+    end
+
     def get_parsed_resume_data 
       if self.parse_resume.present?
         if self.parse_resume.attached?
           data = [
             Thread.new {
-              url = Rails.application.routes.url_helpers.rails_blob_url(self.parse_resume)
-              result = open(url).read
-              eval(result)
+              # url = Rails.application.routes.url_helpers.rails_blob_path(self.parse_resume)
+              # result = open(url).read
+              # eval(result)
+              self.parse_resume.service_url
             }
           ].map(&:value)
           data[0]
@@ -60,7 +71,7 @@ module AccountBlock
               		if parsed_resume['Value']['ResumeData']['ContactInformation'].present?
               			if parsed_resume['Value']['ResumeData']['ContactInformation']['Location'].present?
               				if parsed_resume['Value']['ResumeData']['ContactInformation']['Location']['Municipality'].present?
-              					@account.current_city = parsed_resume['Value']['ResumeData']['ContactInformation']['Location']['Municipality']
+              					@account.current_city = parsed_resume['Value']['ResumeData']['ContactInformation']['Location']['Municipality'] 
               				end
               			end
               		end
@@ -116,7 +127,6 @@ module AccountBlock
             # end
 
             attach_file
-
             if @account.save!
               profile = BxBlockProfile::Profile.new(account_id: @account.id)
               if profile.save!
@@ -133,6 +143,91 @@ module AccountBlock
 
     	end
 		end
+
+    def create_account_record_by_admin
+
+      if email.blank?
+        new_email = "#{first_name.gsub(' ','')}@yopmail.com".downcase!
+        record = EmailAccount.where("LOWER(email) = ?", new_email).first
+        if record.present?
+          usernames = find_unique_username(first_name.gsub(' ',''))
+          usernames.each do |username|
+            new_email = "#{username}@yopmail.com".downcase!
+            record = EmailAccount.where("LOWER(email) = ?", new_email).first
+            unless record.present?
+              new_email = new_email
+              break
+            end
+          end
+        end
+      else
+        new_email = email.split("@")[0]
+        new_email = "#{new_email}@yopmail.com"
+      end
+
+      query_email = new_email.downcase
+
+      account = EmailAccount.where("LOWER(email) = ?", query_email).first
+      if account.present?
+        return OpenStruct.new(success?: false, errors: "Account Already present with this email.")
+      else
+        begin
+          ActiveRecord::Base.transaction(isolation: :serializable) do
+            self.email = new_email
+            @account = EmailAccount.new(self.attributes.slice(*whitelisted_fields).merge!(user_role: 'candidate',is_converted_account: true))
+
+            # parsed_resume = self.parsed_resume.present? ? self.parsed_resume : get_parsed_resume_data
+            parsed_resume = get_parsed_resume_data
+            # parsed_resume = self.parsed_resume.present? ? self.parsed_resume : TempAccount.find_by(temporary_account_id: self.id).parsed_resume
+
+            if parsed_resume.present?
+              if parsed_resume['Value'].present?
+                if parsed_resume['Value']['ResumeData'].present?
+                  if parsed_resume['Value']['ResumeData']['ContactInformation'].present?
+                    if parsed_resume['Value']['ResumeData']['ContactInformation']['Location'].present?
+                      if parsed_resume['Value']['ResumeData']['ContactInformation']['Location']['Municipality'].present?
+                        @account.current_city = parsed_resume['Value']['ResumeData']['ContactInformation']['Location']['Municipality']
+                      end
+                    end
+                  end
+                end
+              end
+            end
+
+            if @account.current_city.blank?
+              @account.current_city = Faker::Address.country 
+            end
+            @account.password = "12345678"
+            @account.password_confirmation = "12345678"
+            @account.phone_number = "+91#{rand(10 ** 10)}"
+            @account.activated = true # by default activate this kind of accounts
+
+            attach_file
+            if @account.save!
+              profile = BxBlockProfile::Profile.new(account_id: @account.id)
+              if profile.save!
+
+                @user_resume = AccountBlock::UserResume.create(resume_id: SecureRandom.uuid, account_id: @account.id)
+
+                url = self.parse_resume.service_url
+                uri = URI(url)
+                response = Net::HTTP.get(uri)
+                json_content = JSON.parse(response.gsub(/=>/, ':'))
+
+                update_index_and_doc_id(json_content, @user_resume)
+
+                return OpenStruct.new(success?: true)
+                # BxBlockSovren::Sovren.new(params[:resume], @account).execute
+
+              end
+            end
+          end
+        rescue Exception => e
+          return OpenStruct.new(success?: false, errors: e)
+        end
+
+      end
+    end
 
 		def whitelisted_fields
 			fields = %w[email first_name last_name]

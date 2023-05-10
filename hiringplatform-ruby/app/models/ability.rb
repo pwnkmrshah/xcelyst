@@ -29,7 +29,7 @@ class Ability
 
   def initialize(user)
     if user.email == 'admin@xcelyst.com'
-      can :manage, [ActiveAdmin::Page, BxBlockAdminRolePermission::AdminRole, UserAdmin, BxBlockCfzoomintegration3::ZoomMeeting, BxBlockCfzoomintegration3::Zoom]
+      can :manage, [ActiveAdmin::Page, BxBlockAdminRolePermission::AdminRole, UserAdmin, BxBlockCfzoomintegration3::ZoomMeeting, BxBlockCfzoomintegration3::Zoom, BxBlockDatabase::DownloadLimit, AccountBlock::TemporaryAccount]
     else
       can :manage, [ActiveAdmin::Page]
     end
@@ -83,6 +83,7 @@ class Ability
       when 'temporary account'     then AccountBlock::TemporaryAccount
       when 'terms & condition'     then BxBlockInformation::TermCondition
       when 'account block'         then AccountBlock::Account
+      # when 'downloadlimit'         then BxBlockDatabase::DownloadLimit
     else nil
     end
   end
