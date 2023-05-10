@@ -11,7 +11,7 @@
       <div class="permissions">
         <% permissions.each do |permission| %>
           <label class="block-label">
-            <%= check_box_tag "admin_role[admin_permission_ids][]", permission.id, admin_permissions.include?(permission), { multiple: true, data: { 'module-name': module_name } } %>
+            <%= check_box_tag "admin_role[admin_permission_ids][]", permission.id, admin_permissions.include?(permission), { multiple: true, data: { 'module-name': module_name }, disabled: true } %>
             <%= permission_name(permission) %>
           </label><br>
         <% end %><br>
