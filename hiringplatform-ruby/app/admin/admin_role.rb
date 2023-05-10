@@ -18,6 +18,12 @@ ActiveAdmin.register BxBlockAdminRolePermission::AdminRole, as: "Admin Role" do
   controller do
     def create
       admin_role = BxBlockAdminRolePermission::AdminRole.new(admin_role_params)
+      # If no permission, then don't save the AdminRole
+      unless params[:bx_block_admin_role_permission_admin_role][:admin_permission_ids].uniq.include?("1")
+        flash[:warning] = 'Please select at least one permission to create new Admin Role!'
+        redirect_to admin_admin_roles_path and return
+      end
+
       if admin_role.save
 
         params[:bx_block_admin_role_permission_admin_role][:admin_permission_ids].each do |id|
