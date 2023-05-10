@@ -9,7 +9,7 @@
 <%= form_with(model: @admin_role, url: url, local: true) do |form| %>
   <h3><li class="input admin-role-input">
     <%= form.label :name, class: 'label' do %>
-      Name<span class="mandatory">*</span>
+      Role Name<span class="mandatory">*</span>
     <% end %>
     <%= form.text_field :name, required: true %>
   </li></h3>
