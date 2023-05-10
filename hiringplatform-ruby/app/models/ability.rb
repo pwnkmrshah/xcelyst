@@ -10,7 +10,7 @@ class Ability
     'browse_shortlist_candidate' => [:read],
     'add' => [:new],
     'add' => [:create],
-    'new_client' => [:create],
+    'add_client' => [:create],
     'edit' => [:update],
     'edit_candidate' => [:update],
     'edit_client' => [:update],

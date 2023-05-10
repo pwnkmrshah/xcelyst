@@ -17,7 +17,7 @@ class AdminUser < ApplicationRecord
     end
 
     def can_read_account_block_for_client?(user)
-        user.admin_role.present? && user.admin_role.admin_permissions.exists?(name: 'browse_client') && (user.admin_role.admin_permissions.exists?(name: 'browse_client') || user.admin_role.admin_permissions.exists?(name: 'new_client') || user.admin_role.admin_permissions.exists?(name: 'edit_client') || user.admin_role.admin_permissions.exists?(name: 'delete_client'))
+        user.admin_role.present? && user.admin_role.admin_permissions.exists?(name: 'browse_client') && (user.admin_role.admin_permissions.exists?(name: 'browse_client') || user.admin_role.admin_permissions.exists?(name: 'add_client') || user.admin_role.admin_permissions.exists?(name: 'edit_client') || user.admin_role.admin_permissions.exists?(name: 'delete_client'))
     end
 
     def can_read_account_block_for_ai_matching?(user)
