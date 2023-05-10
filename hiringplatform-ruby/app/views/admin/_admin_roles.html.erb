@@ -32,8 +32,13 @@
       </div>
     </div>
   <% end %>
-  <%= form.submit button_label, class: 'submit-admin-role'%>
-<% end %>
+  <div>
+    <% if button_label == 'Update' %>
+      <%= link_to 'Cancel', admin_admin_role_path(form.object.id), class: 'button cancel-button'%>
+    <% end %>
+    <%= form.submit button_label, class: 'submit-admin-role'%>
+  <% end %>
+</div>
 
 <style type="text/css">
   [type="checkbox"]
