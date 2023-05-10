@@ -17,7 +17,7 @@
     <% permissions = module_permissions(module_name) %>
     <div class="module-name">
       <li>
-        <%= check_box_tag module_name, 'admin_permission_ids', nil, class: 'select-all-permission', data: {'module-name': module_name} %>
+        <%= check_box_tag module_name, 'admin_permission_ids', module_name_checked(form.object, module_name, permissions&.ids), class: 'select-all-permission', data: {'module-name': module_name} %>
         <b><%= label_tag module_name, module_name.humanize %></b>
       </li>
       <div class="permissions">
