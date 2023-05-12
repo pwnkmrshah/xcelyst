@@ -3,6 +3,17 @@ ActiveAdmin.register UserAdmin do
 
   permit_params :email, :password, :password_confirmation,admin_role_user_attributes: [:id, :admin_role_id]
 
+  # Remove the buttons from the show page
+  config.action_items.delete_if { |item| item.display_on?(:show) }
+  # Then add in our own conditional Edit Button
+  action_item :edit,  only: [ :show ] , if: proc { current_user_admin.id != user_admin.id } do
+    link_to "Edit User Admin", [:edit, :admin, user_admin]
+  end
+  # and our Delete Button
+  action_item :delete,  only: [ :show ] , if: proc { current_user_admin.id != user_admin.id } do
+    link_to 'Delete User Admin', [:admin, user_admin], class: "button", method: :delete, confirm: 'Are you sure you want to delete this?'
+  end
+
   index do
     selectable_column
     id_column
@@ -10,7 +21,15 @@ ActiveAdmin.register UserAdmin do
     column :admin_role do |admin_user|
       admin_user.admin_role_user&.admin_role&.name
     end
-    actions
+    column :actions do |object|
+      links = []
+      links << link_to('Show', [:admin, object], class: "button")
+      if current_user_admin.id != object.id
+        links << link_to('Edit', [:edit, :admin, object], class: "button")
+        links << link_to('Delete', [:admin, object], class: "button", method: :delete, confirm: 'Are you sure you want to delete this?')
+      end
+      links.join(' ').html_safe
+    end
   end
 
   show do
@@ -74,9 +93,9 @@ ActiveAdmin.register UserAdmin do
 
     private
 
-def admin_params
-  params.require(:user_admin).permit(:email, :password, :password_confirmation, :enable_2FA, admin_role_user_attributes: [:id, :admin_role_id])
-end
+    def admin_params
+      params.require(:user_admin).permit(:email, :password, :password_confirmation, :enable_2FA, admin_role_user_attributes: [:id, :admin_role_id])
+    end
 
   end
 end
