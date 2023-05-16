@@ -29,7 +29,7 @@ class Ability
 
   def initialize(user)
     if user.email == 'admin@xcelyst.com'
-      can :manage, [ActiveAdmin::Page, BxBlockAdminRolePermission::AdminRole, BxBlockCfzoomintegration3::ZoomMeeting, BxBlockCfzoomintegration3::Zoom, BxBlockDatabase::DownloadLimit, AccountBlock::TemporaryAccount]
+      can :manage, [ActiveAdmin::Page, BxBlockAdminRolePermission::AdminRole, UserAdmin, BxBlockCfzoomintegration3::ZoomMeeting, BxBlockCfzoomintegration3::Zoom, BxBlockDatabase::DownloadLimit, AccountBlock::TemporaryAccount]
     else
       can :manage, [ActiveAdmin::Page]
     end
@@ -57,7 +57,6 @@ class Ability
     case module_name
       when 'about page'            then BxBlockAboutpage::AboutPage
       when 'address'               then BxBlockAddress::LocationAddress
-      when 'admin user'            then AdminUser
       when 'blogs'                 then BxBlockContentManagement::ContentText
       when 'rejected candidate'    then BxBlockRolesPermissions::AppliedJob
       when 'category'              then BxBlockDomainCategory::DomainCategory
