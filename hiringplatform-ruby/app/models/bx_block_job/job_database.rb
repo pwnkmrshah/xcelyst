@@ -235,20 +235,22 @@ module BxBlockJob
 
       if query[:location].present?
         query[:location].downcase!
-        location = query[:location].split(' or ')
-        qry = []
-        location.each do |word|
-          qry << {
-            "match_phrase": {
-              "location": word
+        location_or_qry = query[:location].split(" or ")
+        or_qry = location_or_qry.map do |word|
+          {
+            match_phrase_prefix: {
+              location: {
+              query: word
+              }
             }
           }
         end
+          
         s[:query][:bool][:must] << {
-          "bool": {
-            "should": qry
-          }
-        }
+                  "bool": {
+              "should": or_qry
+            }
+            }
       end
 
       if query[:company].present?

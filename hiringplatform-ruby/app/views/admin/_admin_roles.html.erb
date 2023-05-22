@@ -18,13 +18,14 @@
     <div class="module-name">
       <li>
         <%= check_box_tag module_name, 'admin_permission_ids', module_name_checked(form.object, module_name, permissions&.ids), class: 'select-all-permission', data: {'module-name': module_name} %>
-        <b><%= label_tag module_name, module_name.humanize %></b>
+        <b><%= label_tag module_name, module_name.titleize %></b>
       </li>
-      <div class="permissions">
+      <div class="permissions <%= module_name.gsub(' ','-')%>" id="<%= module_name.gsub(' ','-')%>">
         <% permissions&.each do |permission| %>
-          <li>
+          <li class="<%= permission_name(permission) %>">
             <label class="block-label">
-              <%= form.check_box :admin_permission_ids, { multiple: true, data: { 'module-name': module_name } }, permission.id %>
+              <%= form.check_box :admin_permission_ids, { multiple: true, data: { 'module-name': module_name }, class: "#{module_name.gsub(' ','-')}-#{permission_name(permission).downcase}" }, permission.id %>
+
               <%= permission_name(permission) %>
             </label><br>
           </li>

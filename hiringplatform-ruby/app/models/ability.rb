@@ -2,11 +2,13 @@ class Ability
   include CanCan::Ability
 
   PERMISSIONS = {
-    'browse' => [:read],
+    'view' => [:read],
     'browse_ai_matching' => [:read],
     'browse_candidate' => [:read],
     'browse_client' => [:read],
     'browse_test_account' => [:read],
+    'edit_test_account' => [:update],
+    'delete_test_account' => [:delete],
     'browse_shortlist_candidate' => [:read],
     'add' => [:new],
     'add' => [:create],
@@ -24,12 +26,15 @@ class Ability
     'delete' => [:destroy],
     'delete_candidate' => [:destroy],
     'delete_client' => [:destroy],
-    'delete_shortlist_candidate' => [:destroy]
+    'delete_shortlist_candidate' => [:destroy],
+    'whatsapp' => [:whatsapp],
+    'client_dashboard' => [:client_dashboard],
+    'sync_users' => [:sync_zoom_account_users]
   }
 
   def initialize(user)
     if user.email == 'admin@xcelyst.com'
-      can :manage, [ActiveAdmin::Page, BxBlockAdminRolePermission::AdminRole, UserAdmin, BxBlockCfzoomintegration3::ZoomMeeting, BxBlockCfzoomintegration3::Zoom, BxBlockDatabase::DownloadLimit, AccountBlock::TemporaryAccount]
+      can :manage, [ActiveAdmin::Page]
     else
       can :manage, [ActiveAdmin::Page]
     end
@@ -38,7 +43,7 @@ class Ability
     return unless user.admin_role.present?
 
     user.admin_role.admin_permissions.each do |permission|
-      account_block = ["ai matching", "candidate", "client", "test accounts", "shortlist candidate"].include? permission.module_name.downcase
+      account_block = ["ai matching", "candidate", "client", "test account", "shortlist candidate"].include? permission.module_name.downcase
       if account_block
         module_name = 'account block'
       else
@@ -58,7 +63,10 @@ class Ability
       when 'about page'            then BxBlockAboutpage::AboutPage
       when 'address'               then BxBlockAddress::LocationAddress
       when 'blogs'                 then BxBlockContentManagement::ContentText
-      when 'rejected candidate'    then BxBlockRolesPermissions::AppliedJob
+      when 'applied job'           then BxBlockRolesPermissions::AppliedJob
+      when 'skill category'        then BxBlockBusinessFunction::BusinessCategory
+      when 'skill domain'          then BxBlockBusinessFunction::BusinessDomain
+      when 'skill sub category'    then BxBlockBusinessFunction::BusinessSubCategory
       when 'category'              then BxBlockDomainCategory::DomainCategory
       when 'contact request'       then BxBlockContactUs::Contact
       when 'content type'          then BxBlockContentManagement::ContentType
@@ -70,10 +78,10 @@ class Ability
       when 'home page'             then BxBlockContentManagement::HomePage
       when 'interviewer'           then BxBlockManager::Interviewer
       when 'job description'       then BxBlockJobDescription::JobDescription
-      when 'hiring manager'        then BxBlockManager::Manager
+      when 'manager'               then BxBlockManager::Manager
       when 'member bio'            then BxBlockContentManagement::MemberBio
       when 'overall experiences'   then BxBlockPreferredOverallExperiences::PreferredOverallExperiences
-      when 'skill level'           then BxBlockPreferredOverallExperiences::PreferredSkillLevel
+      when 'skill experiences'           then BxBlockPreferredOverallExperiences::PreferredSkillLevel
       when 'privacy policy'        then BxBlockInformation::PrivacyPolicy
       when 'request demo'          then BxBlockRequestdemo::RequestDemo
       when 'final feedback'        then BxBlockRolesPermissions::Role
@@ -83,7 +91,17 @@ class Ability
       when 'temporary account'     then AccountBlock::TemporaryAccount
       when 'terms & condition'     then BxBlockInformation::TermCondition
       when 'account block'         then AccountBlock::Account
-      # when 'downloadlimit'         then BxBlockDatabase::DownloadLimit
+      when 'role management'       then BxBlockAdminRolePermission::AdminRole        
+      when 'download limit'        then BxBlockDatabase::DownloadLimit
+      when 'zoom meeting'          then BxBlockCfzoomintegration3::ZoomMeeting
+      when 'zoom user'             then BxBlockCfzoomintegration3::Zoom
+      when 'job database'          then BxBlockJob::JobDatabase
+      when 'test score and course' then BxBlockProfile::TestScoreAndCourse
+      when 'user resume'           then AccountBlock::UserResume
+      when 'user admin'            then UserAdmin
+      when 'rejected candidate'    then BxBlockRolesPermissions::AppliedJob
+      when 'applied candidate'    then BxBlockRolesPermissions::AppliedJob
+      when 'dashboard'             then Dashboard
     else nil
     end
   end

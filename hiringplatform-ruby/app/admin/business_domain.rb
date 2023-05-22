@@ -1,5 +1,5 @@
 ActiveAdmin.register BxBlockBusinessFunction::BusinessDomain, as: "Skill Domain" do
-  menu false
+  menu parent: ["Website Management",  "Business Functions"], label: "Vertical Domain"
   permit_params :name
 
   action_item :add, only: :show do

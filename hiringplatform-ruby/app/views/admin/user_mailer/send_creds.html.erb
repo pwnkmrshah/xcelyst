@@ -1,0 +1,24 @@
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <p>Dear <%= @admin.email %></p>
+    <p>
+      I hope this email finds you well. I am writing to inform you that you have been assigned the SuperAdmin Role for Xcelyst.ai. Congratulations on this new responsibility!
+    </p>
+    <p>
+      To access the Xcelyst.ai web page, please click on the following link: <%= link_to 'Login', 'https://admin.xcelyst.ai/admin/login' %>.
+    </p>
+    <p>
+      Your Login ID is : <%= @admin.email %> and Your password for the SuperAdmin account is: <b><%= @password %></b> <br>
+      Please ensure that you keep this password confidential and do not share it with anyone else.
+    </p>
+    <p>
+      If you ever need to change your password or if you happen to forget it, please don't hesitate to reach out to us by sending an email to info@xcelyst.com. Our team will be more than happy to assist you.
+    </p>
+    <p> Thank you for your dedication and commitment to Xcelyst. </p>
+    <p> Best regards, </p>
+    <p>Xcelyst Team </p>
+  </body>
+</html>

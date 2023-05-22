@@ -16,8 +16,8 @@ ActiveAdmin.register_page "Dashboard" do
     #
     columns do
       column do
-         span link_to "Whatsapp Chat", "#{ENV["FRONT_END_URL"]}whatsapp/admin", class: "button"
-         span link_to "Client Dashboard", "#{ENV["FRONT_END_URL"]}login?type=admin", class: "button"
+         span link_to "Whatsapp Chat", "#{ENV["FRONT_END_URL"]}whatsapp/admin", class: "button" if current_user_admin.permission_for_whatsapp?(current_user_admin)
+         span link_to "Client Dashboard", "#{ENV["FRONT_END_URL"]}login?type=admin", class: "button" if current_user_admin.permission_for_client_dashboard?(current_user_admin)
       end
     end
 
