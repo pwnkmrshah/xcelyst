@@ -48,6 +48,16 @@ class UserAdmin < ApplicationRecord
       user.admin_role.admin_permissions.exists?(name: "whatsapp")   
   end
 
+  def can_edit_admin_user?(user)
+    user.admin_role.present? &&
+      user.admin_role.admin_permissions.exists?(name: 'edit', module_name:'user admin')
+  end
+
+  def can_delete_admin_user?(user)
+    user.admin_role.present? &&
+      user.admin_role.admin_permissions.exists?(name: 'delete', module_name:'user admin')
+  end
+
   def can_edit_role?(user)
     user.admin_role.present? &&
       user.admin_role.admin_permissions.exists?(name: 'edit', module_name:'role management')
@@ -136,5 +146,20 @@ class UserAdmin < ApplicationRecord
   def can_view_rejected_candidate?(user)
     user.admin_role.present? &&
        user.admin_role.admin_permissions.exists?(name: 'view', module_name:'rejected candidate')
+  end
+
+  def can_sync_zoom_user?(user)
+    user.admin_role.present? &&
+       user.admin_role.admin_permissions.exists?(name: 'sync_users', module_name:'zoom user')
+  end
+  
+  def can_edit_test_score?(user)
+    user.admin_role.present? &&
+       user.admin_role.admin_permissions.exists?(name: 'edit', module_name:'test score and course')
+  end
+
+  def can_view_test_score?(user)
+    user.admin_role.present? &&
+       user.admin_role.admin_permissions.exists?(name: 'view', module_name:'test score and course')
   end
 end

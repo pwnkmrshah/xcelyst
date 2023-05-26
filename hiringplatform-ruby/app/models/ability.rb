@@ -81,7 +81,7 @@ class Ability
       when 'manager'               then BxBlockManager::Manager
       when 'member bio'            then BxBlockContentManagement::MemberBio
       when 'overall experiences'   then BxBlockPreferredOverallExperiences::PreferredOverallExperiences
-      when 'skill experiences'           then BxBlockPreferredOverallExperiences::PreferredSkillLevel
+      when 'skill experiences'     then BxBlockPreferredOverallExperiences::PreferredSkillLevel
       when 'privacy policy'        then BxBlockInformation::PrivacyPolicy
       when 'request demo'          then BxBlockRequestdemo::RequestDemo
       when 'final feedback'        then BxBlockRolesPermissions::Role
@@ -97,7 +97,6 @@ class Ability
       when 'zoom user'             then BxBlockCfzoomintegration3::Zoom
       when 'job database'          then BxBlockJob::JobDatabase
       when 'test score and course' then BxBlockProfile::TestScoreAndCourse
-      when 'user resume'           then AccountBlock::UserResume
       when 'user admin'            then UserAdmin
       when 'rejected candidate'    then BxBlockRolesPermissions::AppliedJob
       when 'applied candidate'    then BxBlockRolesPermissions::AppliedJob
