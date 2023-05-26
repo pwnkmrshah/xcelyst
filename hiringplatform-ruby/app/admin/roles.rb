@@ -54,10 +54,10 @@ ActiveAdmin.register BxBlockRolesPermissions::Role, as: "Final Feedback" do
           column :final_score
           column :final_feedback
           column :actions do |obj|
-            span link_to "Edit", "/admin/applied_jobs/#{obj.id}/edit", class: "member_link"
+            span link_to "Edit", "/admin/applied_jobs/#{obj.id}/edit", class: "member_link" if current_user_admin.can_edit_applied_candidate?(current_user_admin)
           end
         end
       end
-    end
+    end if current_user_admin.can_view_applied_candidate?(current_user_admin)
   end
 end

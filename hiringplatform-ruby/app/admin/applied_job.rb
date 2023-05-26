@@ -1,5 +1,5 @@
 ActiveAdmin.register BxBlockRolesPermissions::AppliedJob, as: "Applied Job" do
-  menu label: "Rejected Candidate"
+  menu label: "Rejected Candidate", if: proc { current_user_admin.present? && current_user_admin.can_view_rejected_candidate?(current_user_admin) }
   permit_params :id, :profile_id, :role_id, :shortlisting_candidate_id, :final_score, :accepted, :final_feedback
   actions :index, :show, :edit, :update
 

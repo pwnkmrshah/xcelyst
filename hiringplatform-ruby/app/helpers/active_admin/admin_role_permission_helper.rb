@@ -19,4 +19,11 @@ module ActiveAdmin::AdminRolePermissionHelper
   def admin_role(id)
     BxBlockAdminRolePermission::AdminRole.find_by(id: id)
   end
+
+  def module_name_checked(obj, module_name, permission_ids = [])
+    return nil if obj.new_record?
+
+    admin_permission_ids = obj.admin_permission_ids
+    (permission_ids - admin_permission_ids).empty?
+  end
 end
