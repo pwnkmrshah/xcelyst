@@ -271,9 +271,6 @@ ActiveAdmin.setup do |config|
       menu.add label: 'User Management', priority: 1
       menu.add label: "Website Management", priority: 2 do |sub_menu|
         sub_menu.add label: "Business Functions", priority: 1 do |item|
-          item.add label: "Vertical Domain", url: "/admin/skill_domains"
-          item.add label: "Vertical Category", url: "/admin/skill_categories"
-          item.add label: "Vertical Sub Category", url: "/admin/skill_sub_categories"
         end
       end
       menu.add label: 'Platform Users', priority: 3

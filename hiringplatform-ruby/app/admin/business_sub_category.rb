@@ -1,5 +1,5 @@
 ActiveAdmin.register BxBlockBusinessFunction::BusinessSubCategory, as: "Skill Sub Category" do
-  menu false
+  menu parent: ["Website Management",  "Business Functions"], label: "Vertical Sub Category"
   permit_params :name, :business_category_id
 
   index do

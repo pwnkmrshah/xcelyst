@@ -3,6 +3,10 @@ ActiveAdmin.register UserAdmin do
 
   permit_params :email, :password, :password_confirmation,admin_role_user_attributes: [:id, :admin_role_id]
 
+  # Remove the buttons from the show page
+  config.action_items.delete_if { |item| item.display_on?(:show) }
+  # Then add in our own conditional Edit Button
+
   index do
     selectable_column
     id_column
@@ -10,7 +14,15 @@ ActiveAdmin.register UserAdmin do
     column :admin_role do |admin_user|
       admin_user.admin_role_user&.admin_role&.name
     end
-    actions
+    column :actions do |object|
+      links = []
+      links << link_to('Show', [:admin, object], class: "button")
+      if object.role != 'super admin'
+        links << link_to('Edit', [:edit, :admin, object], class: "button") if object.id != current_user_admin.id
+        links << link_to('Delete', [:admin, object], class: "button", method: :delete, confirm: 'Are you sure you want to delete this?') if object.id != current_user_admin.id
+      end
+      links.join(' ').html_safe
+    end
   end
 
   show do
@@ -50,9 +62,9 @@ ActiveAdmin.register UserAdmin do
         if admin_role_id.present?
           admin_user.create_admin_role_user(admin_role_id: admin_role_id)
         end
-        redirect_to admin_user_admins_path, message: 'Admin role created successfully.'
+        redirect_to admin_user_admins_path, notice: 'Admin role created successfully.'
       else
-        redirect_to new_admin_user_admin_path, error: 'Admin role not created.'
+        redirect_to new_admin_user_admin_path, alert: 'Admin role not created.'
       end
     end
 
@@ -61,22 +73,18 @@ ActiveAdmin.register UserAdmin do
       if admin_user.update(admin_params)
         admin_role_id = params[:user_admin][:admin_role_id].presence
         if admin_role_id.present?
-
           admin_user.create_admin_role_user(admin_role_id: admin_role_id)
-
-          # admin_user.create_admin_role_user(admin_role_id: admin_role_id)
         end
-        redirect_to admin_user_admins_path, message: 'Admin role updated successfully.'
+        redirect_to admin_user_admins_path, notice: 'Admin role updated successfully.'
       else
-        redirect_to edit_admin_user_admin_path(admin_user), error: 'Admin role not updated.'
+        redirect_to edit_admin_user_admin_path(admin_user), alert: admin_user.errors.full_messages.first
       end
     end
 
     private
-
-def admin_params
-  params.require(:user_admin).permit(:email, :password, :password_confirmation, :enable_2FA, admin_role_user_attributes: [:id, :admin_role_id])
-end
+    def admin_params
+      params.require(:user_admin).permit(:email, :password, :password_confirmation, :enable_2FA, admin_role_user_attributes: [:id, :admin_role_id])
+    end
 
   end
 end

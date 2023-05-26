@@ -30,20 +30,31 @@ schedule_interviews.update_all(time_zone: 'Asia/Kolkata')
 
 # Create permissions for each module if they do not exist
 def create_permission(module_name, permission_name)
-  BxBlockAdminRolePermission::AdminPermission.find_or_create_by(module_name: module_name, name: permission_name)
+  if module_name == 'rejected candidate'
+    BxBlockAdminRolePermission::AdminPermission.find_or_create_by(module_name: 'rejected candidate', name: permission_name)
+    BxBlockAdminRolePermission::AdminPermission.find_or_create_by(module_name: 'applied candidate', name: permission_name)
+    BxBlockAdminRolePermission::AdminPermission.find_or_create_by(module_name: 'applied candidate', name: 'edit')
+  else
+    BxBlockAdminRolePermission::AdminPermission.find_or_create_by(module_name: module_name, name: permission_name)
+  end
 end
 
 # Define the required permissions for each module
 module_permissions = {
-  "rejected candidate" => ["browse"],
-  "database user" => ["browse", "upload_json_file", "import_json", "delete"],
+  "dashboard" => ["whatsapp", "client_dashboard"],
+  "database user" => ["view", "upload_json_file", "delete"],
   "ai matching" => ["browse_ai_matching"],
   "candidate" => ["browse_candidate", "edit_candidate", "delete_candidate", "bulk_send_messages_to_account", "download"],
-  "client" => ["browse_client", "new_client", "edit_client", "delete_client"],
-  "test accounts" => ["browse_test_account"],
-  "job description" => ["browse"],
+  "client" => ["browse_client", "add_client", "edit_client", "delete_client"],
+  "test account" => ["browse_test_account", "edit_test_account"],
+  "job description" => ["view"],
+  "zoom meeting" => ["view", 'add'],
+  "zoom user" => ["view", "sync_users"],
+  "final feedback" => ["view"],
   "shortlist candidate" => ["browse_shortlist_candidate", "delete_shortlist_candidate"],
-  "temporary account" => ["browse", "permanent", "upload_resume_file", "import_bulk_resume", "bulk_send_messages", "make_permanent_account", "delete"]
+  "shortlisted candidate" => ["view", "delete"],
+  "temporary account" => ["view", "permanent", "upload_bulk_resume", "bulk_send_messages", "temporary_by_admin", "delete"],
+  "rejected candidate" => ["view"]
 }
 
 # Create permissions for each module if they do not exist
@@ -51,13 +62,14 @@ BxBlockAdminRolePermission::AdminPermission.transaction do
   ActiveRecord::Base.connection.reset_pk_sequence!('admin_permissions') if BxBlockAdminRolePermission::AdminPermission.count.zero?
 
   all_resources = ActiveAdmin.application.namespaces[:admin].resources
-  all_modules = all_resources.select { |resource| !resource.menu_item_options[:label].is_a?(Proc) }
-                              .map { |resource| resource.menu_item_options[:label]&.downcase }
-
-  default_permissions = ["browse", "add", "edit", "delete"]
+  all_modules = all_resources.map{|resource|resource.resource_name.human.downcase}
+  default_permissions = ["view", "add", "edit", "delete"]
 
   all_modules.each do |module_name|
-      next if module_name.nil?
+      next if ['admin user', 'Test score and course', 'Test dome', 'comment', 'user resume'].map(&:downcase).include? module_name
+      module_name = 'rejected candidate' if module_name == 'applied job'
+      module_name = 'role management' if module_name == 'admin role'
+      module_name = 'contact request' if module_name == 'contact'
     permissions = module_permissions[module_name] || default_permissions
     permissions.each do |permission_name|
       create_permission(module_name, permission_name)
