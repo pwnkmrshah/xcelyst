@@ -46,30 +46,33 @@ $(document).ready(function() {
 	    });
     });
 
-// $('.permissions input[type="checkbox"]').on('click', function() {
-//   var divId = $(this).closest('div').attr('id');
-//   var viewClassName = '.' + divId + '-view';
-//   var browseClassName = '.' + divId + '-browse';
-//   var uploadClassName = '.' + divId + '-upload json file';
+	$(document).ready(function() {
+	  $('.test-account-browse').on('click', function() {
+	    var value = $(this).val();
+        var userId = $('#current_user_admin_id').val();
+	    
+	    // Modify the alert message
+	    // var confirmation = confirm("It will enable candidate view also. Do you want to continue?");
 
-//   var viewCheckbox = $(viewClassName);
-//   var browseCheckbox = $(browseClassName);
-//   var uploadCheckbox = $(uploadClassName);
-//   var selectedCheckbox = viewCheckbox.length ? viewCheckbox : uploadCheckbox;
+	    // if (confirmation) {
+	    //   // AJAX call
+		// 	var csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-//   var checkboxes = $('.permissions.' + divId + ' input[type="checkbox"]').not(selectedCheckbox);
-
-//   checkboxes.on('change', function() {
-//     if (!selectedCheckbox.is(':checked')) {
-//       selectedCheckbox.prop('checked', true);
-//     }
-//   });
-
-//   selectedCheckbox.on('change', function() {
-//     if (!selectedCheckbox.is(':checked')) {
-//       checkboxes.prop('checked', false);
-//     }
-//   });
-// });
-    
+	    //   $.ajax({
+		// 	url: '/admin/admin_roles/' + value + '/enable_candidate',
+	    //     method: 'post',
+	    //     data: { id: value, user_id: userId },
+        //     headers: { 'X-CSRF-Token': csrfToken },
+	    //     success: function(response) {
+	    //       // Handle success response if needed
+	    //       console.log(response);
+	    //     },
+	    //     error: function(xhr, status, error) {
+	    //       // Handle error response if needed
+	    //       console.log(error);
+	    //     }
+	    //   });
+	    // }
+	  });
+	});
 });

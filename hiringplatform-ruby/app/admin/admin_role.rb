@@ -23,6 +23,11 @@ ActiveAdmin.register BxBlockAdminRolePermission::AdminRole, as: "Admin Role" do
 
   form partial: 'admin/admin_roles'
 
+  member_action :enable_candidate, method: :post do
+    Rails.logger.info"got inside this method"
+    redirect_to edit_resource_path, alert: "It will enable candidate view also. Do you want to continue?"
+  end
+
   controller do
     def create
       admin_permission_ids = params[:bx_block_admin_role_permission_admin_role][:admin_permission_ids]

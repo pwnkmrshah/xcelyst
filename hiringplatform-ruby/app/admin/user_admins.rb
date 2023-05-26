@@ -17,9 +17,9 @@ ActiveAdmin.register UserAdmin do
     column :actions do |object|
       links = []
       links << link_to('Show', [:admin, object], class: "button")
-      if object.role != 'super admin'
-        links << link_to('Edit', [:edit, :admin, object], class: "button") if object.id != current_user_admin.id
-        links << link_to('Delete', [:admin, object], class: "button", method: :delete, confirm: 'Are you sure you want to delete this?') if object.id != current_user_admin.id
+      if (object.role != 'super admin') && (object.id != current_user_admin.id)
+        links << link_to('Edit', [:edit, :admin, object], class: "button") if current_user_admin.can_edit_admin_user?(current_user_admin)
+        links << link_to('Delete', [:admin, object], class: "button", method: :delete, confirm: 'Are you sure you want to delete this?')  if current_user_admin.can_delete_admin_user?(current_user_admin)
       end
       links.join(' ').html_safe
     end

@@ -46,7 +46,7 @@ module_permissions = {
   "ai matching" => ["browse_ai_matching"],
   "candidate" => ["browse_candidate", "edit_candidate", "delete_candidate", "bulk_send_messages_to_account", "download"],
   "client" => ["browse_client", "add_client", "edit_client", "delete_client"],
-  "test account" => ["browse_test_account", "edit_test_account"],
+  "test account" => ["browse_test_account"],
   "job description" => ["view"],
   "zoom meeting" => ["view", 'add'],
   "zoom user" => ["view", "sync_users"],
@@ -54,7 +54,8 @@ module_permissions = {
   "shortlist candidate" => ["browse_shortlist_candidate", "delete_shortlist_candidate"],
   "shortlisted candidate" => ["view", "delete"],
   "temporary account" => ["view", "permanent", "upload_bulk_resume", "bulk_send_messages", "temporary_by_admin", "delete"],
-  "rejected candidate" => ["view"]
+  "rejected candidate" => ["view"],
+  "test score and course" => ["view", "edit"]
 }
 
 # Create permissions for each module if they do not exist
@@ -66,7 +67,7 @@ BxBlockAdminRolePermission::AdminPermission.transaction do
   default_permissions = ["view", "add", "edit", "delete"]
 
   all_modules.each do |module_name|
-      next if ['admin user', 'Test score and course', 'Test dome', 'comment', 'user resume'].map(&:downcase).include? module_name
+      next if ['admin user', 'Test dome', 'comment', 'user resume'].map(&:downcase).include? module_name
       module_name = 'rejected candidate' if module_name == 'applied job'
       module_name = 'role management' if module_name == 'admin role'
       module_name = 'contact request' if module_name == 'contact'
