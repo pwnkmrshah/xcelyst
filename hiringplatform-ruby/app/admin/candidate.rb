@@ -24,7 +24,7 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
           end
           end
         end
-      end
+      end if current_user_admin.permission_for_candidate_send_message?(current_user_admin)
       selectable_column
       id_column
       column :document_id
@@ -36,7 +36,7 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
         if obj.resume_image.present?
             a class: 'button', href: url_for(obj.resume_image), target: '_blank', download: '' do 
                 "Download File"
-            end
+            end if current_user_admin.permission_for_candidate_download_file?(current_user_admin)
         end
       end
       column :is_converted_account

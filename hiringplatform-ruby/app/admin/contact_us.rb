@@ -1,7 +1,7 @@
 ActiveAdmin.register BxBlockContactUs::Contact, as: "Contact" do
   menu label: "Contact Request", priority: 4
   permit_params :name, :phone_number, :email, :description
-  actions :all, except: :new
+
   index do
     id_column
     column :name

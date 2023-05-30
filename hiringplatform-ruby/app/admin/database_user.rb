@@ -117,7 +117,7 @@ ActiveAdmin.register BxBlockDatabase::TemporaryUserDatabase, as: "Database User"
 	end
 
 	action_item :only => :index do
-	  link_to 'Upload JSON', { :action => 'upload_json_file' }, :class => 'upload-hide-button'
+	  link_to 'Upload JSON', { :action => 'upload_json_file' }, :class => 'upload-hide-button'  if current_user_admin.upload_json_file?(current_user_admin)
 	end
 
   collection_action :upload_json_file do
