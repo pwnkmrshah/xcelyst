@@ -19,10 +19,10 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
 			  div do
 				f.button class: "button", id: "send_message_aj" do
 				  "send message"
-				end
-			  end
+				end 
+			  end 
 			end
-		end
+		end  if current_user_admin.permission_for_temporary_account_send_message?(current_user_admin)
 		selectable_column
 		id_column
 		column :first_name
@@ -57,9 +57,9 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
   	end
 		column :actions do |item|
 			links = []
-			links << link_to("Permanent", make_permanent_account_admin_temporary_account_path(item), method: :put, class: "button", style: "font-size: 15px;margin: 1px")
-      links << link_to("Temporary By Admin", temporary_make_permanent_account_admin_temporary_account_path(item), method: :put, class: "button", style: "font-size: 15px;margin: 1px")
-    	links << link_to('Delete', admin_temporary_account_path(item), method: :delete, confirm: 'Are you sure?', class: "button", style: "font-size: 15px;margin: 1px")
+			links << link_to("Permanent", make_permanent_account_admin_temporary_account_path(item), method: :put, class: "button", style: "font-size: 15px;margin: 1px") if current_user_admin.permission_for_permanent?(current_user_admin)
+      links << link_to("Temporary By Admin", temporary_make_permanent_account_admin_temporary_account_path(item), method: :put, class: "button", style: "font-size: 15px;margin: 1px") if current_user_admin.permission_for_make_permanent_account?(current_user_admin)
+    	links << link_to('Delete', admin_temporary_account_path(item), method: :delete, confirm: 'Are you sure?', class: "button", style: "font-size: 15px;margin: 1px") if current_user_admin.permission_for_delete?(current_user_admin)
     	links.join(' ').html_safe
   	end 
 	end
@@ -90,7 +90,7 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
   end
 	
 	action_item :only => :index do
-	    link_to 'Upload Bulk Resume', { :action => 'upload_resume_file' }, :class => 'upload-hide'
+	    link_to 'Upload Bulk Resume', { :action => 'upload_resume_file' }, :class => 'upload-hide' if current_user_admin.upload_resume_file?(current_user_admin)
 	end
 
 	collection_action :upload_resume_file do

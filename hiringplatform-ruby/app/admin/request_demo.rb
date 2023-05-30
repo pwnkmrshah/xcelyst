@@ -1,7 +1,6 @@
 ActiveAdmin.register BxBlockRequestdemo::RequestDemo, as: "Request Demo" do
   menu label: "Request Demo"
   permit_params :first_name, :last_name, :phone_no, :email, :company_name
-  actions :all, except: :new
 
   index do
     id_column

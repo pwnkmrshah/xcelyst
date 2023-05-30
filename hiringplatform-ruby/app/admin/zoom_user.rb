@@ -17,7 +17,7 @@ ActiveAdmin.register BxBlockCfzoomintegration3::Zoom, as: "Zoom User" do
   filter :zoom_user_id
 	
 	action_item :only => :index do
-	  link_to 'Sync User', sync_zoom_account_users_admin_zoom_users_path, method: :post
+	  link_to 'Sync User', sync_zoom_account_users_admin_zoom_users_path, method: :post if current_user_admin.can_sync_zoom_user?(current_user_admin)
 	end
 
 	collection_action :sync_zoom_account_users, :method => :post do

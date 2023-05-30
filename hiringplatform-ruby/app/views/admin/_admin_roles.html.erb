@@ -7,26 +7,47 @@
     end
  url = %>
 <%= form_with(model: @admin_role, url: url, local: true) do |form| %>
+  <%= hidden_field_tag :current_user_admin_id, current_user_admin.id%>
   <h3><li class="input admin-role-input">
     <%= form.label :name, class: 'label' do %>
-      Name<span class="mandatory">*</span>
+      Role Name<span class="mandatory">*</span>
     <% end %>
     <%= form.text_field :name, required: true %>
   </li></h3>
   <% module_names&.each do |module_name| %>
     <% permissions = module_permissions(module_name) %>
     <div class="module-name">
-     <b> <%= check_box_tag module_name, 'admin_permission_ids', nil, class: 'select-all-permission', data: {'module-name': module_name} %>
-      <%= label_tag module_name, module_name.humanize %> </b>
-      <div class="permissions">
+      <li>
+        <%= check_box_tag module_name, 'admin_permission_ids', module_name_checked(form.object, module_name, permissions&.ids), class: 'select-all-permission', data: {'module-name': module_name} %>
+        <b><%= label_tag module_name, module_name.titleize %></b>
+      </li>
+      <div class="permissions <%= module_name.gsub(' ','-')%>" id="<%= module_name.gsub(' ','-')%>">
         <% permissions&.each do |permission| %>
-          <label class="block-label">
-            <%= form.check_box :admin_permission_ids, { multiple: true, data: { 'module-name': module_name } }, permission.id %>
-            <%= permission_name(permission) %>
-          </label><br>
+          <li class="<%= permission_name(permission) %>">
+            <label class="block-label">
+              <%= form.check_box :admin_permission_ids, { multiple: true, data: { 'module-name': module_name }, class: "#{module_name.gsub(' ','-')}-#{permission_name(permission).downcase}" }, permission.id %>
+
+              <%= permission_name(permission) %>
+            </label><br>
+          </li>
         <% end %><br>
       </div>
     </div>
   <% end %>
-  <%= form.submit button_label, class: 'submit-admin-role'%>
-<% end %>
+  <div>
+    <% if button_label == 'Update' %>
+      <%= link_to 'Cancel', admin_admin_role_path(form.object.id), class: 'button cancel-button'%>
+    <% end %>
+    <%= form.submit button_label, class: 'submit-admin-role'%>
+  <% end %>
+</div>
+
+<style type="text/css">
+  [type="checkbox"]
+  {
+    vertical-align:middle;
+  }
+  label{
+    padding-top: 2px;
+  }
+</style>

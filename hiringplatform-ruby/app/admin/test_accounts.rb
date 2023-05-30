@@ -34,11 +34,11 @@ ActiveAdmin.register AccountBlock::Account, as: "Test Account" do
           column :test_url
           column :status
           column :actions do |obj|
-            span link_to "Edit", "/admin/test_score_and_courses/#{obj.id}/edit", class: "member_link"
-            span link_to "View", "/admin/test_score_and_courses/#{obj.id}", class: "member_link"
+            span link_to "Edit", "/admin/test_score_and_courses/#{obj.id}/edit", class: "member_link" if current_user_admin.can_edit_test_score?(current_user_admin)
+            span link_to "View", "/admin/test_score_and_courses/#{obj.id}", class: "member_link" if current_user_admin.can_view_test_score?(current_user_admin)
           end
         end
-      end
+      end if current_user_admin.can_view_test_score?(current_user_admin)
     end
 
 

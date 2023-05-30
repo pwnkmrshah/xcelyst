@@ -73,23 +73,6 @@ module BxBlockDatabase
 				nested_must << current_filter
 			end
 
-			if query[:location].present?
-				query[:location].downcase!
-				location = query[:location].split(' or ')
-				qry = []
-				location.each do |word|
-					qry << {
-		                    "match_phrase": {
-		                      "location": word
-		                    }
-		                  }
-				end
-				s[:query][:bool][:filter] << {
-                	"bool": {
-				      "should": qry
-    				}
-	        	}
-			end
 			if query[:full_name].present?
 				s[:query][:bool][:must] = [{
 					"match_phrase": {
@@ -211,6 +194,27 @@ module BxBlockDatabase
 					}
 				end
 			end
+
+			if query[:location].present?
+				query[:location].downcase!
+				location_or_qry = query[:location].split(" or ")
+				or_qry = location_or_qry.map do |word|
+					{
+					  match_phrase_prefix: {
+					    location: {
+							query: word
+					    }
+					  }
+					}
+				end
+			    
+				s[:query][:bool][:filter] << {
+                	"bool": {
+				      "should": or_qry
+    				}
+	        	}
+			end
+			
 			if query[:keywords].present?
 				query[:keywords].downcase!
 				keyword = format_keyword(query[:keywords])
