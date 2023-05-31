@@ -12,6 +12,7 @@ module BxBlockProfile
       :other_details,
       :cv_update,
       :currency,
+      :shortlisted_for
     ]
 
     attribute :account_id do |object|
@@ -34,6 +35,13 @@ module BxBlockProfile
         host = Rails.application.routes.default_url_options[:host]
         host+Rails.application.routes.url_helpers.rails_blob_url(obj.account.avatar, only_path: true)
       end
+    end
+
+    attribute :shortlisted_for do |obj|
+      jobs = obj.applied_jobs
+      {
+        job_description: jobs&.map(&:role)&.map(&:job_description)
+      }
     end
 
     attribute :full_name do |object|

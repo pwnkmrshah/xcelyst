@@ -219,9 +219,10 @@ module BxBlockProfile
         profile_id = current_user.profile.id
         save_jobs = BxBlockSaveJob::SaveJob.where(profile_id: profile_id, favourite: true)
       end
-      options = { params: { applied_jobs: applied_jobs, save_jobs: save_jobs,  user_role: current_user.present? ? current_user.user_role : "guest_user" }}
+      options = { params: { applied_jobs: applied_jobs,  user_role: current_user.present? ? current_user.user_role : "guest_user" }}
       if roles.success?
-        render json: { roles: BxBlockRolesPermissions::RolesSerializer.new(roles.data, options).serializable_hash, total: roles.total }, status: :ok
+          shortlisted = applied_jobs.map(&:role)
+          render json: { roles: BxBlockRolesPermissions::RolesSerializer.new(roles.data, options).serializable_hash, total: roles.total, shortlisted_for: BxBlockRolesPermissions::RolesSerializer.new(shortlisted).serializable_hash}, status: :ok
       else
         render json: { errors: "data not found" }, status: :unprocessable_entity
       end
