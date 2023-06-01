@@ -92,7 +92,7 @@ class Ability
       when 'social media links'    then BxBlockContentManagement::SocialMediaLink
       when 'sub category'          then BxBlockDomainSubCategory::DomainSubCategory
       when 'temporary account'     then AccountBlock::TemporaryAccount
-      when 'terms & condition'     then BxBlockInformation::TermCondition
+      when 'term condition'     then BxBlockInformation::TermCondition
       when 'account block'         then AccountBlock::Account
       when 'role management'       then BxBlockAdminRolePermission::AdminRole        
       when 'download limit'        then BxBlockDatabase::DownloadLimit
@@ -102,9 +102,11 @@ class Ability
       when 'test score and course' then BxBlockProfile::TestScoreAndCourse
       when 'user admin'            then UserAdmin
       when 'rejected candidate'    then BxBlockRolesPermissions::AppliedJob
-      when 'applied candidate'    then BxBlockRolesPermissions::AppliedJob
+      when 'applied candidate'     then BxBlockRolesPermissions::AppliedJob
       when 'dashboard'             then Dashboard
-      when 'email template'             then BxBlockDatabase::EmailTemplate
+      when 'gdpr'                  then BxBlockInformation::Gdpr
+      when 'cookies policy'                  then BxBlockInformation::CookiesPolicy
+
     else nil
     end
   end

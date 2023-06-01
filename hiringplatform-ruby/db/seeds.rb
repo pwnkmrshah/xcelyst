@@ -42,7 +42,7 @@ end
 # Define the required permissions for each module
 module_permissions = {
   "dashboard" => ["whatsapp", "client_dashboard"],
-  "database user" => ["view", "upload_json_file", "delete"],
+  "database user" => ["view", "upload_json_file", "import_json_file", "delete"],
   "ai matching" => ["browse_ai_matching"],
   "candidate" => ["browse_candidate", "edit_candidate", "delete_candidate", "bulk_send_messages_to_account", "download"],
   "client" => ["browse_client", "add_client", "edit_client", "delete_client"],
