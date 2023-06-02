@@ -53,7 +53,7 @@ module_permissions = {
   "final feedback" => ["view"],
   "shortlist candidate" => ["browse_shortlist_candidate", "delete_shortlist_candidate"],
   "shortlisted candidate" => ["view", "delete"],
-  "temporary account" => ["view", "permanent", "upload_bulk_resume", "bulk_send_messages", "temporary_by_admin", "delete"],
+  "temporary account" => ["view", "permanent", "upload_bulk_resume", "bulk_send_messages", "temporary_by_admin", "delete", "import_bulk_resume"],
   "rejected candidate" => ["view"],
   "test score and course" => ["view", "edit"]
 }
