@@ -12,8 +12,7 @@ module BxBlockRolesPermissions
       @type = params[:type]
       @jd_url = host+Rails.application.routes.url_helpers.rails_blob_url(@jd.jd_file, only_path: true)
       mail(to: @email,
-        from: 'builder.bx_dev@engineer.ai',
-        subject: 'Job Description Created successfully.') do |format|
+        subject: "New Job Description Created: #{@jd&.role&.account&.first_name} - #{@type} - #{@jd.jd_type}") do |format|
         format.html { render 'automate_jd_to_admin' }
       end
     end
@@ -25,8 +24,7 @@ module BxBlockRolesPermissions
       @type = params[:type]
       @jd_url = host+Rails.application.routes.url_helpers.rails_blob_url(@jd.jd_file, only_path: true)
       mail(to: @email,
-        from: 'builder.bx_dev@engineer.ai',
-        subject: 'Job Description Created successfully.') do |format|
+        subject: "Job Description Created: #{@type} - #{@jd.jd_type}") do |format|
         format.html { render 'automate_jd_to_client' }
       end
     end
