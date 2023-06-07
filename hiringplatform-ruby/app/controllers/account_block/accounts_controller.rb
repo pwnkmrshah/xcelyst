@@ -198,7 +198,7 @@ module AccountBlock
       if (params[:otp].present? && params[:otp].to_i == @account.otp && (@account.otp_valid_till > Time.zone.now))
         @account.update activated: true, otp: nil, otp_valid_till: nil
         AccountBlock::SignUpMailer.with(email: @account.email).sign_up_you.deliver_now
-        AccountBlock::SignUpMailer.with(account: @account).sovren_score.deliver_now
+        # AccountBlock::SignUpMailer.with(account: @account).sovren_score.deliver_now
         components = [{
             type: 'HEADER', parameters: [ { type: 'text', text: @account.user_full_name }]
           }]
