@@ -18,6 +18,7 @@ class Ability
     'edit_client' => [:update],
     'upload_resume_file' => [:upload_resume_file],
     'upload_json_file' => [:upload_json_file],
+    'import_json_file' => [:import_json],
     'permanent' => [:make_permanent_account],
     'temporary_by_admin' => [:temporary_make_permanent_account],
     'bulk_send_messages' => [:bulk_send_messages],
@@ -103,6 +104,7 @@ class Ability
       when 'rejected candidate'    then BxBlockRolesPermissions::AppliedJob
       when 'applied candidate'    then BxBlockRolesPermissions::AppliedJob
       when 'dashboard'             then Dashboard
+      when 'email template'             then BxBlockDatabase::EmailTemplate
     else nil
     end
   end

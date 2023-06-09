@@ -8,13 +8,20 @@ module BxBlockRequestdemo
 
       def admin_inform
         @email = "info@xcelyst.com"
-        @name = "#{params&.first_name} #{params&.last_name}"
+        @name = params&.first_name
         @user_email = params&.email
         @phone = params&.phone_no
 
         mail(to: @email, subject: 'Request for Xcelyst Platform Demo.') do |format|
           format.html { render 'admin_inform' }
         end
+      end
+
+      def user_inform
+        @email = "info@xcelyst.com"
+        @name = params&.first_name
+        @user_email = params&.email
+        @phone = params&.phone_no
 
         mail(to: @user_email, subject: 'Thank you for your interest in Xcelyst!') do |format|
           format.html { render 'user_inform' }

@@ -19,17 +19,7 @@ module BxBlockBulkUpload
     end
 
     def send_email(logs)
-      file_name = logs.file
-      if logs&.errors&.blank? && logs&.count > 0
-        logs_file = logs&.errors
-        subject = "File data uploaded successfully"
-        body = "#{logs&.count} resume uploaded successfully "
-      else
-        logs_file = logs.errors&.map{|a| [a[:id], a[:errors]] }.to_h
-        subject = "File now uplaoded some erros occured"
-        body = "#{logs&.count} resume uploaded successfully please check the logs for the remaining data"
-      end
-      BxBlockAdmin::LogFileSendMailer.send_file(subject, body, logs_file, file_name).deliver_now
+      BxBlockAdmin::LogFileSendMailer.send_file(logs, 'logs.txt').deliver_now
     end
   end
 end

@@ -2,12 +2,18 @@ module AccountBlock
     class UpdateAccountMailer < ApplicationMailer
       def update_pic
         @email = params[:email]
-        mail(to: @email, from: 'builder.bx_dev@engineer.ai', subject: 'Account Profile Pic Changed Successfully', body: "Your Profile Pic Updated Successfully.")
-      end  
+        @account = Account.find_by(email: @email)
+        mail(to: @email, subject: 'Xcelyst Profile Update') do |format|
+          format.html { render 'update_profile' }
+        end
+      end
 
       def update_profile
         @email = params[:email]
-        mail(to: @email, from: 'builder.bx_dev@engineer.ai', subject: 'Account Updated Successfully', body: "Your Updated Successfully.")
+        @account = Account.find_by(email: @email)
+        mail(to: @email, subject: 'Xcelyst Profile Update') do |format|
+          format.html { render 'update_profile' }
+        end
       end
    end
 end

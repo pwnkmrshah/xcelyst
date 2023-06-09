@@ -4,30 +4,28 @@ module BxBlockScheduling
 
 		
 		def schedule_interview_you
-			mail(to: @candidate.email, from: 'builder.bx_dev@engineer.ai', subject: 'Time Slot Created Successfully.', body: "Interview time slots were created successfully by #{@client.user_full_name}.")
+			mail(to: @candidate.email, subject: 'Interview Time Slot Confirmation.')
 		end
 
 		def schedule_interview_admin
-			mail(to: "info@xcelyst.com", from: 'builder.bx_dev@engineer.ai', subject: 'Time Slot Created Successfully.',
-			body: "Interview Time slots were created successfully for #{@candidate.user_full_name} by #{@client.user_full_name}")
+			mail(to: "info@xcelyst.com", subject: 'Time Slot Created for Interview.')
 		end
 
 		def schedule_interview_interview
-			mail(to: @interviewer.email, subject: 'Time Slot Created Successfully.',
+			mail(to: @interviewer.email, subject: 'Interview Time Slot Confirmation.',
 				body: "Interview scheduled with #{@candidate.user_full_name}")
 		end
 
 		def choose_interview_to_interviewer
-			mail(to: @interviewer.email, subject: 'Time Slot Choosed Successfully.')
+			mail(to: @interviewer.email, subject: "Interview Confirmation:  #{@candidate_name} for Job Role - #{@job_title}")
 		end
 
 		def choose_interview_to_candidate
-			# msg = "Your interview scheduled on #{@zoom_meeting.provider.tr("_", " ").titleize} and the meeting link is #{@zoom_meeting.meeting_urls['start_url']}"
-			mail(to: @candidate.email, from: 'builder.bx_dev@engineer.ai', subject: 'Time Slot Choosed Successfully.')#, body: "Time Slot Choosed Successfully. #{msg}")
+			mail(to: @candidate.email, subject: 'Confirmation: Meeting Details for Job Interview.')#, body: "Time Slot Choosed Successfully. #{msg}")
 		end
 
 		def choose_interview_to_client
-			mail(to: @client.email, from: 'builder.bx_dev@engineer.ai', subject: 'Time Slot Choosed Successfully.', body: "#{@candidate.user_full_name} Choosed Slot Successfully")
+			mail(to: @client.email, subject: "Interview Confirmation:  #{@candidate_name} for Job Role - #{@job_title}", body: "#{@candidate.user_full_name} Choosed Slot Successfully")
 		end
 
 		def meeting_schedule_from_admin_to_client
@@ -61,16 +59,20 @@ module BxBlockScheduling
 		def set_inviter_and_invitee
 			@interview  = params[:interview]
 			@candidate = @interview.candidate
+			@job_title = @interview&.job_description.job_title
+			@candidate_name = @candidate.user_full_name
 			@client = @interview.client
 			@interviewer = @interview.interviewer
-			@zoom_meeting = @interview.zoom_meeting
+			@zoom_meeting = @interview&.zoom_meeting
+			@starting_at = @zoom_meeting&.starting_at 
+			@schedule_date = @zoom_meeting&.schedule_date 
 		end
 
 
 		def interviewer_link
 			token = BuilderJsonWebToken.encode @interview.id, 'interviewer'
 			@link = (ENV["FRONT_END_URL"] ? ENV["FRONT_END_URL"] + "candidate-feedback/" : "https://hiringplatform-74392-react-native.b74392.dev.us-east-1.aws.svc.builder.cafe/candidate-feedback/")+ token
-			mail(to: @interviewer.email, from: 'builder.bx_dev@engineer.ai', subject: 'Interview completed successfully')
+			mail(to: @interviewer.email, subject: "Request for Feedback: #{@candidate.user_full_name}")
 		end
 
 		def final_interviewer_link
