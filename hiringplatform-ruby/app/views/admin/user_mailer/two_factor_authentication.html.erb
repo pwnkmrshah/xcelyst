@@ -3,9 +3,17 @@
     <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
   </head>
   <body>
-    <h1>Two-Factor Authentication Code</h1>
     <p>Hello <%= @admin_user.email %>,</p>
-    <p>Your OTP code for two-factor authentication is: <%= @admin_user.otp %></p>
-    <p>Please enter this code to complete the login process.</p>
+    <p>
+      To enhance the security of your Xcelyst account, we have implemented two-factor authentication. Please use the following OTP code to complete the login process: <br><br>
+        OTP Code: <%= @admin_user.otp %> <br><br>
+
+      Enter this code when prompted to complete the authentication and access your account securely.<br><br>
+
+      If you did not initiate this request or have any concerns regarding the security of your account, please contact our support team immediately at info@xcelyst.com. We take your account security seriously and are ready to assist you in resolving any issues.<br><br>
+      
+      Thank you for choosing Xcelyst.
+    </p>
+    <%= render 'layouts/email_footer'%>
   </body>
 </html>

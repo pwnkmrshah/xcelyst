@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <p>
+      Dear <%= @account.user_full_name %>,
+    </p>
+    <p>
+      Thank you for expressing interest in our platform. We appreciate your time and consideration. We are excited to connect with you and provide you with the best possible solutions.
+    </p>
+    <p>
+      A member of our Sales Team will be reaching out to you shortly using the  contact details you provided:
+    </p>
+    <p>
+      Email: <%= @account.email %>
+      Phone: <%= @account.phone_number %>
+    </p>
+    <p>
+      We value your business and aim to deliver exceptional service. If for any reason you do not receive a response from us, please do not hesitate to reach out to us directly at info@xcelyst.com. We are here to assist you and ensure your needs are met.
+    </p>
+    <p>
+      Once again, thank you for your interest in Xcelyst. We look forward to connecting with you soon.
+    </p>
+    <%= render 'layouts/email_footer'%>
+  </body>
+</html>

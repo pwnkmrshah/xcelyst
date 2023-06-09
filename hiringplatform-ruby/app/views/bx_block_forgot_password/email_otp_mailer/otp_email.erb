@@ -5,11 +5,24 @@
 </head>
 <body>
 <p>
-Hi <%= @account.first_name %>,
-Thanks for joining our service!<br><br>
-Your one time password is <%= @account.otp %>. This OTP will expire in 5 minutes.<br><br>
-Thanks for using Xcelyst.
-
+  Hi <%= @account.first_name %>, <br>
 </p>
+
+<p>
+  We have received a password reset request for your Xcelyst account. To proceed with resetting your password, please use the following One-Time Password (OTP):
+</p>
+<p>
+  OTP: <%= @account.otp %> <br>
+  Expiration: 5 minutes
+</p>
+
+<p>
+  If you did not initiate this password reset request, we strongly advise you to take immediate action to secure your account by changing your password.
+</p>
+
+<p>
+  Thank you for trusting Xcelyst with your account. If you have any questions or need further assistance, please don't hesitate to contact our support team at info@xcelyst.com.
+</p>
+<%= render 'layouts/email_footer'%>
 </body>
 </html>

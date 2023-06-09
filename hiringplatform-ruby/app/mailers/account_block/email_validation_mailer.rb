@@ -9,8 +9,7 @@ module AccountBlock
       # @url = "#{@host}/account/accounts/email_confirmation?token=#{token}"
       mail(
           to: @account.email,
-          from: 'builder.bx_dev@engineer.ai',
-          subject: 'Account activation') do |format|
+          subject: 'Complete Your Xcelyst Registration: Email Verification OTP Inside') do |format|
         format.html { render 'activation_email' }
       end
     end

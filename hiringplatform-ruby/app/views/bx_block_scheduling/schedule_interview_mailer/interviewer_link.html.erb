@@ -4,13 +4,15 @@
   <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
 </head>
 <body>
-<p>
-Hello <%= @interviewer.name %>,<br><br>
+  <p>
+    Hello <%= @interviewer.name %>,<br><br>
 
-Please add your feedback for <%= @candidate.user_full_name %>.<br>
-Click on <a href="<%= "#{@link}" %>", target="_blank" >feedback link</a>.<br><br>
+    We kindly request your valuable feedback regarding the interview with <%= @candidate.user_full_name %>. Your input is crucial in evaluating the candidate's suitability for the position. <br><br>
 
-Thanks for using Xcelyst.
-</p>
+    Please take a moment to provide your feedback by clicking on the following link: <br><br> <a href=<%= @link %> target='_blank'>Feedback Link</a>.<br><br>
+
+    Your feedback plays a significant role in our assessment process, helping us make informed decisions. We appreciate your time and contribution. <br><br>
+  </p>
+  <%= render 'layouts/email_footer'%>
 </body>
 </html>
