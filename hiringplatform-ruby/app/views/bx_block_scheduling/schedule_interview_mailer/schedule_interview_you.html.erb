@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <p>
+      Hello <%= @candidate_name %>, <br><br>
+
+      We are excited to inform you that a time slot has been created by <%= @client.user_full_name %> for your upcoming interview for the job role of <%= @job_title %>. The details of the interview have been shared on our platform. <br><br>
+
+      Our team has carefully considered the available options and selected the best time slot out of the three options provided, ensuring maximum convenience for you. <br><br>
+      Thank you for choosing Xcelyst as your trusted platform for job opportunities. If you have any questions or need further assistance, please do not hesitate to reach out to us. <br><br>
+    </p>
+    <%= render 'layouts/email_footer'%>
+  </body>
+</html>
+
+
+
+

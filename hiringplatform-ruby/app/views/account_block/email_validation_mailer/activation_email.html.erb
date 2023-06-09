@@ -5,7 +5,28 @@
   </head>
   <body>
     <p>
-      Your One Time password is: <b> <%= @account.otp %> <b/>
+      Hi <%= @account.first_name %>,
     </p>
+    <p>
+      Thank you for joining Xcelyst!
+    </p>
+    <p>
+      To fully activate your account and start exploring our platform, we kindly ask you to verify your email address by entering the One-Time Password (OTP) provided below:
+    </p>
+    <p>
+      OTP: <%= @account.otp %>
+    </p>
+    <p>
+      At Xcelyst, our goal is to streamline your job search and connect you with the most suitable opportunities. We are committed to providing you with an exceptional experience and saving you time in finding relevant jobs.
+    </p>
+
+    <p>
+      If you encounter any difficulties during the verification process or have any questions, our dedicated team is here to assist you. Feel free to reach out to us at info@xcelyst.com, and we'll be more than happy to help.
+    </p>
+
+    <p>
+      Once again, welcome to Xcelyst! We're excited to have you on board.
+    </p>
+    <%= render 'layouts/email_footer'%>
   </body>
 </html>

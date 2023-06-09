@@ -2,8 +2,14 @@ module AccountBlock
     class SignUpMailer < ApplicationMailer
       def sign_up_you
         @email = params[:email]
-        mail(to: @email, from: 'builder.bx_dev@engineer.ai', subject: 'Account Created Successfully', body: "Account Created Successfully")
+        @account = Account.find_by(email: params[:email])
+        mail(
+          to: @email,
+          subject: 'Welcome to Xcelyst! Account Verification Complete') do |format|
+            format.html { render 'sign_up_you' } 
+          end
       end  
+
 
       def sovren_score
         account = params[:account]
