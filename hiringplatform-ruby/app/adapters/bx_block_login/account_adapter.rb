@@ -27,7 +27,7 @@ module BxBlockLogin
       
       unless account.activated
         token = BuilderJsonWebToken.encode(account.id, 'app_user')
-        broadcast(:not_fully_verify, account, token)
+        broadcast(:not_fully_verify, account, token) if account.authenticate(account_params.password)
       end
 
       if account.authenticate(account_params.password)

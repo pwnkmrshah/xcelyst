@@ -18,6 +18,7 @@ class Ability
     'edit_client' => [:update],
     'upload_resume_file' => [:upload_resume_file],
     'upload_json_file' => [:upload_json_file],
+    'import_json_file' => [:import_json],
     'permanent' => [:make_permanent_account],
     'temporary_by_admin' => [:temporary_make_permanent_account],
     'bulk_send_messages' => [:bulk_send_messages],
@@ -91,7 +92,7 @@ class Ability
       when 'social media links'    then BxBlockContentManagement::SocialMediaLink
       when 'sub category'          then BxBlockDomainSubCategory::DomainSubCategory
       when 'temporary account'     then AccountBlock::TemporaryAccount
-      when 'terms & condition'     then BxBlockInformation::TermCondition
+      when 'term condition'     then BxBlockInformation::TermCondition
       when 'account block'         then AccountBlock::Account
       when 'role management'       then BxBlockAdminRolePermission::AdminRole        
       when 'download limit'        then BxBlockDatabase::DownloadLimit
@@ -101,8 +102,11 @@ class Ability
       when 'test score and course' then BxBlockProfile::TestScoreAndCourse
       when 'user admin'            then UserAdmin
       when 'rejected candidate'    then BxBlockRolesPermissions::AppliedJob
-      when 'applied candidate'    then BxBlockRolesPermissions::AppliedJob
+      when 'applied candidate'     then BxBlockRolesPermissions::AppliedJob
       when 'dashboard'             then Dashboard
+      when 'gdpr'                  then BxBlockInformation::Gdpr
+      when 'cookies policy'                  then BxBlockInformation::CookiesPolicy
+
     else nil
     end
   end

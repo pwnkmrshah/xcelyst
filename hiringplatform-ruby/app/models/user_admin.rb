@@ -32,6 +32,10 @@ class UserAdmin < ApplicationRecord
     admin_role&.name&.downcase    
   end
 
+  def is_admin?
+    admin_role&.name&.downcase == 'super admin'
+  end
+
   def can_read_account_block_for?(user, account_block)
     user.admin_role.present? &&
       user.admin_role.admin_permissions.exists?(name: "browse_#{account_block}") &&

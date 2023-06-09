@@ -43,7 +43,7 @@ Rails.application.configure do
   
   config.active_job.queue_adapter = :sidekiq
 
-  config.assets.precompile += %w[active_admin.scss active_admin.js custom.js custom.scss]
+  config.assets.precompile += %w[active_admin.scss active_admin.js custom.js custom.scss xcelyst_logo.png]
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
   # config.active_storage.service = :local

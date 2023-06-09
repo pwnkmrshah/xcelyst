@@ -5,8 +5,7 @@ module BxBlockForgotPassword
       @host = Rails.env.development? ? 'http://localhost:3000' : params[:host]
       mail(
           to: @account.email,
-          from: 'builder.bx_dev@engineer.ai',
-          subject: 'Your OTP code') do |format|
+          subject: "Password Reset Request: One-Time Password Inside") do |format|
         format.html { render 'otp_email' }
       end
     end
