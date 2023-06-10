@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <p>
+      Dear Team,
+    </p>
+    <p>
+      I hope this email finds you well. We have recently received a request from a user who is interested in connecting with us and exploring our platform. Please find the user's details and message below:
+    </p>
+    <p>
+      Name: <%= @contact.name %> <br>
+      Email: <%= @contact.email %> <br>
+      Phone: <%= @contact.phone_number %> <br>
+      Message: <% @contact.description %> <br>
+    </p>
+    <p>
+      We kindly request your assistance in promptly reaching out to the user to establish a connection and arrange a demo at their earliest convenience. This will provide an opportunity to showcase the capabilities of our platform and address any questions or concerns they may have.
+    </p>
+    <p>
+      Thank you for your attention to this matter. If you require any additional information or have any questions, please feel free to reach out to me.
+    </p>
+    <%= render 'layouts/email_footer' %>
+  </body>
+</html>

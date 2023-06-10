@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <p>
+      Hello, <br><br>
+    
+      We would like to inform you about the recent file data upload. Please review the following information: <br><br>
+      Upload Summary: <br><br>
+
+      Successful Uploads: <%= @success_file_count %> jobs uploaded successfully. <br><br>
+      Rejected Uploads: <%= @failed_file_count %> jobs encountered exceptions during the upload process. <br><br>
+      Please refer to the logs for more detailed information regarding the rejected files. Our team is actively working on resolving the exceptions to ensure a smooth data upload process.<br><br>
+
+      If you require any assistance or have any questions, please feel free to reach out to our support team.<br><br>
+
+      Thank you for your attention.<br><br>
+    </p>
+    <%= render 'layouts/email_footer'%>
+  </body>
+</html>

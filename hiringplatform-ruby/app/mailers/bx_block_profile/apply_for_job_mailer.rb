@@ -6,7 +6,6 @@ module BxBlockProfile
       @email = "info@xcelyst.com"
       mail(
         to: @email,
-        from: "builder.bx_dev@engineer.ai",
         subject: "Apply for a job",
       ) do |format|
         format.html { render "job_applied" }
@@ -15,7 +14,8 @@ module BxBlockProfile
 
     def apply_for_job
       @email = params[:email]
-      mail(to: @email, subject: "You applied for job", body: "You applied for job successfully")
+      @user = AccountBlock::Account.find_by(email: @email)&.user_full_name
+      mail(to: @email, subject: "Job Application Submitted Successfully")
     end
     
   end

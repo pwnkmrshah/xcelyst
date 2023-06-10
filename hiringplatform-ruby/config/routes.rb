@@ -163,6 +163,8 @@ Rails.application.routes.draw do
   namespace :bx_block_information do 
     resources :term_conditions, only: :index
     resources :privacy_policies, only: :index
+    resources :gdprs, only: :index
+    resources :cookies_policies, only: :index
   end
 
   namespace :bx_block_twilio do 

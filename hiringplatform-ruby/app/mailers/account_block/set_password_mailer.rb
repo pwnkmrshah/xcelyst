@@ -9,8 +9,7 @@ module AccountBlock
         @url = "#{@host}/account_block/accounts_setpassword?token=#{@account.reset_password_token}"
         mail(
             to: @account.email,
-            from: 'builder.bx_dev@engineer.ai',
-            subject: 'Account created successfull!') do |format|
+            subject: 'Welcome to Xcelyst! Your Account Details Inside.') do |format|
             format.html { render 'set_password_email' } 
         end
       end
@@ -23,8 +22,7 @@ module AccountBlock
         @url = "#{@host}/account_block/accounts_setpassword?token=#{@account.reset_password_token}"
         mail(
           to: @account.email,
-          from: 'builder.bx_dev@engineer.ai',
-          subject: 'Account Reset Password') do |format|
+          subject: 'Password Reset Link for Your Xcelyst Account') do |format|
           format.html { render 'reset_password' } 
       end
       end

@@ -7,12 +7,13 @@
     <p>
       Hello Admin,<br><br>
 
-      <%= @jd.role.account.first_name %> has <%= @type %> a <%= @jd.jd_type %> job description. You can check that job description by click on the below link.<br>
+      We would like to inform you that <%= @jd.role.account.first_name %> has created a new  <%= @jd.jd_type %> job description<br><br>
 
+      To review the job description, please click on the link provided below: <br><br>
       <%= link_to "Click Here", "#{@jd_url}" %><br><br>
 
-      Thank & Regards<br>
-      Hiring Support Team
+      Thank you for your attention to this matter.
     </p>
+    <%= render 'layouts/email_footer'%>
   </body>
 </html>
