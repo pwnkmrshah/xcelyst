@@ -25,6 +25,7 @@ module BxBlockBulkUpload
       end
       res_data = JSON.parse(res.body)
       file_url = res_data['data']['json_file_url']
+      Rails.logger.info "File url- #{file_url}"
       get_company_data(file_url, company_id)
     end
 
@@ -43,11 +44,7 @@ module BxBlockBulkUpload
     end
 
     def send_logs_email(logs)
-      file_name = File.basename(logs[:file])
-      logs_file = logs[:logs]
-      subject = "File data uploaded. Some file got rejected due to exception. Check logs."
-      body = "#{logs[:success_count]} jobs uploaded successfully. #{logs[:exception_count]} jobs has some exception."
-      BxBlockAdmin::LogFileSendMailer.send_file(subject, body, logs_file, file_name).deliver_now
+      BxBlockAdmin::LogFileSendMailer.with(successed: logs[:success_count], failed: logs[:exception_count], log_file: logs).send_file.deliver_now
     end
   end
 end

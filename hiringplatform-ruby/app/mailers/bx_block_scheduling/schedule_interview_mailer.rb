@@ -1,19 +1,18 @@
 module BxBlockScheduling
   class ScheduleInterviewMailer  < ApplicationMailer
 		before_action :set_inviter_and_invitee
-
+    before_action :set_values
 		
 		def schedule_interview_you
-			mail(to: @candidate.email, subject: 'Interview Time Slot Confirmation.')
+			fetch_email('schedule_interview_you')
 		end
 
 		def schedule_interview_admin
-			mail(to: "info@xcelyst.com", subject: 'Time Slot Created for Interview.')
+			fetch_email('schedule_interview_admin')
 		end
 
 		def schedule_interview_interview
-			mail(to: @interviewer.email, subject: 'Interview Time Slot Confirmation.',
-				body: "Interview scheduled with #{@candidate.user_full_name}")
+			fetch_email('schedule_interview_admin')
 		end
 
 		def choose_interview_to_interviewer
@@ -70,9 +69,7 @@ module BxBlockScheduling
 
 
 		def interviewer_link
-			token = BuilderJsonWebToken.encode @interview.id, 'interviewer'
-			@link = (ENV["FRONT_END_URL"] ? ENV["FRONT_END_URL"] + "candidate-feedback/" : "https://hiringplatform-74392-react-native.b74392.dev.us-east-1.aws.svc.builder.cafe/candidate-feedback/")+ token
-			mail(to: @interviewer.email, subject: "Request for Feedback: #{@candidate.user_full_name}")
+			fetch_email('interviewer_link')
 		end
 
 		def final_interviewer_link

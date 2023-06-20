@@ -3,6 +3,7 @@ require "action_cable/engine"
 
 Rails.application.routes.draw do
 
+  mount Ckeditor::Engine => '/ckeditor'
   get "/healthcheck", to: proc { [200, {}, ["Ok"]] }
   devise_for :user_admins, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)
