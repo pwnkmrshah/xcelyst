@@ -4,6 +4,7 @@ module EmailHelper
   def set_values
     return nil if params.nil?
 
+    @host = ENV['REMOTE_URL']
     set_account_values if params[:account_id] || params[:email]
     set_demo_values if params[:demo]
     set_contact_values if params[:contact]
@@ -16,7 +17,6 @@ module EmailHelper
     @jd = params[:obj]
     set_jd_values if @jd.present?
 
-    @host = ENV['REMOTE_URL']
     @info_url = ActionController::Base.helpers.link_to("info@xcelyst.com", '#')
     @header = BxBlockDatabase::EmailTemplateHeader.where(enable: true).last
     @footer = BxBlockDatabase::EmailTemplateFooter.where(enable: true).last
@@ -87,8 +87,8 @@ module EmailHelper
     end
 
     @otp = @record.otp
-    change_password_url = "#{@host}/account_block/accounts_setpassword?token=#{@record.reset_password_token}"
-    @change_password_url = ActionController::Base.helpers.link_to('Change password', change_password_url.to_s)
+    @change_password_url = "#{@host}/account_block/accounts_setpassword?token=#{@record.reset_password_token}"
+    # @change_password_url = ActionController::Base.helpers.link_to('Change password', change_password_url.to_s)
   end
 
   def set_demo_values

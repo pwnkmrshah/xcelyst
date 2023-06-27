@@ -16,17 +16,36 @@
           <td valign="top" style="padding:0;Margin:0">
             <table class="es-content" cellspacing="0" cellpadding="0"   align="center">
               <!-- Header starts -->
-                <% if header.present? %>
-                  <%= header.body&.html_safe %>
-                <% end -%>
+              <tr style="border-collapse:collapse">
+                <td class="es-adaptive" align="center" style="padding:0;Margin:0">
+                  <!-- Header table starts -->
+                  <% if header.present? %>
+                    <%= header.body&.html_safe %>
+                  <% end -%>
+                  <!-- Header table end -->
+                </td>
+              </tr>
               <!-- Header ends -->
               <!-- Body Start -->
-                <%= body.html_safe %>
+              <tr style="border-collapse:collapse">
+                <td style="padding:0;Margin:0;background-color:#fafafa" bgcolor="#fafafa" align="center">
+                  <!-- Body table starts -->
+                  <%= body.html_safe %>
+                  <!-- Body table end -->
+                </td>
+              </tr>
               <!-- Body End -->
+
               <!-- footer starts -->
-                <% if footer.present? %>
-                  <%= footer.body&.html_safe %>
-                <% end -%>
+              <tr style="border-collapse:collapse">
+                <td style="padding:0;Margin:0;background-color:#fafafa" bgcolor="#fafafa" align="center">
+                  <!---footer table Start-->  
+                    <% if footer.present? %>
+                      <%= footer.body&.html_safe %>
+                    <% end -%>
+                  <!---footer table End-->  
+                </td>
+              </tr>
               <!-- footer ends -->
             </table>
           </td>
