@@ -12,7 +12,7 @@ module BxBlockScheduling
 		end
 
 		def schedule_interview_interview
-			fetch_email('schedule_interview_admin')
+			fetch_email('schedule_interview_interview')
 		end
 
 		def choose_interview_to_interviewer
