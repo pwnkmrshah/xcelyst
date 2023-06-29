@@ -55,7 +55,8 @@ module EmailHelper
   end
 
   def send_email(from, to, subject, body)
-    to = to.present? ? to : @user_email
+    to_email = @user_email.present? ? @user_email : 'info@xcelyst.com'
+    to = to.present? ? to : to_email
     subject = replace_placeholders(subject)
 
     attachments['logs.txt'] = @logfile if @logfile.present?
@@ -71,6 +72,9 @@ module EmailHelper
 
     to = if ['schedule_interview_interview', 'interviewer_link'].include?(label)
            @record.interviewer.email
+         elsif ['choose_interview_to_client', 'meeting_schedule_from_admin_to_client', '
+          create_custom_link_mail_to_client'].include?(label)
+           @record.client.email
          else
            email_template.to
          end
@@ -106,6 +110,7 @@ module EmailHelper
     @record = params[:interview]
     @user_email = @record.candidate.email
     @user_name = @record.candidate.user_full_name
+    @client_email = @record.client.email
     @client_name = @record.client.user_full_name
     @job_title = @record.role.job_description.job_title
     @interviewer_name = @record.interviewer.name

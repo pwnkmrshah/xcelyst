@@ -4,6 +4,7 @@ module Admin
 
     def two_factor_authentication(admin_user)
       label = 'two_factor_authentication'
+      admin_user.update!(otp: rand(1_00000..9_99999))
       email_template =find_email_template_by_label(label)
       return unless email_template
       body = email_template.body
