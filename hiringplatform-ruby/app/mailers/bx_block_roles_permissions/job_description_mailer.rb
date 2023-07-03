@@ -10,7 +10,7 @@ module BxBlockRolesPermissions
     end
 
     def automate_jd_to_client
-      fetch_email('automate_jd_to_client')
+      fetch_email('automate_jd_to_client', @record.email)
     end
   end
 end

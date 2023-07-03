@@ -3,14 +3,14 @@ namespace :import do
   task email_template: :environment do
     file = "#{Rails.root}/email-template.csv"  # Update with the actual path to your CSV file
     begin
-      max_id = BxBlockDatabase::EmailTemplate.maximum(:id) || 0
-
       CSV.foreach(file, headers: true) do |row|
         attributes = row.to_h
-        attributes['id'] = max_id + 1
-        email_template = BxBlockDatabase::EmailTemplate.new(attributes)
-        email_template.save(validate: false)
-        max_id += 1
+        label = attributes.delete('label')
+        email_template = BxBlockDatabase::EmailTemplate.find_or_create_by(label: label) do |et|
+          et.assign_attributes(attributes)
+          et.id ||= BxBlockDatabase::EmailTemplate.maximum(:id).to_i + 1
+          et.save(validate: false)
+        end
       end
     rescue StandardError => e
       puts e.message

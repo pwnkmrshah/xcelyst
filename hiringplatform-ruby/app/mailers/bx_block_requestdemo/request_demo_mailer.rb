@@ -5,7 +5,7 @@ module BxBlockRequestdemo
       end
 
       def user_inform
-        fetch_email('user_inform')
+        fetch_email('user_inform', @record.email)
       end
     end
 end

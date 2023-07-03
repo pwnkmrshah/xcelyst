@@ -10,12 +10,17 @@
 <%= form_with(model: @email_template, url: url, local: true) do |form| %>
   <div>
     <%= form.label :template_name, 'Template Name:'%>
-    <%= form.text_field :template_name, readonly: true %>
+    <%= form.text_field :template_name %>
   </div>
 
   <div>
     <%= form.label :label, 'Label:'%>
     <%= form.text_field :label, readonly: true %>
+  </div>
+
+  <div>
+    <%= form.label :description, 'Description:'%>
+    <%= form.text_field :description   %>
   </div>
 
   <div>

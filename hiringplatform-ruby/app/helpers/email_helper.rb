@@ -48,14 +48,18 @@ module EmailHelper
     }
 
     placeholders.each do |placeholder, value|
-      body.gsub!(placeholder, value)
+      body&.gsub!(placeholder, value)
     end
 
     body
   end
 
   def send_email(from, to, subject, body)
-    to_email = @user_email.present? ? @user_email : 'info@xcelyst.com'
+    to_email = if @record.respond_to?(:email)
+                @record.email.present? ? @record.email : 'info@xcelyst.com'
+               else
+                'info@xcelyst.com'
+               end
     to = to.present? ? to : to_email
     subject = replace_placeholders(subject)
 
@@ -66,18 +70,12 @@ module EmailHelper
     end
   end
 
-  def fetch_email(label)
+  def fetch_email(label, to=nil)
     email_template = find_email_template_by_label(label)
+    if to.nil?
+      to = email_template.to.present? ? email_template.to : 'info@xcelyst.com'
+    end
     return unless email_template
-
-    to = if ['schedule_interview_interview', 'interviewer_link'].include?(label)
-           @record.interviewer.email
-         elsif ['choose_interview_to_client', 'meeting_schedule_from_admin_to_client', '
-          create_custom_link_mail_to_client'].include?(label)
-           @record.client.email
-         else
-           email_template.to
-         end
 
     body = replace_placeholders(email_template.body)
     send_email(email_template.from, to, email_template.subject, body)

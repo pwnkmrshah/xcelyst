@@ -1,7 +1,7 @@
 module AccountBlock
   class EmailValidationMailer < ApplicationMailer
     def activation_email
-      fetch_email('activation_email')
+      fetch_email('activation_email', @record.email)
     end
 
     private

@@ -5,7 +5,7 @@ module BxBlockContactUs
     end
 
     def user_email
-      fetch_email('user_email')
+      fetch_email('user_email', @record.email)
     end
   end
 end
