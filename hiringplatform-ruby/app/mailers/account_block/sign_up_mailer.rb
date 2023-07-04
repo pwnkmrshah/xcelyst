@@ -1,15 +1,8 @@
 module AccountBlock
     class SignUpMailer < ApplicationMailer
       def sign_up_you
-        @email = params[:email]
-        @account = Account.find_by(email: params[:email])
-        mail(
-          to: @email,
-          subject: 'Welcome to Xcelyst! Account Verification Complete') do |format|
-            format.html { render 'sign_up_you' } 
-          end
-      end  
-
+        fetch_email(@record.email)
+      end
 
       def sovren_score
         account = params[:account]

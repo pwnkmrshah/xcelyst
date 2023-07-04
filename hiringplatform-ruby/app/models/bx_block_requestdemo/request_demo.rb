@@ -5,6 +5,9 @@ module BxBlockRequestdemo
 		validates :first_name, :last_name, :phone_no, :email, :company_name, presence: true
 		validates_format_of :first_name, :last_name, :company_name, :with => /^[a-zA-Z\s]*$/, :multiline => true, message: "Number or special character not allowed"
 		validates_format_of :phone_no, :with =>  /\d[0-9]\)*\z/ , :message => "Only  number allowed"
+		    def user_full_name
+		      "#{self.first_name} #{self.last_name}"
+		    end
 	end
 end
 

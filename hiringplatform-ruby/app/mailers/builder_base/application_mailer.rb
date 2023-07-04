@@ -1,6 +1,6 @@
 module BuilderBase
   class ApplicationMailer < ::ApplicationMailer
-    default from: 'from@example.com'
+    default from: 'info@xcelyst.com'
     layout 'mailer'
   end
 end

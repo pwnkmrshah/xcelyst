@@ -105,7 +105,10 @@ class Ability
       when 'applied candidate'     then BxBlockRolesPermissions::AppliedJob
       when 'dashboard'             then Dashboard
       when 'gdpr'                  then BxBlockInformation::Gdpr
-      when 'cookies policy'                  then BxBlockInformation::CookiesPolicy
+      when 'cookies policy'        then BxBlockInformation::CookiesPolicy
+      when 'email template'        then BxBlockDatabase::EmailTemplate
+      when 'email template footer' then BxBlockDatabase::EmailTemplateFooter
+      when 'email template header' then BxBlockDatabase::EmailTemplateHeader
 
     else nil
     end
