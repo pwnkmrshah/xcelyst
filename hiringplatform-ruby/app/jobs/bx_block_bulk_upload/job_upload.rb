@@ -14,7 +14,7 @@ module BxBlockBulkUpload
     end
 
     def send_logs_email(logs)
-      BxBlockAdmin::LogFileSendMailer.with(successed: logs[:success_count], failed: logs[:exception_count], log_file: logs).send_file.deliver_now
+            BxBlockAdmin::LogFileSendMailer.with(successed: logs[:count], failed: logs[:errors].count, failed_detail: logs[:errors], log_file: logs[:file]).send_file.deliver_now
     end
   end
 end

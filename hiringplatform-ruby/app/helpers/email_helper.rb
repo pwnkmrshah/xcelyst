@@ -12,6 +12,7 @@ module EmailHelper
     set_interview_values if params[:interview]
     set_default_values unless params[:interview]
 
+    @failed_details = params[:failed_detail].to_s
     @logfile = params[:log_file].to_s
     @successed = params[:successed]
     @failed = params[:failed]
@@ -61,7 +62,7 @@ module EmailHelper
     to = to.present? ? to : to_email
     subject = replace_placeholders(subject)
 
-    attachments['logs.txt'] = @logfile if @logfile.present?
+    attachments['logs.txt'] = @failed_details if @failed_details.present?
 
     mail(from: from, to: to, subject: subject) do |format|
       format.html { render partial: 'layouts/mail_template', locals: { body: body, header: @header, footer: @footer } }
