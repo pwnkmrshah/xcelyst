@@ -16,6 +16,10 @@ module BxBlockContactUs
       validator = Phonelib.valid?(phone_number)
       errors.add(:phone_number, "invalid") if !validator.valid?
     end
+
+    def user_full_name
+      name
+    end
   
     def self.filter(query_params)
       ContactFilter.new(self, query_params).call

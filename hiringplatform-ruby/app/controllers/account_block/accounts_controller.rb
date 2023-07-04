@@ -186,8 +186,9 @@ module AccountBlock
     def resend_otp
       @account.generate_pin_and_valid_date
       @account.save
+      host = ENV['REMOTE_URL']
       email = EmailValidationMailer
-        .with(account: @account, host: request.base_url)
+        .with(account_id: @account.id, host: request.base_url)
         .activation_email.deliver
       render json: { message: "OTP has been sent successfully." }, status: 200
     end
@@ -243,7 +244,7 @@ module AccountBlock
     def reset_password
       @account = Account.find(params[:id])
       tokan = DateTime.now.strftime("%Q").to_s
-      host = request.base_url
+      host = ENV['REMOTE_URL']
       if @account.update(reset_password_token: tokan)
         AccountBlock::SetPasswordMailer.with(account_id: params[:id], host: host).reset_password.deliver
         redirect_to "#{host}/admin/clients/#{@account.id}", flash: { notice: "Password reset Email sended successfully!" }

@@ -5,9 +5,8 @@ module BxBlockRequestdemo
 			demo = RequestDemo.new(demo_params)
 			if demo.save
 				if demo.email.present?
-					# BxBlockRequestdemo::RequestDemoMailer.with(email: demo.email).contact_you.deliver_now
-					BxBlockRequestdemo::RequestDemoMailer.with(demo).admin_inform.deliver_now
-					BxBlockRequestdemo::RequestDemoMailer.with(demo).user_inform.deliver_now
+					BxBlockRequestdemo::RequestDemoMailer.with(demo: demo).admin_inform.deliver_now
+					BxBlockRequestdemo::RequestDemoMailer.with(demo: demo).user_inform.deliver_now
 				end
 				render json: { message: "A Member of the Team Will be in Contact With you" }, status: 200
 			else

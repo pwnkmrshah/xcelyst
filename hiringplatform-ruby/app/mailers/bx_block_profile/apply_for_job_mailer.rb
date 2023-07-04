@@ -13,10 +13,7 @@ module BxBlockProfile
     end
 
     def apply_for_job
-      @email = params[:email]
-      @user = AccountBlock::Account.find_by(email: @email)&.user_full_name
-      mail(to: @email, subject: "Job Application Submitted Successfully")
+      fetch_email()
     end
-    
   end
 end

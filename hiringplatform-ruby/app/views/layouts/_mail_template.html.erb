@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <meta name="x-apple-disable-message-reformatting">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="telephone=no" name="format-detection">
+    <title>New message</title>
+    <%= stylesheet_link_tag 'email_template' %>
+  </head>
+  <body style="width:100%;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;font-family:helvetica, 'helvetica neue', arial, verdana, sans-serif;padding:0;Margin:0">
+    <div class="es-wrapper-color" style="background-color:#FAFAFA">
+      <table class="es-wrapper" width="100%" cellspacing="0" cellpadding="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;padding:0;Margin:0;width:100%;height:100%;background-repeat:repeat;background-position:center top;background-color:#FAFAFA">
+        <tr style="border-collapse:collapse">
+          <td valign="top" style="padding:0;Margin:0">
+            <table class="es-content" cellspacing="0" cellpadding="0"   align="center">
+              <!-- Header starts -->
+              <tr style="border-collapse:collapse">
+                <td class="es-adaptive" align="center" style="padding:0;Margin:0">
+                  <!-- Header table starts -->
+                  <% if header.present? %>
+                    <%= header.body&.html_safe %>
+                  <% end -%>
+                  <!-- Header table end -->
+                </td>
+              </tr>
+              <!-- Header ends -->
+              <!-- Body Start -->
+              <tr style="border-collapse:collapse">
+                <td style="padding:0;Margin:0;background-color:#fafafa" bgcolor="#fafafa" align="center">
+                  <!-- Body table starts -->
+                  <%= body.html_safe %>
+                  <!-- Body table end -->
+                </td>
+              </tr>
+              <!-- Body End -->
+
+              <!-- footer starts -->
+              <tr style="border-collapse:collapse">
+                <td style="padding:0;Margin:0;background-color:#fafafa" bgcolor="#fafafa" align="center">
+                  <!---footer table Start-->  
+                    <% if footer.present? %>
+                      <%= footer.body&.html_safe %>
+                    <% end -%>
+                  <!---footer table End-->  
+                </td>
+              </tr>
+              <!-- footer ends -->
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+height: 200
+menubar: true
+toolbar:
+  - undo redo | blocks | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | removeformat | help
+plugins:
+  - insertdatetime lists media table code help wordcount
+   - undo redo | blocks | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | removeformat | help | code
+plugins:
+   - insertdatetime lists media table code help wordcount powerpaste media
+powerpaste_allow_local_images: true
+powerpaste_word_import: 'clean'
+powerpaste_html_import: 'clean'
+powerpaste_googledocs_import: 'prompt'

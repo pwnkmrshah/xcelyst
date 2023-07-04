@@ -1,0 +1,102 @@
+<%  if action_name == "new"
+      url = admin_email_templates_path
+      button_label = 'Create'
+    else
+      url = admin_email_template_path
+      button_label = 'Update'
+    end
+%>
+
+<%= form_with(model: @email_template, url: url, local: true) do |form| %>
+  <div>
+    <%= form.label :template_name, 'Template Name:'%>
+    <%= form.text_field :template_name %>
+  </div>
+
+  <div>
+    <%= form.label :label, 'Label:'%>
+    <%= form.text_field :label, readonly: true %>
+  </div>
+
+  <div>
+    <%= form.label :description, 'Description:'%>
+    <%= form.text_field :description   %>
+  </div>
+
+  <div>
+    <%= form.label :from, 'From:'%>
+    <%= form.text_field :from %>
+  </div>
+
+  <div>
+    <%= form.label :to, 'To:'%>
+    <%= form.text_field :to %>
+  </div>
+
+  <div>
+    <%= form.label :subject, 'Subject:'%>
+    <%= form.text_field :subject %>
+  </div>
+
+  <div>
+    <%= form.label :body, 'Body:'%>
+    <%= form.text_area :body, :class => "tinymce", :rows => 10, :cols => 20  %>
+  </div>
+<fieldset class="actions">
+  <ol>
+    <li class="action input_action " id="contact_submit_action">
+      <input type="submit" name="commit" value="<%= button_label %> Email Template" data-disable-with="<%= button_label %> Email Template">
+    </li>
+    <li class="cancel"><a href="/admin/email_templates">Cancel</a></li>
+  </ol>
+</fieldset>
+<% end %>
+<%= tinymce_assets %>
+<script type="text/javascript">
+  tinymce.init({
+    selector: 'textarea',
+    plugins: 'image code',
+    toolbar: 'undo redo | link image | code',
+    /* enable title field in the Image dialog*/
+    image_title: true,
+    /* enable automatic uploads of images represented by blob or data URIs*/
+    automatic_uploads: true,
+    /*
+      URL of our upload handler (for more details check: https://www.tiny.cloud/docs/configure/file-image-upload/#images_upload_url)
+      images_upload_url: 'postAcceptor.php',
+      here we add custom filepicker only to Image dialog
+    */
+    file_picker_types: 'image',
+    /* and here's our custom image picker*/
+    file_picker_callback: (cb, value, meta) => {
+      const input = document.createElement('input');
+      input.setAttribute('type', 'file');
+      input.setAttribute('accept', 'image/*');
+
+      input.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+          /*
+            Note: Now we need to register the blob in TinyMCEs image blob
+            registry. In the next release this part hopefully won't be
+            necessary, as we are looking to handle it internally.
+          */
+          const id = 'blobid' + (new Date()).getTime();
+          const blobCache =  tinymce.activeEditor.editorUpload.blobCache;
+          const base64 = reader.result.split(',')[1];
+          const blobInfo = blobCache.create(id, file, base64);
+          blobCache.add(blobInfo);
+
+          /* call the callback and populate the Title field with the file name */
+          cb(blobInfo.blobUri(), { title: file.name });
+        });
+        reader.readAsDataURL(file);
+      });
+
+      input.click();
+    },
+    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }'
+  });
+</script>
