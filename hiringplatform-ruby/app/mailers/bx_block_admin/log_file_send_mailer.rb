@@ -3,7 +3,7 @@ module BxBlockAdmin
       before_action :set_values
 
       def send_file
-        fetch_email('send_file')
+        fetch_email()
       end  
     end
   end

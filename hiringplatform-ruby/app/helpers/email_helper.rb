@@ -2,6 +2,7 @@ module EmailHelper
   private
 
   def set_values
+    @email_template =  BxBlockDatabase::EmailTemplate.find_by(label: action_name)
     return nil if params.nil?
 
     @host = ENV['REMOTE_URL']
@@ -22,10 +23,6 @@ module EmailHelper
     @footer = BxBlockDatabase::EmailTemplateFooter.where(enable: true).last
   end
 
-  def find_email_template_by_label(label)
-    BxBlockDatabase::EmailTemplate.find_by(label: label)
-  end
-
   def replace_placeholders(body)
     placeholders = {
       '{{user_name}}' => @user_name.to_s,
@@ -44,6 +41,7 @@ module EmailHelper
       '{{success_count}}' => @successed.to_s,
       '{{failed_count}}' => @failed.to_s,
       '{{interviewer_name}}' => @interviewer_name.to_s,
+      '{{interviewer_role_name}}' => @interviewer_role_name.to_s,
       '{{feedback_link}}' => @feedback_link.to_s
     }
 
@@ -70,15 +68,14 @@ module EmailHelper
     end
   end
 
-  def fetch_email(label, to=nil)
-    email_template = find_email_template_by_label(label)
+  def fetch_email(to=nil)
     if to.nil?
-      to = email_template.to.present? ? email_template.to : 'info@xcelyst.com'
+      to = @email_template.to.present? ? @email_template.to : 'info@xcelyst.com'
     end
-    return unless email_template
+    return unless @email_template
 
-    body = replace_placeholders(email_template.body)
-    send_email(email_template.from, to, email_template.subject, body)
+    body = replace_placeholders(@email_template.body)
+    send_email(@email_template.from, to, @email_template.subject, body)
   end
 
   def set_account_values
@@ -112,6 +109,7 @@ module EmailHelper
     @client_name = @record.client.user_full_name
     @job_title = @record.role.job_description.job_title
     @interviewer_name = @record.interviewer.name
+    @interviewer_role_name = @record.role.name
     token = BuilderJsonWebToken.encode @record.id, 'interviewer'
     @feedback_link = (ENV["FRONT_END_URL"] ? ENV["FRONT_END_URL"] + "candidate-feedback/" : "https://hiringplatform-74392-react-native.b74392.dev.us-east-1.aws.svc.builder.cafe/candidate-feedback/") + token
   end

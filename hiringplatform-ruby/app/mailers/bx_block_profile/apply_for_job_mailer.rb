@@ -13,7 +13,7 @@ module BxBlockProfile
     end
 
     def apply_for_job
-      fetch_email('apply_for_job')
+      fetch_email()
     end
   end
 end

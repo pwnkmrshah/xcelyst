@@ -1,7 +1,7 @@
 module AccountBlock
     class SignUpMailer < ApplicationMailer
       def sign_up_you
-        fetch_email('sign_up_you', @record.email)
+        fetch_email(@record.email)
       end
 
       def sovren_score
