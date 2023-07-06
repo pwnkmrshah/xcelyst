@@ -33,9 +33,11 @@
 <%= form_with(model: @email_footer, url: url, local: true) do |form| %>
   <div>
     <%= form.label :body, 'Body:' %>
-    <%= form.text_area :body, :id => "body", :rows => 10, :cols => 20  %>
+    <%= form.text_area :body, :id => "summernote", :rows => 10, :cols => 20  %>
   </div>
   <br>
+
+<br>  
   <div>
     <%= form.label :enable, 'Enable:' %>
     <%= form.check_box :enable, id: 'enable-input' %>
@@ -50,21 +52,7 @@
   </ol>
 </fieldset>
 <% end %>
-<script> 
-var editor = new FroalaEditor('#body', {
-  toolbarButtons: {
-    'moreText': {
-      'buttons': ['bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'textColor', 'backgroundColor', 'inlineClass', 'inlineStyle', 'clearFormatting']
-    },
-    'moreParagraph': {
-      'buttons': ['alignLeft', 'alignCenter', 'alignRight', 'alignJustify', 'formatOL', 'formatUL', 'paragraphFormat', 'paragraphStyle', 'lineHeight', 'outdent', 'indent', 'quote']
-    },
-    'moreRich': {
-      'buttons': ['insertLink', 'insertImage', 'insertVideo', 'insertTable', 'emoticons', 'fontAwesome', 'specialCharacters', 'insertFile', 'insertHR']
-    },
-    'moreMisc': {
-      'buttons': ['undo', 'redo', 'fullscreen', 'print', 'getPDF', 'spellChecker', 'selectAll', 'html', 'help']
-    }
-  },
-});
+<script type="text/javascript">
+  $('#summernote').summernote({
+  });
 </script>

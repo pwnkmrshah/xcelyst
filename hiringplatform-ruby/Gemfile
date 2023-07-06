@@ -21,7 +21,10 @@ gem 'ransack'
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem 'kaminari'
 gem 'rack-cors'
-gem 'wysiwyg-rails'
+gem 'jquery-rails'
+gem 'turbolinks'
+gem 'summernote-rails'
+gem 'bootstrap-sass'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
