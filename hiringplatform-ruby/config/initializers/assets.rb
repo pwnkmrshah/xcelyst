@@ -1,1 +1,1 @@
-Rails.application.config.assets.precompile += %w( application.js active_admin.js active_admin.scss custom.js custom.scss email_template.css )
+Rails.application.config.assets.precompile += %w( application.js active_admin.js active_admin.scss application.js.cofee custom.js custom.scss email_template.css )

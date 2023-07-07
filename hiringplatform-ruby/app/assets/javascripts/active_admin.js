@@ -2,6 +2,12 @@
 //= require activeadmin_addons/all
 //= require activeadmin/quill_editor/quill
 //= require activeadmin/quill_editor_input
+//= require bootstrap-sprockets
+//= require summernote/summernote-bs4.min
+//= require activestorage
+//= require turbolinks
+//= require_tree .
+//= require summernote
 
 $(document).ready(function() {
   $('.collection_selection_ids').on('click', function() {
