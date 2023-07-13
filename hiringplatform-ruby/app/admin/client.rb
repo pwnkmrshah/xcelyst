@@ -72,7 +72,7 @@ ActiveAdmin.register AccountBlock::Account, as: "Client" do
 		def send_email resource
 			chars = ('0'..'9').to_a + ('A'..'Z').to_a + ('a'..'z').to_a + ['!', '@', '#', '$', '&', '*']
 			pass = (1..8).map{|i| chars.to_a[rand(68)]}.join
-			host = request.base_url
+			host = ENV['REMOTE_URL']
 			if resource.present?
 				tokan = DateTime.now.strftime('%Q').to_s
 				if resource.update(reset_password_token: tokan, activated: true, password: pass, password_confirmation: pass, user_role: "client")

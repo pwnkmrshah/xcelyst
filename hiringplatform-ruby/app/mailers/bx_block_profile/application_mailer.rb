@@ -1,6 +1,5 @@
 module BxBlockProfile
   class ApplicationMailer < BuilderBase::ApplicationMailer
-    default from: 'from@example.com'
-    layout 'mailer'
+    before_action :set_values
   end
 end

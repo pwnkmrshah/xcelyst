@@ -11,7 +11,7 @@ module BxBlockRolesPermissions
       skills_params = params["data"]["job_description"]["data"]["skills"]
       role = CreateRole.new(roles_params, job_desc_params, skills_params, current_user).call
       if role.success?
-        BxBlockRolesPermissions::JobDescriptionMailer.with(email: "info@xcelyst.com", obj: role.obj.job_description, type: "created").automate_jd_to_admin.deliver_now
+        BxBlockRolesPermissions::JobDescriptionMailer.with(info_email: "info@xcelyst.com", obj: role.obj.job_description, type: "created").automate_jd_to_admin.deliver_now
         BxBlockRolesPermissions::JobDescriptionMailer.with(email: role.obj.account.email, obj: role.obj.job_description, type: "created").automate_jd_to_client.deliver_now
         render json: BxBlockRolesPermissions::RolesSerializer.new(role.obj).serializable_hash, status: :created
       else
@@ -27,7 +27,7 @@ module BxBlockRolesPermissions
       skills_params = params["data"]["job_description"]["data"]["skills"]
       role = EditRole.new(roles_params, job_desc_params, skills_params, current_user).call
       if role.success?
-        BxBlockRolesPermissions::JobDescriptionMailer.with(email: "info@xcelyst.com", obj: role.obj.job_description, type: "updated").automate_jd_to_admin.deliver_now
+        BxBlockRolesPermissions::JobDescriptionMailer.with(info_email: "info@xcelyst.com", obj: role.obj.job_description, type: "updated").automate_jd_to_admin.deliver_now
         BxBlockRolesPermissions::JobDescriptionMailer.with(email: role.obj.account.email, obj: role.obj.job_description, type: "updated").automate_jd_to_client.deliver_now
         render json: BxBlockRolesPermissions::RolesSerializer.new(role.obj).serializable_hash, status: :created
       else

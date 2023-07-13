@@ -1,0 +1,58 @@
+<%  if action_name == "new"
+      url = admin_email_templates_path
+      button_label = 'Create'
+    else
+      url = admin_email_template_path
+      button_label = 'Update'
+    end
+%>
+
+<%= form_with(model: @email_template, url: url, local: true) do |form| %>
+  <div>
+    <%= form.label :template_name, 'Template Name:'%>
+    <%= form.text_field :template_name %>
+  </div>
+
+  <div>
+    <%= form.label :label, 'Label:'%>
+    <%= form.text_field :label, readonly: true %>
+  </div>
+
+  <div>
+    <%= form.label :description, 'Description:'%>
+    <%= form.text_field :description   %>
+  </div>
+
+  <div>
+    <%= form.label :from, 'From:'%>
+    <%= form.text_field :from %>
+  </div>
+
+  <div>
+    <%= form.label :to, 'To:'%>
+    <%= form.text_field :to %>
+  </div>
+
+  <div>
+    <%= form.label :subject, 'Subject:'%>
+    <%= form.text_field :subject %>
+  </div>
+
+  <div>
+    <%= form.label :body, 'Body:'%>
+    <%= form.text_area :body, :id => "summernote", :rows => 10, :cols => 20  %>
+  </div>
+  <br>
+<fieldset class="actions">
+  <ol>
+    <li class="action input_action " id="contact_submit_action">
+      <input type="submit" name="commit" value="<%= button_label %> Email Template" data-disable-with="<%= button_label %> Email Template">
+    </li>
+    <li class="cancel"><a href="/admin/email_templates">Cancel</a></li>
+  </ol>
+</fieldset>
+<% end %>
+<script type="text/javascript">
+  $('#summernote').summernote({
+  });
+</script>
