@@ -6,28 +6,11 @@ module BxBlockRolesPermissions
     end
 
     def automate_jd_to_admin
-      host = ENV['REMOTE_URL'] || Rails.application.routes.default_url_options[:host]
-      @email = params[:email]
-      @jd = params[:obj]
-      @type = params[:type]
-      @jd_url = host+Rails.application.routes.url_helpers.rails_blob_url(@jd.jd_file, only_path: true)
-      mail(to: @email,
-        subject: "New Job Description Created: #{@jd&.role&.account&.first_name} - #{@jd.jd_type.titleize}") do |format|
-        format.html { render 'automate_jd_to_admin' }
-      end
+      fetch_email()
     end
 
     def automate_jd_to_client
-      host = ENV['REMOTE_URL'] || Rails.application.routes.default_url_options[:host]
-      @email = params[:email]
-      @jd = params[:obj]
-      @type = params[:type]
-      @jd_url = host+Rails.application.routes.url_helpers.rails_blob_url(@jd.jd_file, only_path: true)
-      mail(to: @email,
-        subject: "Job Description Created: - #{@jd.jd_type.titleize}") do |format|
-        format.html { render 'automate_jd_to_client' }
-      end
+      fetch_email(@record.email)
     end
-
   end
 end

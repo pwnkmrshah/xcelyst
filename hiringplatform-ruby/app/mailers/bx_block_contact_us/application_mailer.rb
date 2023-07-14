@@ -1,6 +1,8 @@
 module BxBlockContactUs
   class ApplicationMailer < BuilderBase::ApplicationMailer
-    default from: 'from@example.com'
+    before_action :set_values
+
+    default from: 'info@xcelyst.com'
     layout 'mailer'
   end
 end

@@ -1,49 +1,45 @@
 module BxBlockScheduling
   class ScheduleInterviewMailer  < ApplicationMailer
-		before_action :set_inviter_and_invitee
+  	before_action :set_inviter_and_invitee
 
-		
 		def schedule_interview_you
-			mail(to: @candidate.email, subject: 'Interview Time Slot Confirmation.')
+			fetch_email(@candidate.email)
 		end
 
 		def schedule_interview_admin
-			mail(to: "info@xcelyst.com", subject: 'Time Slot Created for Interview.')
+			fetch_email()
 		end
 
 		def schedule_interview_interview
-			mail(to: @interviewer.email, subject: 'Interview Time Slot Confirmation.',
-				body: "Interview scheduled with #{@candidate.user_full_name}")
+			fetch_email(@interviewer.email)
 		end
 
 		def choose_interview_to_interviewer
-			mail(to: @interviewer.email, subject: "Interview Confirmation:  #{@candidate_name} for Job Role - #{@job_title}")
+			fetch_email(@interviewer.email)
 		end
 
 		def choose_interview_to_candidate
-			mail(to: @candidate.email, subject: 'Confirmation: Meeting Details for Job Interview.')#, body: "Time Slot Choosed Successfully. #{msg}")
+			fetch_email(@candidate.email)
 		end
 
 		def choose_interview_to_client
-			mail(to: @client.email, subject: "Interview Confirmation:  #{@candidate_name} for Job Role - #{@job_title}", body: "#{@candidate.user_full_name} Choosed Slot Successfully")
+			fetch_email(@client.email)
 		end
 
 		def meeting_schedule_from_admin_to_client
-			mail(to: @client.email, from: 'builder.bx_dev@engineer.ai', subject: 'Time Slot Choosed Successfully.')
+			fetch_email(@client.email)
 		end
 
 		def create_custom_link_mail_to_client
-			msg = "Candidate #{@candidate.first_name}, picked an interview slot successfully for #{@interview.role.name} role. But currently there is no zoom user available for this slot. Kindly contact to the admin."
-			mail(to: @client.email, from: 'builder.bx_dev@engineer.ai', subject: 'Time Slot Choosed Successfully.', body: "#{msg}")
+			fetch_email(@client.email)
 		end
 
 		def create_custom_link_mail_to_admin
-			msg = "Candidate #{@candidate.first_name} has picked an interview slot successfully against the #{@client.first_name} client for #{@interview.role.name} role. But currently there is no zoom user available for this slot. Kindly assign an interview slot to him from admin panel."
-			mail(to: "info@xcelyst.com", from: 'builder.bx_dev@engineer.ai', subject: 'Time Slot Choosed Successfully.', body: "#{msg}")
+			fetch_email()
 		end
 
 		def create_custom_mail_to_candidate
-			mail(to: @candidate.email, from: 'builder.bx_dev@engineer.ai', subject: 'Time Slot Choosed Successfully.')
+			fetch_email(@candidate.email)
 		end
 
 		def request_admin_support
@@ -52,12 +48,23 @@ module BxBlockScheduling
 		end
 
 		def feedback_given_by_interviewer
-			msg = "Feedback has been submitted by #{@interviewer.name}."
-			mail(to: @client.email, from: 'builder.bx_dev@engineer.ai', subject: 'Feedback has been submitted.', body: "#{msg}")
+			fetch_email(@client.email)
+		end
+
+		def interviewer_link
+			token = BuilderJsonWebToken.encode @interview.id, 'interviewer'
+			@link = (ENV["FRONT_END_URL"] ? ENV["FRONT_END_URL"] + "candidate-feedback/" : "https://hiringplatform-74392-react-native.b74392.dev.us-east-1.aws.svc.builder.cafe/candidate-feedback/")+ token
+			mail(to: @interviewer.email, subject: "Request for Feedback: #{@candidate.user_full_name}")
+		end
+
+		def final_interviewer_link
+			token = BuilderJsonWebToken.encode @interview.id, 'interviewer'
+			@link = (ENV["FRONT_END_URL"] ? ENV["FRONT_END_URL"] + "candidate-feedback/" : "https://hiringplatform-74392-react-native.b74392.dev.us-east-1.aws.svc.builder.cafe/candidate-feedback/")+ token
+			mail(to: @interviewer.email, from: 'builder.bx_dev@engineer.ai', subject: 'Interview completed successfully')
 		end
 
 		def set_inviter_and_invitee
-			@interview  = params[:interview]
+			@interview  = @record
 			@candidate = @interview.candidate
 			@job_title = @interview&.job_description.job_title
 			@candidate_name = @candidate.user_full_name
@@ -70,9 +77,7 @@ module BxBlockScheduling
 
 
 		def interviewer_link
-			token = BuilderJsonWebToken.encode @interview.id, 'interviewer'
-			@link = (ENV["FRONT_END_URL"] ? ENV["FRONT_END_URL"] + "candidate-feedback/" : "https://hiringplatform-74392-react-native.b74392.dev.us-east-1.aws.svc.builder.cafe/candidate-feedback/")+ token
-			mail(to: @interviewer.email, subject: "Request for Feedback: #{@candidate.user_full_name}")
+			fetch_email()
 		end
 
 		def final_interviewer_link

@@ -1,17 +1,7 @@
 module AccountBlock
   class EmailValidationMailer < ApplicationMailer
     def activation_email
-      @account = params[:account]
-      @host = Rails.env.development? ? 'http://localhost:3000' : params[:host]
-
-      # token = encoded_token
-
-      # @url = "#{@host}/account/accounts/email_confirmation?token=#{token}"
-      mail(
-          to: @account.email,
-          subject: 'Complete Your Xcelyst Registration: Email Verification OTP Inside') do |format|
-        format.html { render 'activation_email' }
-      end
+      fetch_email(@record.email)
     end
 
     private

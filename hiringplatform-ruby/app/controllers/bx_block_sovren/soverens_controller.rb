@@ -144,7 +144,7 @@ module BxBlockSovren
     end
 
     def render_success_for_jd jd, status_code, operation
-      BxBlockRolesPermissions::JobDescriptionMailer.with(email: "info@xcelyst.com", obj: jd, type: operation).automate_jd_to_admin.deliver_now
+      BxBlockRolesPermissions::JobDescriptionMailer.with(info_email: "info@xcelyst.com", obj: jd, type: operation).automate_jd_to_admin.deliver_now
       BxBlockRolesPermissions::JobDescriptionMailer.with(email: jd.role.account.email, obj: jd, type: operation).automate_jd_to_client.deliver_now
       return render json: { data: jd }, status: status_code
     end

@@ -25,8 +25,8 @@ module BxBlockContactUs
       end
 
       if @contact.save
-        BxBlockContactUs::ContactMailer.admin_email(@contact).deliver_now
-        BxBlockContactUs::ContactMailer.user_email(@contact).deliver_now
+        BxBlockContactUs::ContactMailer.with(contact: @contact).admin_email.deliver_now
+        BxBlockContactUs::ContactMailer.with(contact: @contact).user_email.deliver_now
         render json: {
           success: true,
           message: '',
