@@ -6,7 +6,7 @@ module BxBlockManager
         # validates :email, email_format: { message: 'Invalid email format' }
         validates :email, :uniqueness => true, format: { with: /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i }
         has_many :schedule_interviews, class_name: "BxBlockScheduling::ScheduleInterview"
-        belongs_to :client, class_name: "AccountBlock::Account", foreign_key: "client_id"
+        belongs_to :client, class_name: "AccountBlock::Account", foreign_key: "client_id", optional: true
         validate :email_valid
 
       def email_valid

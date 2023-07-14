@@ -1,0 +1,78 @@
+<% if action_name == "new" || action_name == "create"%>
+  <% url = admin_clients_path %>
+  <% button_label = 'Create' %>
+<% elsif action_name == "update" || action_name == "edit" %>
+  <% url = admin_client_path(@client) %>
+  <% button_label = 'Update' %>
+<% end %>
+<%= nested_form_for(@client, url: url, html: { id: 'client-form' }) do |form| %>
+  <%= form.hidden_field :user_role, value: 'client' %>
+
+  <div>
+    <%= form.label :first_name, 'First Name:' %>
+    <%= form.text_field :first_name %>
+  </div>
+
+  <div>
+    <%= form.label :last_name, 'Last Name:' %>
+    <%= form.text_field :last_name %>
+  </div>
+
+  <div>
+    <%= form.label :current_city, 'Current City:' %>
+    <%= form.text_field :current_city %>
+  </div>
+
+  <div>
+    <%= form.label :email, 'Email:' %>
+    <%= form.text_field :email %>
+  </div>
+
+  <div>
+    <%= form.label :company_name, 'Company Name:' %>
+    <%= form.text_field :company_name %>
+  </div>
+<br>
+  <div id="interviewers-container">
+    <%= form.fields_for :interviewers do |interviewer_form| %>
+      <div class="interviewer">
+        <%= interviewer_form.label :name, 'Name:' %>
+        <%= interviewer_form.text_field :name %>
+
+        <%= interviewer_form.label :email, 'Email:' %>
+        <%= interviewer_form.text_field :email %>
+
+        <%= interviewer_form.link_to_remove 'Remove Interviewer' %>
+      </div>
+    <% end %>
+
+    <%= form.link_to_add 'Add Interviewer', :interviewers, class: 'btn btn-primary' %>
+  </div>
+<br>
+  <div id="manager-container">
+    <%= form.fields_for :managers do |managers_form| %>
+      <div class="managers">
+        <%= managers_form.label :name, 'Name:' %>
+        <%= managers_form.text_field :name %>
+
+        <%= managers_form.label :email, 'Email:' %>
+        <%= managers_form.text_field :email %>
+
+        <%= managers_form.link_to_remove 'Remove Managers' %>
+      </div>
+    <% end %>
+
+    <%= form.link_to_add 'Add Managers', :managers, class: 'btn btn-primary' %>
+  </div>
+
+  <br>
+
+  <fieldset class="actions">
+    <ol>
+      <li class="action input_action" id="contact_submit_action">
+        <%= form.submit "#{button_label} Client", data: { disable_with: "#{button_label} Client" } %>
+      </li>
+      <li class="cancel"><a href="/admin/clients">Cancel</a></li>
+    </ol>
+  </fieldset>
+<% end %>

@@ -54,6 +54,8 @@ module AccountBlock
     
     scope :candidates, -> { where(user_role: 'candidate') }
     scope :clients, -> { where(user_role: 'client') }
+    accepts_nested_attributes_for :interviewers, reject_if: :all_blank, allow_destroy: true
+    accepts_nested_attributes_for :managers, reject_if: :all_blank, allow_destroy: true
 
     def generate_pin_and_valid_date
       self.otp = rand(1_00000..9_99999)
