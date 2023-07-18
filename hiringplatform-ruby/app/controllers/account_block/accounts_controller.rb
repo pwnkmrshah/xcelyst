@@ -7,6 +7,18 @@ module AccountBlock
     before_action :find_account, only: [:verify_otp, :resend_otp]
 
     # Create a new account with Email or Phone Number informations this is Sigup API Code
+    def remove_resume
+      @candidate = AccountBlock::Account.find_by(id: params[:user_id])
+      @candidate.resume_image.purge if @candidate.resume_image.present?
+      resume = @candidate.user_resume
+      if resume.present?
+        resume.parse_resume.purge if resume.parse_resume.present?
+        resume.destroy
+        @candidate.user_preferred_skills.destroy_all if @candidate.user_preferred_skills.present?
+      end
+      return render json: { success: true, message: 'Resume has been deleted successfully.'}
+    end
+
     def create
       case params[:data][:type] #### rescue invalid API format
       when "sms_account"
@@ -265,7 +277,7 @@ module AccountBlock
     end
 
     def encode(id)
-      BuilderJsonWebToken.encode id, 'app_user'
+      BuilderJsonWebToken::JsonWebToken.encode id, 'app_user'
     end
 
     def find_account
