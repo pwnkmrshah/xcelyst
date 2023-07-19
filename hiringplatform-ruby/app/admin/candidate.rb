@@ -407,25 +407,26 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
       end
 
       def update
-        file = params[:email_account][:resume] 
-        if resource.update(permit_params)
-          if file.present?
-            x = BxBlockSovren::Sovren.new(file, resource).execute
-            if x.success?
-              resource.resume_image.attach(file)
-              user_resume = resource.user_resume
-              if user_resume.present? && ( user_resume.parsed_resume.present? || ( user_resume.parse_resume.present? && user_resume.parse_resume.attached? ))
-                AccountBlock::SignUpMailer.with(account: resource).sovren_score.deliver_now
-              
+        file = params[:email_account][:resume]
+        begin
+          if resource.update(permit_params)
+            if file.present?
+              x = BxBlockSovren::Sovren.new(file, resource).execute
+              if x.success?
+                resource.resume_image.attach(file)
+                user_resume = resource.user_resume
+                if user_resume.present? && ( user_resume.parsed_resume.present? || ( user_resume.parse_resume.present? && user_resume.parse_resume.attached? ))
+                  AccountBlock::SignUpMailer.with(account: resource).sovren_score.deliver_now
+                end
               end
             end
-          end
-          redirect_to admin_candidate_path(@candidate), notice: 'Account was successfully updated.'
-
-        else
-          redirect_to edit_admin_candidate_path, alert: @candidate.errors.full_messages.first
-        end
-
+            redirect_to admin_candidate_path(@candidate), notice: 'Account was successfully updated.'
+          else
+            redirect_to edit_admin_candidate_path, alert: @candidate.errors.full_messages.first
+          end           
+         rescue StandardError => e
+            redirect_to edit_admin_candidate_path, alert: 'Please upload a proper resume.'
+         end 
       end
 
       private

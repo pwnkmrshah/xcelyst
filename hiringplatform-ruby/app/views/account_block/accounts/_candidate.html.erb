@@ -7,6 +7,10 @@
 		cursor: pointer;
 		color: #38678b;
 	}
+	span.remove-file-link{
+		cursor: pointer;
+		color: #38678b;
+	}
 </style>
 <% if action_name == "new" || action_name == "create"%>
   <% url = admin_candidates_path %>
@@ -45,24 +49,22 @@
 
   <div>
     <%= form.label :resume, 'Upload Resume:' %>
-    <%= form.file_field :resume, onchange: "displayFileName(this)" %>
+			<%= form.file_field :resume, onchange: "displayFileName(this)", accept: ".pdf, .doc, .docx" %>
+      <span class="remove-file-link" style="display: none;">Remove File</span>
     <% if form.object.user_resume.present? %>
+
     	<% if form.object.resume_image.present? %>
 	      <label class="file-name"><%= form.object.resume_image.filename %></label>
 	      <br>
 	      <span>
 	        <%= link_to 'Download Resume', url_for(form.object.resume_image), target: '_blank' %><br>
-	      <span class="remove-resume-link">
-	        Remove Resume
-	      </span>
-	      </span>
-      <% else %>
-	      <span class="remove-file">
-	        Remove Resume
+		      <span class="remove-resume-link">
+		        Remove Resume
+		      </span>
 	      </span>
       <% end %>
       <br>
-    <% end %>
+    <% end %>      
   </div>	
 	<br>
   <fieldset class="actions">
@@ -84,36 +86,69 @@
     }
   }
 
-  $('.remove-file').click(function(event) {
+  $('.remove-file-link').click(function(event) {
     event.preventDefault();
     var resumeFileField = $('input[type="file"]');
     resumeFileField.val(null);
+    $(this).hide();
     var fileLabel = resumeFileField.parent().find('.file-name');
     if (fileLabel) {
       fileLabel.text('');
     }
   });
 
+  $('input[type="file"]').change(function() {
+    if ($(this).val()) {
+      $('.remove-file-link').show();
+    } else {
+      $('.remove-file-link').hide();
+    }
+  });
+  var removeConfirmed = false; // Flag to track if removal is confirmed
+
   $('.remove-resume-link').click(function(event) {
     event.preventDefault();
+
+    if (removeConfirmed) {
+      return; // If already confirmed, do not execute the click handler again
+    }
 
     var removeUrl = "<%= remove_resume_account_block_accounts_path %>";
     var userId = "<%= resource.id %>";
     var $removeLink = $(this);
 
-    $removeLink.prop('disabled', true).text('Removing Resume...').css('color', 'black');
+    var confirmMessage = "Are you sure you want to delete the resume?"; // Confirmation message
 
-    $.ajax({
-      url: removeUrl,
-      method: 'PUT',
-      data: {user_id: userId},
-      success: function(response) {
-      	if (response.success) {
-	      	alert(response.message)
-	        location.reload();
-      	}
-      },
-    });
+    // Show the confirmation alert
+    var userConfirmation = confirm(confirmMessage);
+
+    if (userConfirmation) {
+      // Set the flag to true to prevent multiple clicks
+      removeConfirmed = true;
+
+      // Proceed with the AJAX request
+      $removeLink.prop('disabled', true).text('Removing Resume...').css('color', 'black');
+
+      $.ajax({
+        url: removeUrl,
+        method: 'PUT',
+        data: { user_id: userId },
+        success: function(response) {
+          if (response.success) {
+            alert(response.message);
+            location.reload();
+          }
+        },
+        error: function(xhr, status, error) {
+          // Handle the error response if needed
+          // Enable the link and revert back to "Remove Resume" message
+          $removeLink.prop('disabled', false).text('Remove Resume').css('color', '#38678b');
+        }
+      });
+    } else {
+      // User clicked cancel, reset the flag
+      removeConfirmed = false;
+    }
   });
 
 </script>
