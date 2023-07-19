@@ -18,6 +18,7 @@ Rails.application.routes.draw do
       put :verify_otp
       put :resend_otp
       put :update_account
+      put :remove_resume, on: :member
       post '/photo_update', to: 'accounts#photo_update'
       get '/remove_photo', to: 'accounts#remove_photo'
       get '/reset_password/:id', to: 'accounts#reset_password', as: 'change_password'

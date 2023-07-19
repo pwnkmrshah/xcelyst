@@ -1,8 +1,6 @@
 ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
     menu parent: "Platform Users", label: "Candidate", if: proc { current_user_admin.present? && current_user_admin.can_read_account_block_for_candidate?(current_user_admin) }
 
-    permit_params :id, :email, :first_name, :last_name, :current_city, :phone_number#, :password, :password_confirmation, :user_role, :reset_password_token
-    
     actions :all, except: :new
 
     filter :email
@@ -44,15 +42,7 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
       actions
     end
 
-    form do |f|
-      f.inputs do
-          f.input :first_name
-          f.input :last_name
-          f.input :current_city
-          f.input :email
-      end
-      f.actions
-    end
+    form partial: 'account_block/accounts/candidate'
 
     show do
       attributes_table do
@@ -414,6 +404,37 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
     controller do
       def scoped_collection
           AccountBlock::Account.where(user_role: "candidate")
+      end
+
+      def update
+        file = params[:email_account][:resume]
+        begin
+          if resource.update(permit_params)
+            if file.present?
+              x = BxBlockSovren::Sovren.new(file, resource).execute
+              if x.success?
+                resource.resume_image.attach(file)
+                user_resume = resource.user_resume
+                if user_resume.present? && ( user_resume.parsed_resume.present? || ( user_resume.parse_resume.present? && user_resume.parse_resume.attached? ))
+                  AccountBlock::SignUpMailer.with(account: resource).sovren_score.deliver_now
+                end
+              end
+            end
+            redirect_to admin_candidate_path(@candidate), notice: 'Account was successfully updated.'
+          else
+            redirect_to edit_admin_candidate_path, alert: @candidate.errors.full_messages.first
+          end           
+         rescue StandardError => e
+            redirect_to edit_admin_candidate_path, alert: 'Please upload a proper resume.'
+         end 
+      end
+
+      private
+
+      def permit_params
+        params.require(:email_account).permit(
+          :first_name, :last_name, :current_city, :email, :phone_number
+        )
       end
     end
 end   
