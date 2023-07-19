@@ -34,6 +34,7 @@
   </div>
 <br>
   <div id="interviewers-container">
+    <span> <label> Add Interviewers </label> </span><br>
     <%= form.fields_for :interviewers do |interviewer_form| %>
       <div class="interviewer">
         <%= interviewer_form.label :name, 'Name:' %>
@@ -46,10 +47,11 @@
       </div>
     <% end %>
 
-    <%= form.link_to_add 'Add Interviewer', :interviewers, class: 'btn btn-primary' %>
+    <%= form.link_to_add 'Add Interviewers', :interviewers, class: 'btn btn-primary' %>
   </div>
 <br>
   <div id="manager-container">
+    <span> <label> Add Hiring Managers </label> </span><br>
     <%= form.fields_for :managers do |managers_form| %>
       <div class="managers">
         <%= managers_form.label :name, 'Name:' %>
@@ -62,7 +64,7 @@
       </div>
     <% end %>
 
-    <%= form.link_to_add 'Add Managers', :managers, class: 'btn btn-primary' %>
+    <%= form.link_to_add 'Add Hiring Managers', :managers, class: 'btn btn-primary' %>
   </div>
 
   <br>
