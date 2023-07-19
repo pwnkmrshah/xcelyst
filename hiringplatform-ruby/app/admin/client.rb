@@ -1,7 +1,5 @@
 ActiveAdmin.register AccountBlock::Account, as: "Client" do
 	menu parent: ["Platform Users",  "Client"], label: "Client", if: proc { current_user_admin.present? && current_user_admin.can_read_account_block_for_client?(current_user_admin) }
-	
-	permit_params :id, :email, :first_name, :last_name, :password, :password_confirmation, :current_city, :user_role, :reset_password_token, :activated
 
 	index do
 		selectable_column
@@ -9,6 +7,7 @@ ActiveAdmin.register AccountBlock::Account, as: "Client" do
 		column :first_name
 		column :last_name
 		column :email
+		column :company_name
 		column :created_at
 		actions
 	end
@@ -17,16 +16,7 @@ ActiveAdmin.register AccountBlock::Account, as: "Client" do
 		link_to 'Reset Password', change_password_account_block_accounts_path(id: params[:id])
 	end
 
-	form do |f|
-		f.inputs do
-			f.input :first_name
-			f.input :last_name
-			f.input :current_city
-			f.input :email
-		end
-		f.actions
-	end
-
+  form partial: 'account_block/accounts/client_signup'
 
 	filter :email
 	filter :first_name
@@ -38,6 +28,13 @@ ActiveAdmin.register AccountBlock::Account, as: "Client" do
 			row :last_name
 			row :email
 			row :current_city
+			row :company_name
+			row :interviewers do |obj|
+				obj.interviewers
+			end
+			row :managers do |obj|
+				obj.managers
+			end
 		end 
 	end
 
@@ -67,7 +64,28 @@ ActiveAdmin.register AccountBlock::Account, as: "Client" do
 	# end
 
 	controller  do
-		before_create :send_email
+		def create
+		    @client = AccountBlock::Account.new(permit_params)
+	        send_email @client
+	        begin
+			    if @client.save!
+			        redirect_to admin_client_path(@client), notice: 'Account was successfully created.'
+			    else
+			        redirect_to admin_clients_path, alert: @client.errors.full_messages.first
+			    end
+	        rescue Exception => e
+    			redirect_to new_admin_client_path, alert: e.message
+	        end
+		end
+
+		def update
+		    @client = AccountBlock::Account.find(params[:id])
+		    if @client.update(permit_params)
+		        redirect_to admin_client_path(@client), notice: 'Account was successfully updated.'
+		    else
+		        redirect_to edit_admin_client_path, alert: @client.errors.full_messages.first
+		    end
+		end
 
 		def send_email resource
 			chars = ('0'..'9').to_a + ('A'..'Z').to_a + ('a'..'z').to_a + ['!', '@', '#', '$', '&', '*']
@@ -85,5 +103,13 @@ ActiveAdmin.register AccountBlock::Account, as: "Client" do
 			AccountBlock::Account.where(user_role: "client")
 		end
 
+		private
+
+		def permit_params
+		  params.require(:account).permit(
+		    :first_name, :last_name, :current_city, :email, :company_name, :user_role,
+		    interviewers_attributes: [:id, :name, :email, :_destroy], managers_attributes: [:id, :name, :email, :_destroy]
+		  )
+		end
 	end
 end   

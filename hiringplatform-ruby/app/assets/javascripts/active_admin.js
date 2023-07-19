@@ -8,6 +8,7 @@
 //= require turbolinks
 //= require_tree .
 //= require summernote
+//= require jquery_nested_form
 
 $(document).ready(function() {
   $('.collection_selection_ids').on('click', function() {
