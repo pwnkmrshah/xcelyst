@@ -8,7 +8,7 @@ module BxBlockManager
 
       def email_valid
         if Interviewer.find_by(email: self.email).present?
-          errors.add(:email, "Interviewer Already taken email")
+          errors.add(:email, "and interviewer email can not be same. An interviewer is already present with same email.")
         end
       end
     end
