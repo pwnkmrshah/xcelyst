@@ -5,7 +5,7 @@ module BxBlockBulkUpload
     def perform(file_names)
       logs = []
       @count = 0
-      file_names.each do |name|
+      [file_names].each do |name|
         ext = name.split('.').last
         # path = Rails.root.join("public/uploads/#{name}")
         # if File.exists?(path)
