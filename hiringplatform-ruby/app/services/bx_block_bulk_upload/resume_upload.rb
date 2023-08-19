@@ -95,7 +95,8 @@ module BxBlockBulkUpload
           phone_ac = AccountBlock::TemporaryAccount.find_by(phone_no: @ph_no) if @ph_no.present?
           if email_ac.present?
 
-            email_ac.update(document_id: uniq_string)  # ( for normal process  )
+            # email_ac.update(document_id: uniq_string)  # ( for normal process  )
+            email_ac.update(document_id: email_ac.id)
 
             create_parsed_json_file respObj, email_ac
 
@@ -107,8 +108,9 @@ module BxBlockBulkUpload
 
           elsif phone_ac.present?
             
-            phone_ac.update(document_id: uniq_string)  # ( for normal process  )
-
+            # phone_ac.update(document_id: uniq_string)  # ( for normal process  )
+            phone_ac.update(document_id: phone_ac.id)
+            
             create_parsed_json_file respObj, phone_ac
 
             # update_parsed_resume_rec phone_ac, respObj  # create record in mongodb table.
@@ -141,7 +143,8 @@ module BxBlockBulkUpload
 
             if record.present?
               attach_resume_file record, file, resp   # ( for background job process )
-              update_document_id = record.update(document_id: uniq_string)
+              # update_document_id = record.update(document_id: uniq_string)
+              update_document_id = record.update(document_id: record.id)
             end
 
           end  
