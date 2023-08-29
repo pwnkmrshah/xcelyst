@@ -8,6 +8,7 @@ ActiveAdmin.register AccountBlock::Account, as: "AI Matching" do
   # permit_params :client_id, :job_description_id
 
   index pagination_total: false, :download_links => false, :class => "pagination_ai" do
+    render partial: 'admin/candidate'
     @clients_account = AccountBlock::Account.where(user_role: "client")
     form do |f|
       div class: "align-dropdown" do
