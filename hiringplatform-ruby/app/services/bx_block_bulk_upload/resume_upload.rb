@@ -169,7 +169,7 @@ module BxBlockBulkUpload
       # ============================================================================================
       # TO ASSIGN A INDEX TO RESUME ALONG WITH DOCUMENT ID
       # ===========================================================================================
-      url = "https://eu-rest.resumeparsing.com/v10/index/bulk_uplod_index/resume/#{AccountBlock::TemporaryAccount.last.try(:id)}"
+      url = "https://eu-rest.resumeparsing.com/v10/index/resume_index/resume/#{AccountBlock::TemporaryAccount.last.try(:id)}"
       data =  {"ResumeData" =>  parsed_resume["Value"]["ResumeData"] }.to_json
       succ_response = send_post_req url,data
       puts "=========================#{succ_response  }============================================================="
