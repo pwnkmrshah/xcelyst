@@ -1,0 +1,175 @@
+<script type="text/javascript">
+
+  var selectedCheckboxValues = [];
+
+  $('input[type="checkbox"].collection_selection').on('change', function() {
+      var checkboxValue = $(this).val();
+
+      if ($(this).is(':checked')) {
+        selectedCheckboxValues.push(checkboxValue);
+      } else {
+        var index = selectedCheckboxValues.indexOf(checkboxValue);
+        if (index !== -1) {
+          selectedCheckboxValues.splice(index, 1);
+        }
+      }
+  });
+
+  client_id = $('#client_dropdown').val()
+  jd_id = $('#jd_dropdown').val()
+  getShortlistedCandidates(client_id, jd_id);
+
+
+  $('#ai_client_dropdown').on('change', function() {
+    client = $(this).val()
+
+    if($('#jd_loader').length > 0) {
+      $('#jd_loader').addClass('visible');
+    } else {
+      $('body').append(`<div id="jd_loader" class="visible"></div>`);
+    }
+    $.ajax({
+      url: "/bx_block_shortlisting/get_jd",
+      type: "post",
+      data: {id: client},
+      success: function(result) {
+        var jd_html = ""
+        $.each(result.data, function(k,v) {
+          if(k == 0) {
+            localStorage.jd_id = v.id;
+          }
+            jd_html += `<option value="${v.id}">${v.job_title}</option>`;
+        });
+        $('#ai_jb_dropdown').html(jd_html);
+        $('#jd_loader').removeClass('visible');
+        if(localStorage.jd_id != '') {
+          $('#ai_jb_dropdown').val(localStorage.jd_id).prop("checked", true).trigger("change");
+        }
+      },
+      error: function(error) {
+        alert(error.responseJSON.error);
+        $('#jd_loader').removeClass('visible');
+      }
+    });
+  })
+
+  $('#client_dropdown').on('change', function() {
+    client = $(this).val()
+
+    if($('#jd_loader').length > 0) {
+      $('#jd_loader').addClass('visible');
+    } else {
+      $('body').append(`<div id="jd_loader" class="visible"></div>`);
+    }
+    $.ajax({
+      url: "/bx_block_shortlisting/get_jd",
+      type: "post",
+      data: {id: client},
+      success: function(result) {
+        var jd_html = ""
+        $.each(result.data, function(k,v) {
+          if(k == 0) {
+            localStorage.jd_id = v.id;
+          }
+            jd_html += `<option value="${v.id}">${v.job_title}</option>`;
+        });
+        $('#jd_dropdown').html(jd_html);
+        $('#jd_loader').removeClass('visible');
+        if(localStorage.jd_id != '') {
+          $('#jd_dropdown').val(localStorage.jd_id).prop("checked", true).trigger("change");
+        }
+      },
+      error: function(error) {
+        alert(error.responseJSON.error);
+        $('#jd_loader').removeClass('visible');
+      }
+    });   
+  });
+
+  $('#shortlist_ajax').on('click', function(e) {
+    if($('#jd_loader').length > 0) {
+      $('#jd_loader').addClass('visible');
+    } else {
+      $('body').append(`<div id="jd_loader" class="visible"></div>`);
+    }
+    e.preventDefault();
+    debugger
+    client_id = $('#client_dropdown').val()
+    jd_id = $('#jd_dropdown').val()
+    $.ajax({
+      url: "/bx_block_shortlisting/shortlist_creation",
+      type: "post",
+      data: {client_id: client_id, jd_id: jd_id, shortlist_users: selectedCheckboxValues},
+      success: function(result) {
+        alert(result.message);
+        $('#jd_loader').removeClass('visible');
+        localStorage.removeItem("shortlist_array");
+        localStorage.removeItem("client_id");
+        localStorage.removeItem("jd_id");
+        window.location.href = window.location.href;
+      },
+      error: function(error) {
+        alert(error.responseJSON.error);
+        $('#jd_loader').removeClass('visible');
+      }
+    });
+  });
+
+  $('#jd_dropdown').on('change', function() {
+    client_id = $('#client_dropdown').val()
+    jd_id = $('#jd_dropdown').val()
+    $('[id^=account_block_email_account_]').removeClass('already-shortlisted');
+    $.ajax({
+      url: "/bx_block_shortlisting/get_shortlisted",
+      type: "get",
+      data: {client_id: client_id, jd_id: jd_id},
+      success: function(result) {
+        $.each(result.candidate_ids, function(key, value){
+          $(`#account_block_email_account_${value}`).addClass('already-shortlisted');
+        });
+      },
+      error: function(error) {
+      }
+    });
+  });
+
+  $('#ai_jb_dropdown').on('change', function() {
+    jd_id = $(this).val();
+    if($('#jd_loader').length > 0) {
+      $('#jd_loader').addClass('visible');
+    } else {
+      $('body').append(`<div id="jd_loader" class="visible"></div>`);
+    }
+    $.ajax({
+      url: "/bx_block_shortlisting/get_roles",
+      type: "post",
+      data: {id: jd_id},
+      success: function(result) {
+        $('#ai_matching').attr("href", result.data)
+        $('#ai_matching').removeClass('disabled');
+        $('#jd_loader').removeClass('visible');
+      },
+      error: function(error) {
+        alert(error.responseJSON.error);
+        $('#jd_loader').removeClass('visible');
+      }
+    });
+  });
+
+  function getShortlistedCandidates(client_id, jd_id) {
+    $('[id^=account_block_email_account_]').removeClass('already-shortlisted');
+    $.ajax({
+      url: "/bx_block_shortlisting/get_shortlisted",
+      type: "get",
+      data: {client_id: client_id, jd_id: jd_id},
+      success: function(result) {
+        $.each(result.candidate_ids, function(key, value){
+          $(`#account_block_email_account_${value}`).addClass('already-shortlisted');
+        });
+      },
+      error: function(error) {
+      }
+    });
+  }
+
+</script>

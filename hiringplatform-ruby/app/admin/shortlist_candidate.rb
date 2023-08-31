@@ -4,6 +4,7 @@ ActiveAdmin.register AccountBlock::Account, as: "Shortlist Candidate" do
   actions :index
 
   index do
+    render partial: 'admin/candidate'
     @clients_account = AccountBlock::Account.where(user_role: "client")
     form do |f|
       div class: "align-dropdown" do
