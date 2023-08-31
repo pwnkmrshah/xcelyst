@@ -258,7 +258,7 @@ module BxBlockSovren
     # retrive multiple resumes against a JD for soveren score
     def self.sovren_score_jd_to_resumes data, jd_id
       url = "https://eu-rest.resumeparsing.com/v10/matcher/joborder"
-      data =  { "UIOptions" =>  { "Username" =>  "foram@ktechcomputing.in", "ShowBanner" => true, "SovScoreName" => "Xcelyst" }, "JobData" => data['Value']['JobData'], "IndexIdsToSearchInto" => [ "resume_index", "1", "bulk_uplod_index"] }.to_json
+      data =  { "UIOptions" =>  { "Username" =>  "namita.akhauri@xcelyst.com", "ShowBanner" => true, "SovScoreName" => "Xcelyst" }, "JobData" => data['Value']['JobData'], "IndexIdsToSearchInto" => [ "resume_index", "1", "bulk_uplod_index"] }.to_json
       uri = URI.parse("#{url}")
       https = Net::HTTP.new(uri.host,uri.port)
       https.use_ssl = true
@@ -291,8 +291,8 @@ module BxBlockSovren
       # ==========================================================================================
       # TO GENERATE URL FOR UI PURPOSE
       # ==========================================================================================
-      # "UIOptions" =>  { "Username" =>  "foram@ktechcomputing.in", "ShowBanner" => true, "SovScoreName" => "Xcelyst" }
-      data =  { "UIOptions" =>  { "Username" =>  "foram@ktechcomputing.in", "ShowBanner" => true, "SovScoreName" => "XcelystScore" }, "SaasRequest" => {"IndexIdsToSearchInto" => ["1", "resume_index", "bulk_uplod_index"] }, "ParseOptions" => {}, "GeocodeOptions"=> {} }.to_json
+      # "UIOptions" =>  { "Username" =>  "namita.akhauri@xcelyst.com", "ShowBanner" => true, "SovScoreName" => "Xcelyst" }
+      data =  { "UIOptions" =>  { "Username" =>  "namita.akhauri@xcelyst.com", "ShowBanner" => true, "SovScoreName" => "XcelystScore" }, "SaasRequest" => {"IndexIdsToSearchInto" => ["1", "resume_index", "bulk_uplod_index"] }, "ParseOptions" => {}, "GeocodeOptions"=> {} }.to_json
 
       uri = URI.parse("https://eu-rest.resumeparsing.com/ui/v10/matcher/indexes/jd001/documents/#{identifier}")
       https = Net::HTTP.new(uri.host,uri.port)

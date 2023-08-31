@@ -18,9 +18,40 @@ module BxBlockShortlisting
       jd = BxBlockJobDescription::JobDescription.find_by(id: params[:id])
       url = "#"
       if jd && jd.sovren_ui_url.present?
-        url = jd.sovren_ui_url
+        url = jd&.sovren_ui_url
       end
+
+      check_sov_url = URI.parse("https://eu-rest.resumeparsing.com/ui/v10/#{url}")
+      response = Net::HTTP.get_response(check_sov_url)
+
+      if response.is_a?(Net::HTTPSuccess)
+        puts "URL is accessible"
+      else
+        puts "URL is not accessible"
+        url = update_sov_url(jd) if jd.present?
+      end
+
       render json: { data: url }, status: 200
+    end
+
+    def update_sov_url(jd)
+      data =  { "UIOptions" =>  { "Username" =>  "namita.akhauri@xcelyst.com", "ShowBanner" => true, "SovScoreName" => "XcelystScore" }, "SaasRequest" => {"IndexIdsToSearchInto" => ["1", "resume_index", "bulk_uplod_index"] }, "ParseOptions" => {}, "GeocodeOptions"=> {} }.to_json
+
+      uri = URI.parse("https://eu-rest.resumeparsing.com/ui/v10/matcher/indexes/jd001/documents/#{jd.id}")
+      https = Net::HTTP.new(uri.host,uri.port)
+      https.use_ssl = true
+
+      headers = {
+        'Content-Type' => 'application/json',
+        'Accept' => 'application/json',
+        'Sovren-AccountId' => ENV['SOVREN_ID'] || '14044560', # use your account id here
+        'Sovren-ServiceKey' => ENV['SOVREN_KEY'] || 'qQ8I+UkWFIRC0p9fx0GDq5wDCAw75mgNJERyB+RO', # use your service key here
+      }
+      req = Net::HTTP::Post.new(uri.path, initheader = headers)
+      req.body = data
+      res = https.request(req)
+      sovren_url = JSON.parse(res.body)
+      sovren_url.fetch("url")
     end
 
     def get_candidate
