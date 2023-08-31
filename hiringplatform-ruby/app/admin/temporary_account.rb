@@ -29,7 +29,6 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
 		column :last_name
 		column :email
 		column :phone_no
-		column :document_id
 		# column :current_city do |obj|
 		# 	data = []
 		# 	# parsed_resume = obj.parsed_resume.present? ? obj.parsed_resume : obj.get_parsed_resume_data
