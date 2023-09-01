@@ -125,63 +125,110 @@ ActiveAdmin.register BxBlockDatabase::TemporaryUserDatabase, as: "Database User"
   end
 
   collection_action :import_json, :method => :post do
-    if params[:upload_json_file] && params[:upload_json_file][:file]
-    	file = params[:upload_json_file][:file]
-    # -------------------------------------------------- background job flow start from here ---------------------------------------------------
 
-	if file.content_type.include?("text/plain")
-		# dir = Rails.root.join('public', 'uploads')
-	  #   Dir.mkdir(dir) unless Dir.exist?(dir)
-	  #   file_name = file.original_filename
-		# File.open(dir.join(file.original_filename), 'wb') do |f|
-		#   f.write(file.read)
-		# end
-	  s3_client = Aws::S3::Client.new(region: ENV["AWS_REGION"])
-	  bucket_name = ENV["AWS_BUCKET"]
-	  object_key = file.original_filename
-	  response = s3_client.put_object(
-		  bucket: bucket_name,
-		  key: object_key,
-		  body: file
-	  )
-	  if response.etag
-		  BxBlockBulkUpload::JsonUploadJob.set(wait: 15.seconds).perform_later(object_key)
-		  redirect_to admin_database_users_path, flash: {:notice => "Extracting JSON will start on backend soon."}
+  	if params[:upload_json_file] && params[:upload_json_file][:file]
+	    file = params[:upload_json_file][:file]
+      if file.content_type == 'application/zip'
+        extract_and_upload_files_from_zip(file)
+      elsif file.content_type.include?("text/plain")
+        upload_single_file(file)
+      end
+
+	    redirect_to admin_database_users_path, flash: {:notice => "Extracting JSON will start on backend soon."}
+	  else
+	    redirect_to upload_json_file_admin_database_users_path, flash: { error: "File format not valid!" }
 	  end
-	 else
-		 redirect_to upload_json_file_admin_database_users_path, flash: { error: "File format not valid!" }
-  	 end
+	end
+
+  #   if params[:upload_json_file] && params[:upload_json_file][:file]
+  #   	file = params[:upload_json_file][:file]
+  #   # -------------------------------------------------- background job flow start from here ---------------------------------------------------
+
+	# if file.content_type.include?("text/plain")
+	# 	# dir = Rails.root.join('public', 'uploads')
+	#   #   Dir.mkdir(dir) unless Dir.exist?(dir)
+	#   #   file_name = file.original_filename
+	# 	# File.open(dir.join(file.original_filename), 'wb') do |f|
+	# 	#   f.write(file.read)
+	# 	# end
+	#   s3_client = Aws::S3::Client.new(region: ENV["AWS_REGION"])
+	#   bucket_name = ENV["AWS_BUCKET"]
+	#   object_key = file.original_filename
+	#   response = s3_client.put_object(
+	# 	  bucket: bucket_name,
+	# 	  key: object_key,
+	# 	  body: file
+	#   )
+	#   if response.etag
+	# 	  BxBlockBulkUpload::JsonUploadJob.set(wait: 15.seconds).perform_later(object_key)
+	# 	  redirect_to admin_database_users_path, flash: {:notice => "Extracting JSON will start on backend soon."}
+	#   end
+	#  else
+	# 	 redirect_to upload_json_file_admin_database_users_path, flash: { error: "File format not valid!" }
+  # 	 end
 
 
-    # -------------------------------------------------- background job flow end here ---------------------------------------------------
+  #   # -------------------------------------------------- background job flow end here ---------------------------------------------------
       
-    # -------------------------------------------------- normal flow start from here ---------------------------------------------------
+  #   # -------------------------------------------------- normal flow start from here ---------------------------------------------------
 
 
-    #   if file.content_type.include?("text/plain")
-    #     x = BxBlockBulkUpload::DatabaseUser.save_database_user(file)
-    #     if x.uid_arr.blank?
-    #       if x.count > 0
-    #           redirect_to admin_database_users_path, flash: {:notice => "#{x.count} resume uploaded successfully" }
-    #       else
-    #           redirect_to upload_json_file_admin_database_users_path, flash: { error: "There is some problem with JSON File. Please upload the file again!" }
-    #       end
-    #     else
-    #       flash[:notice] = "#{x.count} resume uploaded successfully."
-    #       flash[:alert] = []
-    #       flash[:alert] << "Some of the record contains null byte error."
-    #       flash[:alert] << "Uids: #{x.uid_arr.join(',')}"
-    #       redirect_to admin_database_users_path
-    #     end
-    #   else
-    #     redirect_to upload_json_file_admin_database_users_path, flash: { error: "File format not valid!" }
-    #   end
+  #   #   if file.content_type.include?("text/plain")
+  #   #     x = BxBlockBulkUpload::DatabaseUser.save_database_user(file)
+  #   #     if x.uid_arr.blank?
+  #   #       if x.count > 0
+  #   #           redirect_to admin_database_users_path, flash: {:notice => "#{x.count} resume uploaded successfully" }
+  #   #       else
+  #   #           redirect_to upload_json_file_admin_database_users_path, flash: { error: "There is some problem with JSON File. Please upload the file again!" }
+  #   #       end
+  #   #     else
+  #   #       flash[:notice] = "#{x.count} resume uploaded successfully."
+  #   #       flash[:alert] = []
+  #   #       flash[:alert] << "Some of the record contains null byte error."
+  #   #       flash[:alert] << "Uids: #{x.uid_arr.join(',')}"
+  #   #       redirect_to admin_database_users_path
+  #   #     end
+  #   #   else
+  #   #     redirect_to upload_json_file_admin_database_users_path, flash: { error: "File format not valid!" }
+  #   #   end
     
-    # -------------------------------------------------- normal flow end here ---------------------------------------------------
+  #   # -------------------------------------------------- normal flow end here ---------------------------------------------------
 
-    else
-      redirect_to upload_json_file_admin_database_users_path, flash: { error: "Please select file!" }
-    end
+  #   else
+  #     redirect_to upload_json_file_admin_database_users_path, flash: { error: "Please select file!" }
+  #   end
+	# end
+
+	controller do
+
+	  def extract_and_upload_files_from_zip(zip_file)
+		  Zip::File.open(zip_file.tempfile) do |zip|
+		    zip.each do |entry|
+		  		if entry.file?
+			      individual_file = entry.get_input_stream.read
+			      upload_to_s3(individual_file, entry.name)
+		    	end
+		    end
+		  end
+		end
+
+		def upload_single_file(file)
+		  upload_to_s3(file.tempfile, file.original_filename)
+		end
+
+		def upload_to_s3(file, object_key)
+		  s3_client = Aws::S3::Client.new(region: ENV["AWS_REGION"])
+		  bucket_name = ENV["AWS_BUCKET"]
+		  response = s3_client.put_object(
+			  bucket: bucket_name,
+			  key: object_key,
+			  body: file
+		  )
+
+		  if response.etag
+		  	BxBlockBulkUpload::JsonUploadJob.set(wait: 15.seconds).perform_later(object_key)
+	  	end
+		end
 	end
 
 end   
