@@ -37,7 +37,7 @@ module BxBlockShortlisting
     def update_sov_url(jd)
       data =  { "UIOptions" =>  { "Username" =>  "namita.akhauri@xcelyst.com", "ShowBanner" => true, "SovScoreName" => "XcelystScore" }, "SaasRequest" => {"IndexIdsToSearchInto" => ["1", "resume_index", "bulk_uplod_index"] }, "ParseOptions" => {}, "GeocodeOptions"=> {} }.to_json
 
-      uri = URI.parse("https://eu-rest.resumeparsing.com/ui/v10/matcher/indexes/jd001/documents/#{jd.id}")
+      uri = URI.parse("https://eu-rest.resumeparsing.com/ui/v10/matcher/indexes/jd001/documents/#{jd.document_id}")
       https = Net::HTTP.new(uri.host,uri.port)
       https.use_ssl = true
 
