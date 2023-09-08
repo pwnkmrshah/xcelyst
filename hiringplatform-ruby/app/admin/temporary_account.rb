@@ -150,11 +150,13 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
 
 	collection_action :import_bulk_resume, method: :post do
 	  if params[:upload_resume_file] && params[:upload_resume_file][:file]
-	    params[:upload_resume_file][:file].each do |file|
+	  	total_files = params[:upload_resume_file][:file].length
+	    last_file_index = total_files - 1
+	    params[:upload_resume_file][:file].each_with_index do |file, index|
 	      if file.content_type == 'application/zip'
 	        extract_and_upload_files_from_zip(file)
 	      else
-	        upload_single_file(file)
+	        upload_single_file(file, index == last_file_index)
 	      end
 	    end
 
@@ -171,20 +173,23 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
 
 	  def extract_and_upload_files_from_zip(zip_file)
 		  Zip::File.open(zip_file.tempfile) do |zip|
-		    zip.each do |entry|
+		  	zip_entries = zip.entries.to_a
+    		total_files = zip_entries.length
+    		last_file_index = total_files - 1
+		    zip.each_with_index do |entry, index|
 		  		if entry.file?
 			      individual_file = entry.get_input_stream.read
-			      upload_to_s3(individual_file, entry.name)
+			      upload_to_s3(individual_file, entry.name, index == last_file_index)
 		    	end
 		    end
 		  end
 		end
 
-		def upload_single_file(file)
-		  upload_to_s3(file.tempfile, file.original_filename)
+		def upload_single_file(file, is_last_file)
+		  upload_to_s3(file.tempfile, file.original_filename, is_last_file)
 		end
 
-		def upload_to_s3(file, object_key)
+		def upload_to_s3(file, object_key, is_last_file)
 		  s3_client = Aws::S3::Client.new(region: ENV["AWS_REGION"])
 		  bucket_name = ENV["AWS_BUCKET"]
 		  response = s3_client.put_object(
@@ -194,7 +199,7 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
 		  )
 
 		  # Trigger the background job for the uploaded file
-		  BxBlockBulkUpload::ResumeUploadJob.set(wait: 5.seconds).perform_later(object_key)
+		  BxBlockBulkUpload::ResumeUploadJob.set(wait: 5.seconds).perform_later(object_key, is_last_file)
 		end
 	end
 end   

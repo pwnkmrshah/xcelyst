@@ -2,7 +2,7 @@ module BxBlockBulkUpload
   class ResumeUploadJob < BxBlockBulkUpload::ApplicationJob 
     queue_as :default
 
-    def perform(f_name)
+    def perform(f_name, is_last_file)
       logs = []
       @count = 0
 
@@ -22,12 +22,20 @@ module BxBlockBulkUpload
       s3 = Aws::S3::Client.new
       s3.delete_object(bucket: ENV["AWS_BUCKET"], key: file_name) rescue nil
       logs_file = OpenStruct.new(count: @count, exceptions: logs)
-      send_email(logs_file)
-      
+      if is_last_file == true
+        send_email(logs_file)
+      end
     end
 
     def send_email(logs)
-      BxBlockAdmin::LogFileSendMailer.with(successed: logs[:count], failed: logs[:errors].count, failed_detail: logs[:errors], log_file: logs[:file]).send_file.deliver_now
+      if logs[:errors].nil?
+        failed_count = 0
+        failed_detail = []
+      else
+        failed_count = logs[:errors].count
+        failed_detail = logs[:errors]
+      end
+      BxBlockAdmin::LogFileSendMailer.with(successed: logs[:count], failed: failed_count, failed_detail: failed_detail, log_file: logs[:file]).send_file.deliver_now
     end
   end
 end
