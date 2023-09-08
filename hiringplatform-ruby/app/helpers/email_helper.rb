@@ -72,7 +72,7 @@ module EmailHelper
 
   def fetch_email(to=nil)
     if to.nil?
-      default_email = @email_template.to || 'info@xcelyst.com'
+      default_email = @email_template&.to || 'info@xcelyst.com'
       to = @user_email.present? ? @user_email : default_email
     end
     return unless @email_template
