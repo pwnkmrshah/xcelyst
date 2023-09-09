@@ -42,18 +42,18 @@ end
 # Define the required permissions for each module
 module_permissions = {
   "dashboard" => ["whatsapp", "client_dashboard"],
-  "database user" => ["view", "upload_json_file", "import_json_file", "delete"],
+  "database user" => ["view", "upload_json_file", "import_json_file", "delete", "batch_action"],
   "ai matching" => ["browse_ai_matching"],
-  "candidate" => ["browse_candidate", "edit_candidate", "delete_candidate", "bulk_send_messages_to_account", "download"],
-  "client" => ["browse_client", "add_client", "edit_client", "delete_client"],
+  "candidate" => ["browse_candidate", "edit_candidate", "delete_candidate", "bulk_send_messages_to_account", "download", "batch_action"],
+  "client" => ["browse_client", "add_client", "edit_client", "delete_client", "batch_action"],
   "test account" => ["browse_test_account"],
   "job description" => ["view"],
   "zoom meeting" => ["view", 'add'],
   "zoom user" => ["view", "sync_users"],
   "final feedback" => ["view"],
   "shortlist candidate" => ["browse_shortlist_candidate", "delete_shortlist_candidate"],
-  "shortlisted candidate" => ["view", "delete"],
-  "temporary account" => ["view", "permanent", "upload_bulk_resume", "bulk_send_messages", "temporary_by_admin", "delete", "import_bulk_resume"],
+  "shortlisted candidate" => ["view", "delete", "batch_action"],
+  "temporary account" => ["view", "permanent", "upload_bulk_resume", "bulk_send_messages", "temporary_by_admin", "delete", "import_bulk_resume", "batch_action"],
   "rejected candidate" => ["view"],
   "test score and course" => ["view", "edit"]
 }
@@ -64,7 +64,7 @@ BxBlockAdminRolePermission::AdminPermission.transaction do
 
   all_resources = ActiveAdmin.application.namespaces[:admin].resources
   all_modules = all_resources.map{|resource|resource.resource_name.human.downcase}
-  default_permissions = ["view", "add", "edit", "delete"]
+  default_permissions = ["view", "add", "edit", "delete", "batch_action"]
 
   all_modules.each do |module_name|
       next if ['admin user', 'Test dome', 'comment', 'user resume'].map(&:downcase).include? module_name
