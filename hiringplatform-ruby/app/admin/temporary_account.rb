@@ -97,62 +97,104 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
   	render "/admin/upload_resume_file"
 	end
 
-  collection_action :import_bulk_resume, :method => :post do
-    if params[:upload_resume_file] && params[:upload_resume_file][:file]
-   	# -------------------------------------------------- background job flow start from here ---------------------------------------------------
+  # collection_action :import_bulk_resume, :method => :post do
+  #   if params[:upload_resume_file] && params[:upload_resume_file][:file]
+  #  	# -------------------------------------------------- background job flow start from here ---------------------------------------------------
 
-		  		# dir = Rails.root.join('public', 'uploads')
-				# 	Dir.mkdir(dir) unless Dir.exist?(dir)
-				# 	file_names = []
-				# 	params[:upload_resume_file][:file].each do |file|
-				# 		uploaded_io = file
-				# 		file_names.push(uploaded_io.original_filename)
-				# 		File.open(dir.join(uploaded_io.original_filename), 'wb') do |f|
-				# 		  f.write(uploaded_io.read)
-				# 		end
-				# 	end
-				file_names = []
-				params[:upload_resume_file][:file].each do |file|
-					file_names.push(file.original_filename)
-					s3_client = Aws::S3::Client.new(region: ENV["AWS_REGION"])
-					bucket_name = ENV["AWS_BUCKET"]
-					object_key = file.original_filename
-					response = s3_client.put_object(
-						bucket: bucket_name,
-						key: object_key,
-						body: file
-					)
-				end
-		  		BxBlockBulkUpload::ResumeUploadJob.set(wait: 5.seconds).perform_later(file_names)
-		   		redirect_to admin_temporary_accounts_path, flash: {:notice => "Resume process will start on backend soon."}
-   	# -------------------------------------------------- background job flow end here ---------------------------------------------------
+	# 	  		# dir = Rails.root.join('public', 'uploads')
+	# 			# 	Dir.mkdir(dir) unless Dir.exist?(dir)
+	# 			# 	file_names = []
+	# 			# 	params[:upload_resume_file][:file].each do |file|
+	# 			# 		uploaded_io = file
+	# 			# 		file_names.push(uploaded_io.original_filename)
+	# 			# 		File.open(dir.join(uploaded_io.original_filename), 'wb') do |f|
+	# 			# 		  f.write(uploaded_io.read)
+	# 			# 		end
+	# 			# 	end
+	# 			file_names = []
+	# 			params[:upload_resume_file][:file].each do |file|
+	# 				file_names.push(file.original_filename)
+	# 				s3_client = Aws::S3::Client.new(region: ENV["AWS_REGION"])
+	# 				bucket_name = ENV["AWS_BUCKET"]
+	# 				object_key = file.original_filename
+	# 				response = s3_client.put_object(
+	# 					bucket: bucket_name,
+	# 					key: object_key,
+	# 					body: file
+	# 				)
+	# 			end
+	# 	  		BxBlockBulkUpload::ResumeUploadJob.set(wait: 5.seconds).perform_later(file_names)
+	# 	   		redirect_to admin_temporary_accounts_path, flash: {:notice => "Resume process will start on backend soon."}
+  #  	# -------------------------------------------------- background job flow end here ---------------------------------------------------
 
-    # -------------------------------------------------- normal flow start from here ---------------------------------------------------
+  #   # -------------------------------------------------- normal flow start from here ---------------------------------------------------
 
 
-  		# if params[:upload_resume_file][:file].content_type.include?("application/pdf")
-      	# x = BxBlockBulkUpload::ResumeUpload.execute(params[:upload_resume_file][:file])
-      	# if x.count > 0
-        # 		redirect_to admin_temporary_accounts_path, flash: {:notice => "#{x.count} resume uploaded successfully"}
-      	# else
-        # 		redirect_to upload_resume_file_admin_temporary_accounts_path, flash: { error: "There is some problem with Resume File. Please check sample file and upload again!" }
-      	# end
-    	# else
-     # 		redirect_to upload_resume_file_admin_temporary_accounts_path, flash: { error: "File format not valid!" }
-    	# end
+  # 		# if params[:upload_resume_file][:file].content_type.include?("application/pdf")
+  #     	# x = BxBlockBulkUpload::ResumeUpload.execute(params[:upload_resume_file][:file])
+  #     	# if x.count > 0
+  #       # 		redirect_to admin_temporary_accounts_path, flash: {:notice => "#{x.count} resume uploaded successfully"}
+  #     	# else
+  #       # 		redirect_to upload_resume_file_admin_temporary_accounts_path, flash: { error: "There is some problem with Resume File. Please check sample file and upload again!" }
+  #     	# end
+  #   	# else
+  #    # 		redirect_to upload_resume_file_admin_temporary_accounts_path, flash: { error: "File format not valid!" }
+  #   	# end
 
-    # ---------------------------------------------------normal flow end here---------------------------------------------------
-    else
-      redirect_to upload_resume_file_admin_temporary_accounts_path, flash: { error: "Please select file!" }
-    end
+  #   # ---------------------------------------------------normal flow end here---------------------------------------------------
+  #   else
+  #     redirect_to upload_resume_file_admin_temporary_accounts_path, flash: { error: "Please select file!" }
+  #   end
+	# end
+
+
+	collection_action :import_bulk_resume, method: :post do
+	  if params[:upload_resume_file] && params[:upload_resume_file][:file]
+	    params[:upload_resume_file][:file].each do |file|
+	      if file.content_type == 'application/zip'
+	        extract_and_upload_files_from_zip(file)
+	      else
+	        upload_single_file(file)
+	      end
+	    end
+
+	    redirect_to admin_temporary_accounts_path, flash: { notice: "Resume process will start on the backend soon." }
+	  else
+	    redirect_to upload_resume_file_admin_temporary_accounts_path, flash: { error: "Please select file!" }
+	  end
 	end
 
 	controller do
 		def scoped_collection
-      	  AccountBlock::TemporaryAccount.where(is_permanent: false)
-    	end
+      AccountBlock::TemporaryAccount.where(is_permanent: false)
+    end
 
+	  def extract_and_upload_files_from_zip(zip_file)
+		  Zip::File.open(zip_file.tempfile) do |zip|
+		    zip.each do |entry|
+		  		if entry.file?
+			      individual_file = entry.get_input_stream.read
+			      upload_to_s3(individual_file, entry.name)
+		    	end
+		    end
+		  end
+		end
+
+		def upload_single_file(file)
+		  upload_to_s3(file.tempfile, file.original_filename)
+		end
+
+		def upload_to_s3(file, object_key)
+		  s3_client = Aws::S3::Client.new(region: ENV["AWS_REGION"])
+		  bucket_name = ENV["AWS_BUCKET"]
+		  response = s3_client.put_object(
+		    bucket: bucket_name,
+		    key: object_key,
+		    body: file
+		  )
+
+		  # Trigger the background job for the uploaded file
+		  BxBlockBulkUpload::ResumeUploadJob.set(wait: 5.seconds).perform_later(object_key)
+		end
 	end
-
-
 end   
