@@ -152,6 +152,8 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
 	  if params[:upload_resume_file] && params[:upload_resume_file][:file]
 	  	total_files = params[:upload_resume_file][:file].length
 	    last_file_index = total_files - 1
+    	@count = 0 # Initialize count for this request
+    	Rails.cache.write('resume_upload_count', @count) # Store the initial count in the cache
 	    params[:upload_resume_file][:file].each_with_index do |file, index|
 	      if file.content_type == 'application/zip'
 	        extract_and_upload_files_from_zip(file)
