@@ -36,6 +36,7 @@ module BxBlockBulkUpload
         failed_detail = logs[:exceptions]
       end
       BxBlockAdmin::LogFileSendMailer.with(successed: logs[:count], failed: failed_count, failed_detail: failed_detail, log_file: logs[:file]).send_file.deliver_now
+      $logs = []
     end
 
     private
