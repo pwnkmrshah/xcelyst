@@ -32,6 +32,7 @@ module EmailHelper
       '{{phone_number}}' => @phone_number.to_s,
       '{{message}}' => @message.to_s,
       '{{otp}}' => @otp.to_s,
+      '{{admin_otp}}' => @otp.to_s,
       '{{info_url}}' => @info_url.to_s,
       '{{url}}' => @change_password_url.to_s,
       '{{jd_role_account_name}}' => @jd_role_account_name.to_s,
@@ -81,7 +82,10 @@ module EmailHelper
   end
 
   def set_account_values
-    if params[:account_id].present?
+    
+    if params[:account_id].present? && params[:admin]
+      @record = UserAdmin.find_by(id: params[:account_id])
+    elsif params[:account_id].present?
       @record = AccountBlock::Account.find_by(id: params[:account_id])
     elsif params[:email].present?
       @record = AccountBlock::Account.find_by(email: params[:email])
@@ -118,7 +122,7 @@ module EmailHelper
 
   def set_default_values
     @password = params[:pass] if params[:pass].present?
-    @user_name = @record&.user_full_name
+    @user_name = params[:admin] ? 'Admin' : @record&.user_full_name
     @user_email = @record&.email
   end
 
