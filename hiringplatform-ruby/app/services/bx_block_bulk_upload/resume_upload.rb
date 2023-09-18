@@ -82,7 +82,9 @@ module BxBlockBulkUpload
       def create_temporary_accounts respObj, file, resp
         if respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData'].present?
           email = respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['EmailAddresses'].present? ? respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['EmailAddresses'][0] : ''
-          
+          doc_hash = respObj['Value']['ConversionMetadata']['DocumentHash']
+
+
           if respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Phones'].present? 
             if respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Phones'][0].include?('Phone')
               @ph_no = respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Phones'][0].split(':').last.strip
@@ -96,7 +98,7 @@ module BxBlockBulkUpload
           if email_ac.present?
 
             # email_ac.update(document_id: uniq_string)  # ( for normal process  )
-            email_ac.update(document_id: email_ac.id)
+            email_ac.update(document_id: doc_hash)
 
             create_parsed_json_file respObj, email_ac
 
@@ -109,7 +111,7 @@ module BxBlockBulkUpload
           elsif phone_ac.present?
             
             # phone_ac.update(document_id: uniq_string)  # ( for normal process  )
-            phone_ac.update(document_id: phone_ac.id)
+            phone_ac.update(document_id: doc_hash)
             
             create_parsed_json_file respObj, phone_ac
 
@@ -135,6 +137,7 @@ module BxBlockBulkUpload
               record = AccountBlock::TemporaryAccount.create(first_name: first_name, last_name: last_name, email: temp_email, phone_no: nil)
             end
 
+            record.update(document_hash: doc_hash, document_id: doc_hash)
             create_parsed_json_file respObj, record
 
             # AccountBlock::TempAccount.create(temporary_account_id: record.id, parsed_resume: respObj)
