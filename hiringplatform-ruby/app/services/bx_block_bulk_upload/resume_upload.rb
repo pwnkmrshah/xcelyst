@@ -50,9 +50,14 @@ module BxBlockBulkUpload
         
         uri = "https://eu-rest.resumeparsing.com/v10/parser/resume"
         respObj = send_post_req uri,data
-
+        p "Soveren response ---  #{respObj['Value']["ParsingResponse"]['Code']} ffor #{file}"
+        if ['timeout', 'conversionexception'].include? respObj['Value']["ParsingResponse"]['Code'].downcase
+          exception_message = respObj['Value']["ParsingResponse"]['Message']
+        end
+        raise exception_message if exception_message.present?
+        p "exception for file #{file_path} ------- #{exception_message}" if exception_message.present?
         create_temporary_accounts respObj, file, resp   # for normal flow 
-
+        
         # for background job process 
 
         #create_temporary_accounts respObj, file_path, file_path.to_s.split('/').last.split('.').first
@@ -87,14 +92,14 @@ module BxBlockBulkUpload
 
           if respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Phones'].present? 
             if respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Phones'][0].include?('Phone')
-              @ph_no = respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Phones'][0].split(':').last.strip
+              ph_no = respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Phones'][0].split(':').last.strip
             else
-              @ph_no = respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Phones'][0].strip
+              ph_no = respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Phones'][0].strip
             end
           end
           uniq_string = SecureRandom.hex(2)
           email_ac = AccountBlock::TemporaryAccount.find_by(email: email) if email.present?
-          phone_ac = AccountBlock::TemporaryAccount.find_by(phone_no: @ph_no) if @ph_no.present?
+          phone_ac = AccountBlock::TemporaryAccount.find_by(phone_no: ph_no) if ph_no.present?
           if email_ac.present?
 
             # email_ac.update(document_id: uniq_string)  # ( for normal process  )
@@ -128,8 +133,8 @@ module BxBlockBulkUpload
             first_name = name[0] if name.present?
             last_name = name[1] if name.present?
 
-            if email.present? || @ph_no.present?
-              record = AccountBlock::TemporaryAccount.create(first_name: first_name, last_name: last_name, email: email, phone_no: @ph_no)      # ( for normal process  )
+            if email.present? || ph_no.present?
+              record = AccountBlock::TemporaryAccount.create(first_name: first_name, last_name: last_name, email: email, phone_no: ph_no)      # ( for normal process  )
             else
               
               temp_email = "#{full_name}#{uniq_string}@yopmail.com".downcase
@@ -147,17 +152,17 @@ module BxBlockBulkUpload
             if record.present?
               attach_resume_file record, file, resp   # ( for background job process )
               # update_document_id = record.update(document_id: uniq_string)
-              update_document_id = record.update(document_id: record.id)
+              update_document_id = record.update(document_id: doc_hash)
             end
 
           end  
-          
+
           @count = @count + 1 if record.present? || email_ac.present? || phone_ac.present?    # for normal flow
 
           # puts "===============#{record.document_id}==============="
           # update document Id
           # ForamThakral
-          indexing = indexing_resume respObj, record
+          indexing = indexing_resume respObj, record if record.present?
         end
       end
 
@@ -245,7 +250,7 @@ module BxBlockBulkUpload
     def send_post_request(uri, data)
       url   = URI(uri)
       http  = Net::HTTP.new(url.host, url.port)
-      http.use_ssl      = true
+      # http.use_ssl      = true
       http.verify_mode  = OpenSSL::SSL::VERIFY_NONE
       request           = Net::HTTP::Post.new(url)
       request["content-type"]   = 'application/json'

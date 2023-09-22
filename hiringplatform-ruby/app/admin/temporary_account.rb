@@ -174,6 +174,7 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
     end
 
 	  def extract_and_upload_files_from_zip(zip_file)
+			@uploaded_files = []
 		  Zip::File.open(zip_file.tempfile) do |zip|
 		  	zip_entries = zip.entries.to_a
     		total_files = zip_entries.length
@@ -199,9 +200,9 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
 		    key: object_key,
 		    body: file
 		  )
-
+		  @uploaded_files << {file_name: object_key, is_last_file: is_last_file}
 		  # Trigger the background job for the uploaded file
-		  BxBlockBulkUpload::ResumeUploadJob.set(wait: 5.seconds).perform_later(object_key, is_last_file)
+		  BxBlockBulkUpload::ResumeUploadJob.set(wait: 5.seconds).perform_later(@uploaded_files) if is_last_file
 		end
 	end
 end   
