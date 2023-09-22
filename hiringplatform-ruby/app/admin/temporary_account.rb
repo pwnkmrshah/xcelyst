@@ -5,6 +5,7 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
 
 	filter :email
 	filter :document_id
+	filter :document_hash
 	filter :phone_no
 
 	index do
@@ -29,6 +30,10 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
 		column :last_name
 		column :email
 		column :phone_no
+    column :document_id
+    column :document_hash
+    column :created_at
+    column :updated_at
 		# column :current_city do |obj|
 		# 	data = []
 		# 	# parsed_resume = obj.parsed_resume.present? ? obj.parsed_resume : obj.get_parsed_resume_data
@@ -150,6 +155,7 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
 
 	collection_action :import_bulk_resume, method: :post do
 	  if params[:upload_resume_file] && params[:upload_resume_file][:file]
+			@uploaded_files = []
 	  	total_files = params[:upload_resume_file][:file].length
 	    last_file_index = total_files - 1
     	@count = 0 # Initialize count for this request
@@ -174,7 +180,6 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
     end
 
 	  def extract_and_upload_files_from_zip(zip_file)
-			@uploaded_files = []
 		  Zip::File.open(zip_file.tempfile) do |zip|
 		  	zip_entries = zip.entries.to_a
     		total_files = zip_entries.length
