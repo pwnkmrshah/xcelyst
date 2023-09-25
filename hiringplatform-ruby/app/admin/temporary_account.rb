@@ -160,13 +160,22 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
 	    last_file_index = total_files - 1
     	@count = 0 # Initialize count for this request
     	Rails.cache.write('resume_upload_count', @count) # Store the initial count in the cache
-	    params[:upload_resume_file][:file].each_with_index do |file, index|
+    	zipped_files = []
+    	normal_files = []
+	    params[:upload_resume_file][:file].each do |file|
 	      if file.content_type == 'application/zip'
-	        extract_and_upload_files_from_zip(file)
+	        zipped_files << file
 	      else
-	        upload_single_file(file, index == last_file_index)
+	      	normal_files << file
 	      end
 	    end
+	    zipped_files.each do |zipped_file|
+		   extract_and_upload_files_from_zip(zipped_file)     
+	    end if zipped_files.present?
+
+	    normal_files.each_with_index do |file, index|
+        upload_single_file(file, index == last_file_index)
+	    end if normal_files.present?
 
 	    redirect_to admin_temporary_accounts_path, flash: { notice: "Resume process will start on the backend soon." }
 	  else
