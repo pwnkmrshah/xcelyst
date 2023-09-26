@@ -1,6 +1,13 @@
 ActiveAdmin.register AccountBlock::Account, as: "Client" do
 	menu parent: ["Platform Users",  "Client"], label: "Client", if: proc { current_user_admin.present? && current_user_admin.can_read_account_block_for_client?(current_user_admin) }
 
+	breadcrumb do
+	    [
+	      link_to('Admin', admin_root_path),
+	      link_to('Clients', admin_clients_path)
+	    ].compact
+  	end
+
 	index do
 		render partial: 'admin/batch_action'
 		selectable_column
