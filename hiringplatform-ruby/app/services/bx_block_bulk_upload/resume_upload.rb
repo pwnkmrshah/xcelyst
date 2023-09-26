@@ -50,7 +50,7 @@ module BxBlockBulkUpload
         
         uri = "https://eu-rest.resumeparsing.com/v10/parser/resume"
         respObj = send_post_req uri,data
-        p "Soveren response ---  #{respObj['Value']["ParsingResponse"]['Code']} ffor #{file}"
+        p "Soveren response ---  #{respObj['Value']["ParsingResponse"]['Code']} for #{file}"
         if ['timeout', 'conversionexception'].include? respObj['Value']["ParsingResponse"]['Code'].downcase
           exception_message = respObj['Value']["ParsingResponse"]['Message']
         end
@@ -103,7 +103,7 @@ module BxBlockBulkUpload
           if email_ac.present?
 
             # email_ac.update(document_id: uniq_string)  # ( for normal process  )
-            email_ac.update(document_id: doc_hash)
+            email_ac.update(document_id: doc_hash, phone_no: ph_no)
 
             create_parsed_json_file respObj, email_ac
 
@@ -116,7 +116,7 @@ module BxBlockBulkUpload
           elsif phone_ac.present?
             
             # phone_ac.update(document_id: uniq_string)  # ( for normal process  )
-            phone_ac.update(document_id: doc_hash)
+            phone_ac.update(document_id: doc_hash, email: email)
             
             create_parsed_json_file respObj, phone_ac
 
