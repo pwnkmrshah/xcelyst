@@ -41,7 +41,7 @@ module BxBlockForgotPassword
       if @account.user_role == 'client'
         otp = rand(1_00000..9_99999)
         if @account.update(otp: otp, otp_valid_till: (Time.zone.now + 5.minutes))
-          BxBlockForgotPassword::EmailOtpMailer.with(account: @account, host: request.base_url).otp_email.deliver
+          BxBlockForgotPassword::EmailOtpMailer.with(account: @account, host: request.base_url).otp_email(@account).deliver
           render json: {message: "OTP has been sent to your given email address." }, status: 200  
         else
           render json: { errors: @account.errors.full_messages }, status: :unprocessable_entity

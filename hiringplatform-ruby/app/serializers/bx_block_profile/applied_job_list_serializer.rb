@@ -106,11 +106,13 @@ module BxBlockProfile
     end
 
     attribute :appliction_closed_on do |object|
-        object.role.updated_at
+        object.role.updated_at if object.role.is_closed
     end
 
     attribute :rejected_on do |object|
-      if object.status == "rejected"
+      if object.role&.is_closed
+        "Role closed on- #{object.role.updated_at}"
+      elsif object.status == "rejected"
         object.role.updated_at
       elsif object.status == "accepted"
         "NA"
