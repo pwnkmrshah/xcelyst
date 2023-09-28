@@ -30,7 +30,7 @@ module BxBlockLogin
         output.on(:failed_login) do |account|
           render json: {
             errors: [{
-              failed_login: 'Incorrect Email OR Password.',
+              failed_login: 'Incorrect Email or Password.',
             }],
           }, status: :unauthorized
         end
@@ -57,7 +57,7 @@ module BxBlockLogin
         if @account.present? && @account.user_role == "client" && @account.authenticate(para["password"]) && @account.activated
           render json: AccountBlock::EmailAccountSerializer.new(@account, meta: {token: encode(@account.id)}).serializable_hash
         else
-          render json: { errors: [{ account: 'Incorrect Email OR Password', }],}, status: :unprocessable_entity
+          render json: { errors: [{ account: 'Incorrect Email or Password', }],}, status: :unprocessable_entity
         end
       else
         render json: { errors: [{ account: 'Login Failed', }],}, status: :unprocessable_entity

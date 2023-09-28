@@ -103,7 +103,7 @@ module BxBlockBulkUpload
           if email_ac.present?
 
             # email_ac.update(document_id: uniq_string)  # ( for normal process  )
-            email_ac.update(document_id: doc_hash, phone_no: ph_no)
+            email_ac.update(document_hash: doc_hash, phone_no: ph_no)
 
             create_parsed_json_file respObj, email_ac
 
@@ -116,7 +116,7 @@ module BxBlockBulkUpload
           elsif phone_ac.present?
             
             # phone_ac.update(document_id: uniq_string)  # ( for normal process  )
-            phone_ac.update(document_id: doc_hash, email: email)
+            phone_ac.update(document_hash: doc_hash, email: email)
             
             create_parsed_json_file respObj, phone_ac
 
@@ -142,7 +142,7 @@ module BxBlockBulkUpload
               record = AccountBlock::TemporaryAccount.create(first_name: first_name, last_name: last_name, email: temp_email, phone_no: nil)
             end
 
-            record.update(document_hash: doc_hash, document_id: doc_hash)
+            record.update(document_hash: doc_hash, document_hash: doc_hash)
             create_parsed_json_file respObj, record
 
             # AccountBlock::TempAccount.create(temporary_account_id: record.id, parsed_resume: respObj)
@@ -152,17 +152,14 @@ module BxBlockBulkUpload
             if record.present?
               attach_resume_file record, file, resp   # ( for background job process )
               # update_document_id = record.update(document_id: uniq_string)
-              update_document_id = record.update(document_id: doc_hash)
+              update_document_hash = record.update(document_hash: doc_hash)
             end
 
           end  
-
+          record ||= phone_ac || email_ac
           @count = @count + 1 if record.present? || email_ac.present? || phone_ac.present?    # for normal flow
 
-          # puts "===============#{record.document_id}==============="
-          # update document Id
-          # ForamThakral
-          indexing = indexing_resume respObj, record if record.present?
+          indexing = indexing_resume respObj, record if record.present? || (doc_hash != record.document_hash)
         end
       end
 

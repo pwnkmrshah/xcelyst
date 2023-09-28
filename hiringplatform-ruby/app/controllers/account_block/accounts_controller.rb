@@ -75,7 +75,7 @@ module AccountBlock
           validator = EmailValidation.new(account_params["email"])
 
           return render json: { errors: [
-                          { account: "Incorrect Email OR Password." },
+                          { account: "Incorrect Email or Password." },
                         ] }, status: :unprocessable_entity if !validator.valid?
 
           begin
