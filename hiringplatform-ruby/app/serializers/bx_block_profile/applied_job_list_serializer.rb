@@ -110,8 +110,8 @@ module BxBlockProfile
     end
 
     attribute :rejected_on do |object|
-      if object.role&.is_closed
-        "Role closed on- #{object.role.updated_at}"
+      if object.status == "role closed"
+        object.role.updated_at
       elsif object.status == "rejected"
         object.role.updated_at
       elsif object.status == "accepted"
