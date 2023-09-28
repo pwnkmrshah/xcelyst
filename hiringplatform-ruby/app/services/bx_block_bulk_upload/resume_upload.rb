@@ -142,7 +142,7 @@ module BxBlockBulkUpload
               record = AccountBlock::TemporaryAccount.create(first_name: first_name, last_name: last_name, email: temp_email, phone_no: nil)
             end
 
-            record.update(document_hash: doc_hash, document_hash: doc_hash)
+            record.update(document_hash: doc_hash, document_id: doc_hash)
             create_parsed_json_file respObj, record
 
             # AccountBlock::TempAccount.create(temporary_account_id: record.id, parsed_resume: respObj)
