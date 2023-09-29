@@ -100,32 +100,19 @@ module BxBlockBulkUpload
           uniq_string = SecureRandom.hex(2)
           email_ac = AccountBlock::TemporaryAccount.find_by(email: email) if email.present?
           phone_ac = AccountBlock::TemporaryAccount.find_by(phone_no: ph_no) if ph_no.present?
-          if email_ac.present?
-
-            # email_ac.update(document_id: uniq_string)  # ( for normal process  )
+          doc_hash_ac = AccountBlock::TemporaryAccount.find_by(document_hash: doc_hash) if doc_hash.present?
+          if doc_hash_ac.present?
+            doc_hash_ac.update(document_hash: doc_hash, phone_no: ph_no, email: email)
+            create_parsed_json_file respObj, doc_hash_ac
+            attach_resume_file doc_hash_ac, file, resp  # ( for background job process  )          
+          elsif email_ac.present?
             email_ac.update(document_hash: doc_hash, phone_no: ph_no)
-
             create_parsed_json_file respObj, email_ac
-
-            # update_parsed_resume_rec email_ac, respObj  # create record in mongodb table.
-
-            # email_ac.update(parsed_resume: respObj, document_id: email_ac.id)
-
-            attach_resume_file email_ac, file, resp  # ( for background job process  )
-
+            attach_resume_file email_ac, file, resp
           elsif phone_ac.present?
-            
-            # phone_ac.update(document_id: uniq_string)  # ( for normal process  )
             phone_ac.update(document_hash: doc_hash, email: email)
-            
             create_parsed_json_file respObj, phone_ac
-
-            # update_parsed_resume_rec phone_ac, respObj  # create record in mongodb table.
-
-            # phone_ac.update(parsed_resume: respObj, document_id: phone_ac.id)
-
             attach_resume_file phone_ac, file, resp   # ( for background job process  )
-
           else
             full_name = respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Names'][0] if respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Names'].present?
 

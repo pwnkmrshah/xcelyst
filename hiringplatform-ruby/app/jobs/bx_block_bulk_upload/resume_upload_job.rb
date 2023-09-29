@@ -3,23 +3,23 @@
 module BxBlockBulkUpload
   class ResumeUploadJob < BxBlockBulkUpload::ApplicationJob
     queue_as :default
+    sidekiq_options unique: :until_executed, unique_args: :unique_args
 
     $logs = []
 
-    sidekiq_options lock: :until_executed, on_conflict: :log, unlock: :on_success
+    def unique_args
+      [@uploaded_files]
+    end
 
     def perform(uploaded_files)
       start_time = Time.now # Record the start time
-
       uploaded_files.each do |file|
         process_uploaded_file(file)
       end
-
       process_final_files(uploaded_files)
       end_time = Time.now # Record the end time
       execution_time = end_time - start_time
       p "Job completed in #{execution_time} seconds."
-
     end
 
     private
