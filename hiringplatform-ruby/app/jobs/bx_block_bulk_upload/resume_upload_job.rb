@@ -2,7 +2,8 @@
 
 module BxBlockBulkUpload
   class ResumeUploadJob < BxBlockBulkUpload::ApplicationJob
-  queue_as :default
+    queue_as :default
+    $logs = []
 
     def unique_args(uploaded_files)
       ['resume_upload_job']

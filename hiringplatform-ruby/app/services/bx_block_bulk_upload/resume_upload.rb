@@ -143,7 +143,7 @@ module BxBlockBulkUpload
             end
 
           end  
-          record ||= phone_ac || email_ac
+          record ||= phone_ac || email_ac || doc_hash_ac
           @count = @count + 1 if record.present? || email_ac.present? || phone_ac.present?    # for normal flow
 
           indexing = indexing_resume respObj, record if record.present? || (doc_hash != record.document_hash)
