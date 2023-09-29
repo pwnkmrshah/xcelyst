@@ -101,11 +101,8 @@ module BxBlockBulkUpload
           email_ac = AccountBlock::TemporaryAccount.find_by(email: email) if email.present?
           phone_ac = AccountBlock::TemporaryAccount.find_by(phone_no: ph_no) if ph_no.present?
           doc_hash_ac = AccountBlock::TemporaryAccount.find_by(document_hash: doc_hash) if doc_hash.present?
-          if doc_hash_ac.present?
-            doc_hash_ac.update(document_hash: doc_hash, phone_no: ph_no, email: email)
-            create_parsed_json_file respObj, doc_hash_ac
-            attach_resume_file doc_hash_ac, file, resp  # ( for background job process  )          
-          elsif email_ac.present?
+          return if doc_hash_ac.present?
+          if email_ac.present?
             email_ac.update(document_hash: doc_hash, phone_no: ph_no)
             create_parsed_json_file respObj, email_ac
             attach_resume_file email_ac, file, resp
@@ -143,7 +140,7 @@ module BxBlockBulkUpload
             end
 
           end  
-          record ||= phone_ac || email_ac || doc_hash_ac
+          record ||= phone_ac || email_ac
           @count = @count + 1 if record.present? || email_ac.present? || phone_ac.present?    # for normal flow
 
           indexing = indexing_resume respObj, record if record.present? || (doc_hash != record.document_hash)
