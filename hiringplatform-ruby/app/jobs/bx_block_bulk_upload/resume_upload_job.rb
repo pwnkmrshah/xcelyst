@@ -2,28 +2,41 @@
 
 module BxBlockBulkUpload
   class ResumeUploadJob < BxBlockBulkUpload::ApplicationJob
-    queue_as :default
-    sidekiq_options unique: :until_executed, unique_args: :unique_args
+  queue_as :default
 
-    $logs = []
-
-    def unique_args
-      [@uploaded_files]
+    def unique_args(uploaded_files)
+      ['resume_upload_job']
     end
 
     def perform(uploaded_files)
-      start_time = Time.now # Record the start time
-      uploaded_files.each do |file|
-        process_uploaded_file(file)
+      lock_key = unique_args(uploaded_files).join(':')
+      lock_value = SecureRandom.uuid
+
+      redis = Redis.new(url: ENV['REDIS_URL'])
+
+      if redis.setnx(lock_key, lock_value)
+        begin
+          start_time = Time.now # Record the start time
+          uploaded_files.each do |file|
+            process_uploaded_file(file)
+          end
+          process_final_files(uploaded_files)
+          end_time = Time.now # Record the end time
+          execution_time = end_time - start_time
+          p "Job completed in #{execution_time} seconds."
+        ensure
+          # Remove the lock only if the lock value matches the expected value
+          if redis.get(lock_key) == lock_value
+            redis.del(lock_key)
+          end
+        end
+      else
+        # Re-enqueue the job after a delay if another job is already running
+        self.class.set(wait: 1.minutes).perform_later(uploaded_files)
       end
-      process_final_files(uploaded_files)
-      end_time = Time.now # Record the end time
-      execution_time = end_time - start_time
-      p "Job completed in #{execution_time} seconds."
     end
-
+  
     private
-
     def process_uploaded_file(file)
       f_name = file[:file_name]
       ext = f_name.split('.').last
