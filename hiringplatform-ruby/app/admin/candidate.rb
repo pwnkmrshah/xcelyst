@@ -8,6 +8,7 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
     filter :last_name
 
     index do
+      render partial: 'admin/batch_action'
       form do |f|
         div class: "align-dropdown" do
           div do
@@ -427,6 +428,15 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
          rescue StandardError => e
             redirect_to edit_admin_candidate_path, alert: 'Please upload a proper resume.'
          end 
+      end
+
+      def batch_action
+        begin
+          scoped_collection.where(id:params[:collection_selection]).destroy_all
+          redirect_to admin_candidates_path, notice: 'Accounts deleted successfully.'
+        rescue StandardError => e
+          redirect_to admin_candidates_path, notice: e.message
+        end
       end
 
       private

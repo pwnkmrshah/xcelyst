@@ -1,6 +1,7 @@
 ActiveAdmin.register BxBlockDatabase::EmailTemplate, as: "EmailTemplate" do
 
   index do
+    render partial: 'admin/batch_action'
     selectable_column
     id_column
     column :template_name

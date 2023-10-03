@@ -4,6 +4,8 @@ ActiveAdmin.register BxBlockContentManagement::ContentVideo, as: "ContentVideo" 
   permit_params :separate_section, :headline, :description, :thumbnails, :content_type_id, :image, :image_file, :video_file, :video_url, :active
 
   index do
+    render partial: 'admin/batch_action'
+    selectable_column
     id_column
     column :separate_section do |content|
       if content.separate_section == ""

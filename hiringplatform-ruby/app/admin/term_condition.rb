@@ -3,6 +3,7 @@ ActiveAdmin.register BxBlockInformation::TermCondition, as: "TermCondition" do
   permit_params :title, :description
 
   index do
+    render partial: 'admin/batch_action'
     selectable_column
     id_column
     column :title

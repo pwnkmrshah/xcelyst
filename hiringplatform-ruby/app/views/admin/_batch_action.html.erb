@@ -1,0 +1,15 @@
+<script type="text/javascript">
+  var currentPath = window.location.pathname;
+  var segments = currentPath.split('/');
+  var lastSegment = segments.pop();
+  $.ajax({
+    url: '/webhook/permisssion_enalbed',
+    method: 'GET',
+    data: { module_name: lastSegment },
+    success: function(response) {
+      if (!response.success) {
+        $('.batch_actions_selector').hide()
+      }
+    }
+  });
+</script>

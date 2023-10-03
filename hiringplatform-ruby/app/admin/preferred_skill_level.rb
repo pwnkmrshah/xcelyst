@@ -3,6 +3,8 @@ ActiveAdmin.register BxBlockPreferredOverallExperiences::PreferredSkillLevel, as
   permit_params :experiences_year, :level
 
   index do
+    render partial: 'admin/batch_action'
+    selectable_column
     id_column
     column :experiences_year
     column :level

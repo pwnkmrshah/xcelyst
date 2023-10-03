@@ -7,6 +7,8 @@ ActiveAdmin.register BxBlockBusinessFunction::BusinessCategory, as: "Skill Categ
   end
 
   index do
+    render partial: 'admin/batch_action'
+    selectable_column
     id_column
     column :name
     column "Domain Name" do |object|

@@ -7,6 +7,7 @@ ActiveAdmin.register BxBlockShortlisting::ShortlistingCandidate, as: "Shortliste
   scope :applied_by_candidate
 
   index do
+    render partial: 'admin/batch_action'
     selectable_column
     id_column
     column :job_title do |obj|

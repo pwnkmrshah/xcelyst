@@ -4,6 +4,7 @@ ActiveAdmin.register BxBlockAddress::LocationAddress, as: "Address" do
   permit_params :country, :address, :email, :phone, :order
 
   index do
+    render partial: 'admin/batch_action'
     selectable_column
     id_column
     column :country

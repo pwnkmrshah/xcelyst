@@ -3,6 +3,8 @@ ActiveAdmin.register BxBlockDomainSubCategory::DomainSubCategory, as: "Sub Categ
   permit_params :name, :domain_category_id
 
   index do
+    render partial: 'admin/batch_action'
+    selectable_column
     id_column
     column :name do |text|
       if text.name == ""

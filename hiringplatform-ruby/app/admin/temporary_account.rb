@@ -9,6 +9,7 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
 	filter :phone_no
 
 	index do
+		render partial: 'admin/batch_action'
 		form do |f|
 			div class: "align-dropdown" do
 			  div do

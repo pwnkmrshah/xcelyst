@@ -3,6 +3,8 @@ ActiveAdmin.register BxBlockCfzoomintegration3::Zoom, as: "Zoom User" do
 	actions :index, :show
 
 	index do
+		render partial: 'admin/batch_action'
+		selectable_column
 		id_column
 		column :first_name
 		column :last_name

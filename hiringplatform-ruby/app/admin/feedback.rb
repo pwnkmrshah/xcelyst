@@ -3,6 +3,8 @@ ActiveAdmin.register BxBlockScheduling::FeedbackInterview, as: "Feedback Intervi
   permit_params :name
 
   index do
+    render partial: 'admin/batch_action'
+    selectable_column
     id_column
     column :name
     actions

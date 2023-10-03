@@ -1,5 +1,11 @@
 class WebhookController < ApplicationController
 
+  def permisssion_enalbed
+  	module_name = params[:module_name]
+    permisssion_enalbed = current_user_admin.batch_action_permission_enabled?(module_name.singularize.humanize.downcase) if module_name.present?
+	render json: {success: permisssion_enalbed, message: 'Enabled'}
+  end
+
 	# Create by Punit
 	# Webhook Method for Verify Webhook Url when we attach on WhatSapp, this is one time call Method
 	def whatsapp

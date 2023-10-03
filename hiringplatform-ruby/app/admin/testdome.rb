@@ -4,6 +4,8 @@ ActiveAdmin.register BxBlockProfile::TestScoreAndCourse, as: 'TestDome' do
     actions :all, :except => [:new]
 
     index do
+      render partial: 'admin/batch_action'
+      selectable_column
       id_column
       column :title
       column :test_id

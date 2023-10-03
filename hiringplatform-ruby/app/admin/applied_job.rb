@@ -4,6 +4,7 @@ ActiveAdmin.register BxBlockRolesPermissions::AppliedJob, as: "Applied Job" do
   actions :index, :show, :edit, :update
 
   index do
+    render partial: 'admin/batch_action'
     selectable_column
     id_column
     column :candidate do |obj|
@@ -61,6 +62,11 @@ ActiveAdmin.register BxBlockRolesPermissions::AppliedJob, as: "Applied Job" do
       f.action :submit
       f.cancel_link "/admin/final_feedbacks/#{resource.role_id}"
     end
+  end
+
+  batch_action :destroy, confirm: "Are you sure you want to delete selected items?" do |ids|
+    scoped_collection.where(id: ids).destroy_all
+    redirect_to collection_path, notice: "Successfully deleted #{ids.count} rejected candidates."
   end
 
   controller do

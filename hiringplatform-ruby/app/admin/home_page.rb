@@ -3,6 +3,8 @@ ActiveAdmin.register BxBlockContentManagement::HomePage, as: "HomePage" do
   permit_params :title, :description, :active, :image, :image_file
 
   index do
+    render partial: 'admin/batch_action'
+    selectable_column
     id_column
     column :title
     column :description

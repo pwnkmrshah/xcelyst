@@ -3,6 +3,8 @@ ActiveAdmin.register BxBlockContactUs::Contact, as: "Contact" do
   permit_params :name, :phone_number, :email, :description
 
   index do
+    render partial: 'admin/batch_action'
+    selectable_column
     id_column
     column :name
     column :phone_number

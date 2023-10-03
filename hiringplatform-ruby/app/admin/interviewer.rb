@@ -3,6 +3,7 @@ ActiveAdmin.register BxBlockManager::Interviewer, as: "Interviewer" do
     permit_params :name, :email, :client_id
   
     index do
+      render partial: 'admin/batch_action'
       selectable_column
       id_column
       column :name

@@ -8,6 +8,7 @@ ActiveAdmin.register UserAdmin do
   # Then add in our own conditional Edit Button
 
   index do
+    render partial: 'admin/batch_action'
     selectable_column
     id_column
     column :email

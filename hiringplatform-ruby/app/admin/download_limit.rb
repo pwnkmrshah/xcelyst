@@ -2,10 +2,11 @@ ActiveAdmin.register BxBlockDatabase::DownloadLimit, as: "DownloadLimit" do
 
   permit_params :no_of_downloads, :per_page_limit
 
-  actions :index, :edit, :update
+  actions :index, :edit, :update, :destroy
 
 
   index do
+    render partial: 'admin/batch_action'
     selectable_column
     id_column
     column :no_of_downloads

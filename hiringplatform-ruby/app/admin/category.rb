@@ -7,6 +7,8 @@ ActiveAdmin.register BxBlockDomainCategory::DomainCategory, as: "Category" do
   end
 
   index do
+    render partial: 'admin/batch_action'
+    selectable_column
     id_column
     column :name do |text|
       if text.name == ""

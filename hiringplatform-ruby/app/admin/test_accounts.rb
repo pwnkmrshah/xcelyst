@@ -3,6 +3,8 @@ ActiveAdmin.register AccountBlock::Account, as: "Test Account" do
     actions :index, :show
 
     index do
+      render partial: 'admin/batch_action'
+      selectable_column
       id_column
       column :candidate_full_name do |user|
         user.user_full_name

@@ -4,6 +4,8 @@ ActiveAdmin.register BxBlockRolesPermissions::Role, as: "Final Feedback" do
   actions :all, except: [:edit, :update, :destroy, :new]
 
   index do
+    render partial: 'admin/batch_action'
+    selectable_column
     id_column
     column :name
     column :position

@@ -4,6 +4,8 @@ ActiveAdmin.register BxBlockContentManagement::ContentType, as: "ContentType" do
   permit_params :name, :type
 
   index do
+    render partial: 'admin/batch_action'
+    selectable_column
     id_column
     column :name
     column :type

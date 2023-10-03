@@ -3,6 +3,8 @@ ActiveAdmin.register BxBlockProfile::TestScoreAndCourse, as: "Test Score And Cou
     permit_params :title, :test_date, :test_url, role_ids: []
 
     index do
+        render partial: 'admin/batch_action'
+        selectable_column
         id_column
         column :title
         column :test_date

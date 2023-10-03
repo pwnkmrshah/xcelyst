@@ -3,6 +3,7 @@ ActiveAdmin.register BxBlockAboutpage::AboutPage, as: "About Page" do
   permit_params :title, :description, :image_file, :image
 
   index do
+    render partial: 'admin/batch_action'
     selectable_column
     id_column
     column :title do |aboutpage|

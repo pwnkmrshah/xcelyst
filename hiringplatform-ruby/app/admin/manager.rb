@@ -3,6 +3,7 @@ ActiveAdmin.register BxBlockManager::Manager, as: "Manager" do
   permit_params :name, :email, :account_id
 
   index do
+    render partial: 'admin/batch_action'
     selectable_column
     id_column
     column :name

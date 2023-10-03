@@ -2,6 +2,7 @@ ActiveAdmin.register AccountBlock::Account, as: "Client" do
 	menu parent: ["Platform Users",  "Client"], label: "Client", if: proc { current_user_admin.present? && current_user_admin.can_read_account_block_for_client?(current_user_admin) }
 
 	index do
+		render partial: 'admin/batch_action'
 		selectable_column
 		id_column
 		column :first_name
@@ -101,6 +102,15 @@ ActiveAdmin.register AccountBlock::Account, as: "Client" do
 
 		def scoped_collection
 			AccountBlock::Account.where(user_role: "client")
+		end
+
+		def batch_action
+			begin
+				scoped_collection.where(id:params[:collection_selection]).destroy_all
+				redirect_to admin_clients_path, notice: 'Accounts deleted successfully.'
+			rescue StandardError => e
+				redirect_to admin_clients_path, notice: e.message
+			end
 		end
 
 		private

@@ -1,9 +1,10 @@
 ActiveAdmin.register AccountBlock::Account, as: "Shortlist Candidate" do
   menu label: "Shortlist Candidate", if: proc { current_user_admin.present? && current_user_admin.can_read_account_block_for_shortlist_candidate?(current_user_admin) }  
   permit_params :client_id, :job_description_id
-  actions :index
+  actions :index, :destroy
 
   index do
+    render partial: 'admin/batch_action'
     render partial: 'admin/candidate'
     @clients_account = AccountBlock::Account.where(user_role: "client")
     form do |f|
@@ -56,6 +57,15 @@ ActiveAdmin.register AccountBlock::Account, as: "Shortlist Candidate" do
   controller do
     def scoped_collection
       AccountBlock::Account.where(user_role: "candidate")
+    end
+
+    def batch_action
+      begin
+        scoped_collection.where(id:params[:collection_selection]).destroy_all
+        redirect_to admin_shortlist_candidates_path, notice: 'Accounts deleted successfully.'
+      rescue StandardError => e
+        redirect_to admin_shortlist_candidates_path, notice: e.message
+      end
     end
   end
 end

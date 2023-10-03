@@ -3,6 +3,8 @@ ActiveAdmin.register BxBlockContentManagement::ContentText, as: "Blogs" do
   permit_params :headline, :content, :hyperlink, :affiliation, :synopsis, :content_type_id, images_file: [], images: []
 
   index do
+    render partial: 'admin/batch_action'
+    selectable_column
     id_column
     column :headline
     column :content

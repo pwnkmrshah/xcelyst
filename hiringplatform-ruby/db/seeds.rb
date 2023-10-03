@@ -47,14 +47,14 @@ module_permissions = {
   "candidate" => ["browse_candidate", "edit_candidate", "delete_candidate", "bulk_send_messages_to_account", "download", "batch_action"],
   "client" => ["browse_client", "add_client", "edit_client", "delete_client", "batch_action"],
   "test account" => ["browse_test_account"],
-  "job description" => ["view"],
+  "job description" => ["view", "edit" "batch_action"],
   "zoom meeting" => ["view", 'add'],
   "zoom user" => ["view", "sync_users"],
   "final feedback" => ["view"],
-  "shortlist candidate" => ["browse_shortlist_candidate", "delete_shortlist_candidate"],
+  "shortlist candidate" => ["browse_shortlist_candidate", "delete_shortlist_candidate", "batch_action"],
   "shortlisted candidate" => ["view", "delete", "batch_action"],
   "temporary account" => ["view", "permanent", "upload_bulk_resume", "bulk_send_messages", "temporary_by_admin", "delete", "import_bulk_resume", "batch_action"],
-  "rejected candidate" => ["view"],
+  "rejected candidate" => ["view", "batch_action"],
   "test score and course" => ["view", "edit"]
 }
 

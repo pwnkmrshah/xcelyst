@@ -4,6 +4,8 @@ ActiveAdmin.register BxBlockAdminRolePermission::AdminRole, as: "Admin Role" do
   permit_params :name, admin_permission_ids: []
 
   index do
+    render partial: 'admin/batch_action'
+    selectable_column
     id_column
     column :name
     column :actions do |object|

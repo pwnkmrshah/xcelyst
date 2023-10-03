@@ -6,6 +6,7 @@ ActiveAdmin.register BxBlockDatabase::TemporaryUserDatabase, as: "Database User"
 	filter :full_name  
 
 	index do
+		render partial: 'admin/batch_action'
 		selectable_column
 		id_column
     column :uid

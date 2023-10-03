@@ -3,6 +3,8 @@ ActiveAdmin.register BxBlockBusinessFunction::BusinessSubCategory, as: "Skill Su
   permit_params :name, :business_category_id
 
   index do
+    render partial: 'admin/batch_action'
+    selectable_column
     id_column
     column :name
     column "Category Name" do |object|

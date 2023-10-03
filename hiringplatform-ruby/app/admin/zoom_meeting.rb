@@ -5,6 +5,8 @@ ActiveAdmin.register BxBlockCfzoomintegration3::ZoomMeeting, as: "Zoom Meeting" 
 	actions :index, :show, :new
 
 	index do
+		render partial: 'admin/batch_action'
+		selectable_column
 		id_column
 		column :client_id do |obj|
 			link_to("#{obj.client.first_name} #{obj.client.last_name}", admin_client_path(obj.client_id))

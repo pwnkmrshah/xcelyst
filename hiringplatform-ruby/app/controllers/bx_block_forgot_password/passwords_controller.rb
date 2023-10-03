@@ -15,7 +15,7 @@ module BxBlockForgotPassword
           render json: { errors: @account.errors.full_messages }, status: :unprocessable_entity
         end
       else
-        render json: {errors: "Not for client"}, status: :unprocessable_entity
+        render json: {errors: "This email is not registered as a candidate"}, status: :unprocessable_entity
       end
     end
     
@@ -47,7 +47,7 @@ module BxBlockForgotPassword
           render json: { errors: @account.errors.full_messages }, status: :unprocessable_entity
         end
       else
-        render json: {errors: "Not for candidate"}, status: :unprocessable_entity
+        render json: {errors: "This email is not registered as a client"}, status: :unprocessable_entity
       end
     end
 

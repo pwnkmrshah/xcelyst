@@ -11,6 +11,7 @@ ActiveAdmin.register BxBlockJobDescription::JobDescription, as: 'Job Description
   filter :location
 
   index do
+    render partial: 'admin/batch_action'
     selectable_column
     id_column
     column :document_id
@@ -194,139 +195,6 @@ ActiveAdmin.register BxBlockJobDescription::JobDescription, as: 'Job Description
                     end
                   end
               end
-              
-              # @jd_data['JobData']['SkillsData'].each_with_index do |skill, index|
-              #     tr do
-              #       if index == 0
-              #             rowspanCountForSkills = 0
-              #             @span = []
-              #             @jd_data['JobData']['SkillsData'].each do |skill_data_count|
-              #                 skill_data_count['Taxonomies'].each_with_index do |taxonomy_count, index|
-              #                     tax_index = index
-              #                     taxonomy_count['SubTaxonomies'].each_with_index do |sub_taxonomy_count, index|
-              #                         rowspanCountForSkills += sub_taxonomy_count['Skills'].count
-              #                         if index == 0
-              #                             @span.push({tax_index => sub_taxonomy_count['Skills'].count})
-              #                         else
-              #                             @span[tax_index][tax_index] += sub_taxonomy_count['Skills'].count
-              #                         end
-              #                     end
-              #                 end
-              #             end
-              #             td rowspan: "#{rowspanCountForSkills}" do
-              #               "Skills"
-              #             end
-                          
-              #             skill['Taxonomies'].each_with_index do |taxonomy, index|
-              #                 if index == 0
-              #                   td rowspan: "#{@span[index][index]}" do
-              #                     taxonomy['Name']
-              #                   end
-              #                     taxonomy['SubTaxonomies'].each_with_index do |sub_taxonomy, index|
-              #                         if index == 0
-              #                             skill_count = 0
-              #                             sub_taxonomy['Skills'].each_with_index do |skills, index|
-              #                               skill_count = index+1
-              #                             end
-              #                             td rowspan: "#{skill_count}" do 
-              #                               sub_taxonomy['SubTaxonomyName']
-              #                             end
-              #                             sub_taxonomy['Skills'].each_with_index do |skills, index|
-              #                                 if index == 0
-              #                                   td do 
-              #                                     skills['Name']
-              #                                   end
-              #                                 else
-              #                                   tr do
-              #                                     td do  
-              #                                       skills['Name']
-              #                                     end
-              #                                   end
-              #                                 end
-              #                             end
-              #                         else
-              #                             skill_count = 0
-              #                             sub_taxonomy['Skills'].each_with_index do |skills, index|
-              #                                 skill_count = index+1
-              #                             end
-              #                             tr do 
-              #                                 td rowspan: "#{skill_count}" do 
-              #                                   sub_taxonomy['SubTaxonomyName']
-              #                                 end
-              #                                 sub_taxonomy['Skills'].each_with_index do |skills, index|
-              #                                     if index == 0
-              #                                       td do 
-              #                                         skills['Name']
-              #                                       end
-              #                                     else
-              #                                       tr do 
-              #                                         td do
-              #                                           skills['Name']
-              #                                         end
-              #                                       end
-              #                                     end
-              #                                 end
-              #                             end
-              #                         end
-              #                     end
-              #                 else
-              #                     tr do 
-              #                         td rowspan: "#{@span[index][index]}" do
-              #                           taxonomy['Name']
-              #                         end
-              #                         taxonomy['SubTaxonomies'].each_with_index do |sub_taxonomy, index|
-              #                             if index == 0
-              #                               skill_count = 0
-              #                                 sub_taxonomy['Skills'].each_with_index do |skills, index|
-              #                                   skill_count = index+1
-              #                                 end
-              #                                 td rowspan: "#{skill_count}" do
-              #                                   sub_taxonomy['SubTaxonomyName']
-              #                                 end
-              #                                 sub_taxonomy['Skills'].each_with_index do |skills, index|
-              #                                   if index == 0
-              #                                     td do 
-              #                                       skills['Name']
-              #                                     end
-              #                                   else
-              #                                     tr do 
-              #                                       td do 
-              #                                         skills['Name']
-              #                                       end
-              #                                     end
-              #                                   end
-              #                                 end
-              #                             else
-              #                               skill_count = 0
-              #                                 sub_taxonomy['Skills'].each_with_index do |skills, index|
-              #                                   skill_count = index+1
-              #                                 end
-              #                                 tr do 
-              #                                   td rowspan: "#{skill_count}" do 
-              #                                     sub_taxonomy['SubTaxonomyName']
-              #                                   end
-              #                                     sub_taxonomy['Skills'].each_with_index do |skills, index|
-              #                                       if index == 0
-              #                                         td do 
-              #                                           skills['Name']
-              #                                         end
-              #                                       else
-              #                                         tr do 
-              #                                           td do 
-              #                                             skills['Name']
-              #                                           end
-              #                                         end
-              #                                       end
-              #                                     end
-              #                                 end
-              #                             end
-              #                         end
-              #                     end
-              #                 end
-              #             end
-              #         end
-              #     end
-              # end
             end 
           end
 
@@ -342,12 +210,10 @@ ActiveAdmin.register BxBlockJobDescription::JobDescription, as: 'Job Description
     end
   end
 
-  # controller do
-  #   def scoped_collection
-  #     BxBlockJobDescription::JobDescription.where(jd_type: 'automatic')
-  #   end
-  # end
-  
+  batch_action :destroy, confirm: "Are you sure you want to delete selected items?" do |ids|
+    scoped_collection.where(id: ids).destroy_all
+    redirect_to collection_path, notice: "Successfully deleted #{ids.count} job description."
+  end
 end
   
   

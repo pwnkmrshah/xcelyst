@@ -1,6 +1,7 @@
 ActiveAdmin.register BxBlockDatabase::EmailTemplateHeader, as: 'Email Header' do
   form partial: 'bx_block_database/email_template_header/form'
   index do
+    render partial: 'admin/batch_action'
     selectable_column
     id_column
     column :enable

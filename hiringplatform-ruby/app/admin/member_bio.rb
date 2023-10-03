@@ -3,6 +3,8 @@ ActiveAdmin.register BxBlockContentManagement::MemberBio, as: "MemberBio" do
   permit_params :name, :description, :position, :facebook_link, :linkedin_link, :twitter_link, :content_type_id, :image_file, :order
 
   index do
+    render partial: 'admin/batch_action'
+    selectable_column
     id_column
     column :name
     column :description do |content|
