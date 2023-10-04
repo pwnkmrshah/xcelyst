@@ -1,6 +1,13 @@
 ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
     menu parent: "Platform Users", label: "Candidate", if: proc { current_user_admin.present? && current_user_admin.can_read_account_block_for_candidate?(current_user_admin) }
 
+    breadcrumb do
+      [
+        link_to('Admin', admin_root_path),
+        link_to('Candidates', admin_candidates_path)
+      ].compact
+    end
+
     actions :all, except: :new
 
     filter :email
