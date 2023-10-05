@@ -1,6 +1,9 @@
 ActiveAdmin.register BxBlockAboutpage::AboutPage, as: "About Page" do
   menu parent: "Website Management", label: "About Page"
   permit_params :title, :description, :image_file, :image
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('about page') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    batch_destroy_action(ids, scoped_collection)
+  end
 
   index do
     selectable_column
@@ -88,6 +91,7 @@ ActiveAdmin.register BxBlockAboutpage::AboutPage, as: "About Page" do
   controller do
     after_update :update_image
     after_create :update_image
+    include ActiveAdmin::BatchActionsHelper
 
     def update_image(resource)
       if resource.persisted?

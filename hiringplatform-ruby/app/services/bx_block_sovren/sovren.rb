@@ -241,7 +241,7 @@ module BxBlockSovren
       # ======================================================================================
       # For Fetch a score from sovren
       # ======================================================================================
-      doc_id = "#{@user_resume.document_id}".downcase
+      doc_id = "#{@user_resume.document_id}".downcase&.gsub(' ', '_')
       uri = "https://eu-rest.resumeparsing.com/v10/matcher/indexes/1/documents/#{doc_id}"
       data =  { "IndexIdsToSearchInto" => [ "jd001" ] }.to_json
       score_rs = send_post_req uri,data
@@ -352,7 +352,8 @@ module BxBlockSovren
       # ============================================================================================
       # TO ASSIGN A INDEX TO RESUME ALONG WITH DOCUMENT ID
       # ===========================================================================================
-      url = "https://eu-rest.resumeparsing.com/v10/index/1/resume/#{@user_resume.document_id}"
+      document_id = @user_resume.document_id.gsub(' ', '_')
+      url = "https://eu-rest.resumeparsing.com/v10/index/1/resume/#{document_id}"
       data =  {"ResumeData" =>  parsed_resume["Value"]["ResumeData"] }.to_json
       respObj = send_post_req url,data
     end

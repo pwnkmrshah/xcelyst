@@ -1,7 +1,10 @@
 ActiveAdmin.register AccountBlock::Account, as: "Shortlist Candidate" do
   menu label: "Shortlist Candidate", if: proc { current_user_admin.present? && current_user_admin.can_read_account_block_for_shortlist_candidate?(current_user_admin) }  
   permit_params :client_id, :job_description_id
-  actions :index
+  actions :index, :destroy
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('shortlist candidate') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    batch_destroy_action(ids, scoped_collection)
+  end
 
   index do
     render partial: 'admin/candidate'
@@ -54,8 +57,18 @@ ActiveAdmin.register AccountBlock::Account, as: "Shortlist Candidate" do
   # filter :user_resume
 
   controller do
+    include ActiveAdmin::BatchActionsHelper
     def scoped_collection
       AccountBlock::Account.where(user_role: "candidate")
+    end
+
+    def batch_action
+      begin
+        scoped_collection.where(id:params[:collection_selection]).destroy_all
+        redirect_to admin_shortlist_candidates_path, notice: 'Accounts deleted successfully.'
+      rescue StandardError => e
+        redirect_to admin_shortlist_candidates_path, notice: e.message
+      end
     end
   end
 end

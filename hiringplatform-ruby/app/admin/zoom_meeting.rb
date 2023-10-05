@@ -1,10 +1,13 @@
 ActiveAdmin.register BxBlockCfzoomintegration3::ZoomMeeting, as: "Zoom Meeting" do
-	
 	permit_params :client_id, :candidate_id, :zoom_id, :schedule_date, :starting_at, :meeting_urls
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('zoom meeting') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    batch_destroy_action(ids, scoped_collection)
+  end
 
 	actions :index, :show, :new
 
 	index do
+		selectable_column
 		id_column
 		column :client_id do |obj|
 			link_to("#{obj.client.first_name} #{obj.client.last_name}", admin_client_path(obj.client_id))
@@ -94,6 +97,7 @@ ActiveAdmin.register BxBlockCfzoomintegration3::ZoomMeeting, as: "Zoom Meeting" 
 	end
 
 	controller do 
+    include ActiveAdmin::BatchActionsHelper
 
 		def create
 			param = params[:bx_block_cfzoomintegration3_zoom_meeting]

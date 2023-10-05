@@ -24,14 +24,16 @@ module BxBlockShortlisting
       check_sov_url = URI.parse("https://eu-rest.resumeparsing.com/ui/v10/#{url}")
       response = Net::HTTP.get_response(check_sov_url)
 
-      if response.is_a?(Net::HTTPSuccess)
-        puts "URL is accessible"
-      else
-        puts "URL is not accessible"
-        url = update_sov_url(jd) if jd.present?
+      return render json: { data: url }, status: 200 if jd.nil?
+      unless response.is_a?(Net::HTTPSuccess)
+        if jd.present? && jd.document_id
+          url = update_sov_url(jd)
+        elsif jd.document_id.nil?
+          url = '#'
+          error = 'Doc id missing, kindly delete or re-upload the JD'
+        end
       end
-
-      render json: { data: url }, status: 200
+      render json: { data: url, error: error }, status: 200
     end
 
     def update_sov_url(jd)

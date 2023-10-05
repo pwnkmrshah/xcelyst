@@ -26,6 +26,7 @@ gem 'turbolinks'
 gem 'summernote-rails'
 gem 'bootstrap-sass'
 gem 'nested_form'
+gem 'sidekiq-unique-jobs'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

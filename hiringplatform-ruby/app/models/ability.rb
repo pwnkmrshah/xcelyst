@@ -14,6 +14,7 @@ class Ability
     'add' => [:create],
     'add_client' => [:create],
     'edit' => [:update],
+    'batch_action' => [:batch_action],
     'edit_candidate' => [:update],
     'edit_client' => [:update],
     'upload_resume_file' => [:upload_resume_file],
@@ -107,8 +108,8 @@ class Ability
       when 'gdpr'                  then BxBlockInformation::Gdpr
       when 'cookies policy'        then BxBlockInformation::CookiesPolicy
       when 'email template'        then BxBlockDatabase::EmailTemplate
-      when 'email template footer' then BxBlockDatabase::EmailTemplateFooter
-      when 'email template header' then BxBlockDatabase::EmailTemplateHeader
+      when 'email footer' then BxBlockDatabase::EmailTemplateFooter
+      when 'email header' then BxBlockDatabase::EmailTemplateHeader
 
     else nil
     end

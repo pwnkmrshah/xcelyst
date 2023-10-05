@@ -50,9 +50,14 @@ module BxBlockBulkUpload
         
         uri = "https://eu-rest.resumeparsing.com/v10/parser/resume"
         respObj = send_post_req uri,data
-
+        p "Soveren response ---  #{respObj['Value']["ParsingResponse"]['Code']} for #{file}"
+        if ['timeout', 'conversionexception'].include? respObj['Value']["ParsingResponse"]['Code'].downcase
+          exception_message = respObj['Value']["ParsingResponse"]['Message']
+        end
+        raise exception_message if exception_message.present?
+        p "exception for file #{file_path} ------- #{exception_message}" if exception_message.present?
         create_temporary_accounts respObj, file, resp   # for normal flow 
-
+        
         # for background job process 
 
         #create_temporary_accounts respObj, file_path, file_path.to_s.split('/').last.split('.').first
@@ -82,43 +87,29 @@ module BxBlockBulkUpload
       def create_temporary_accounts respObj, file, resp
         if respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData'].present?
           email = respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['EmailAddresses'].present? ? respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['EmailAddresses'][0] : ''
-          
+          doc_hash = respObj['Value']['ConversionMetadata']['DocumentHash']
+
+
           if respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Phones'].present? 
             if respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Phones'][0].include?('Phone')
-              @ph_no = respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Phones'][0].split(':').last.strip
+              ph_no = respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Phones'][0].split(':').last.strip
             else
-              @ph_no = respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Phones'][0].strip
+              ph_no = respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Phones'][0].strip
             end
           end
           uniq_string = SecureRandom.hex(2)
           email_ac = AccountBlock::TemporaryAccount.find_by(email: email) if email.present?
-          phone_ac = AccountBlock::TemporaryAccount.find_by(phone_no: @ph_no) if @ph_no.present?
+          phone_ac = AccountBlock::TemporaryAccount.find_by(phone_no: ph_no) if ph_no.present?
+          doc_hash_ac = AccountBlock::TemporaryAccount.find_by(document_hash: doc_hash) if doc_hash.present?
+          return if doc_hash_ac.present?
           if email_ac.present?
-
-            # email_ac.update(document_id: uniq_string)  # ( for normal process  )
-            email_ac.update(document_id: email_ac.id)
-
+            email_ac.update(document_hash: doc_hash, phone_no: ph_no)
             create_parsed_json_file respObj, email_ac
-
-            # update_parsed_resume_rec email_ac, respObj  # create record in mongodb table.
-
-            # email_ac.update(parsed_resume: respObj, document_id: email_ac.id)
-
-            attach_resume_file email_ac, file, resp  # ( for background job process  )
-
+            attach_resume_file email_ac, file, resp
           elsif phone_ac.present?
-            
-            # phone_ac.update(document_id: uniq_string)  # ( for normal process  )
-            phone_ac.update(document_id: phone_ac.id)
-            
+            phone_ac.update(document_hash: doc_hash, email: email)
             create_parsed_json_file respObj, phone_ac
-
-            # update_parsed_resume_rec phone_ac, respObj  # create record in mongodb table.
-
-            # phone_ac.update(parsed_resume: respObj, document_id: phone_ac.id)
-
             attach_resume_file phone_ac, file, resp   # ( for background job process  )
-
           else
             full_name = respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Names'][0] if respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['Names'].present?
 
@@ -126,8 +117,8 @@ module BxBlockBulkUpload
             first_name = name[0] if name.present?
             last_name = name[1] if name.present?
 
-            if email.present? || @ph_no.present?
-              record = AccountBlock::TemporaryAccount.create(first_name: first_name, last_name: last_name, email: email, phone_no: @ph_no)      # ( for normal process  )
+            if email.present? || ph_no.present?
+              record = AccountBlock::TemporaryAccount.create(first_name: first_name, last_name: last_name, email: email, phone_no: ph_no)      # ( for normal process  )
             else
               
               temp_email = "#{full_name}#{uniq_string}@yopmail.com".downcase
@@ -135,6 +126,7 @@ module BxBlockBulkUpload
               record = AccountBlock::TemporaryAccount.create(first_name: first_name, last_name: last_name, email: temp_email, phone_no: nil)
             end
 
+            record.update(document_hash: doc_hash, document_id: doc_hash)
             create_parsed_json_file respObj, record
 
             # AccountBlock::TempAccount.create(temporary_account_id: record.id, parsed_resume: respObj)
@@ -144,17 +136,14 @@ module BxBlockBulkUpload
             if record.present?
               attach_resume_file record, file, resp   # ( for background job process )
               # update_document_id = record.update(document_id: uniq_string)
-              update_document_id = record.update(document_id: record.id)
+              update_document_hash = record.update(document_hash: doc_hash)
             end
 
           end  
-          
+          record ||= phone_ac || email_ac
           @count = @count + 1 if record.present? || email_ac.present? || phone_ac.present?    # for normal flow
 
-          # puts "===============#{record.document_id}==============="
-          # update document Id
-          # ForamThakral
-          indexing = indexing_resume respObj, record
+          indexing = indexing_resume respObj, record if record.present? || (doc_hash != record.document_hash)
         end
       end
 
@@ -169,7 +158,7 @@ module BxBlockBulkUpload
       # ============================================================================================
       # TO ASSIGN A INDEX TO RESUME ALONG WITH DOCUMENT ID
       # ===========================================================================================
-      url = "https://eu-rest.resumeparsing.com/v10/index/#{ENV['SOVREN_TEMPORARY_ACCOUNT_INDEX']}/resume/#{record.id}"
+      url = "https://eu-rest.resumeparsing.com/v10/index/#{ENV['SOVREN_TEMPORARY_ACCOUNT_INDEX']}/resume/#{record.document_id}"
       data =  {"ResumeData" =>  parsed_resume["Value"]["ResumeData"] }.to_json
       succ_response = send_post_req url,data
       puts "=========================#{succ_response  }============================================================="
@@ -242,7 +231,7 @@ module BxBlockBulkUpload
     def send_post_request(uri, data)
       url   = URI(uri)
       http  = Net::HTTP.new(url.host, url.port)
-      http.use_ssl      = true
+      http.use_ssl      = true 
       http.verify_mode  = OpenSSL::SSL::VERIFY_NONE
       request           = Net::HTTP::Post.new(url)
       request["content-type"]   = 'application/json'
