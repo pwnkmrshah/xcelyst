@@ -22,13 +22,9 @@ module BxBlockScheduling
 
     attribute :work_experience do |obj|
       resume = obj.user_resume
-      if resume.present?
-        begin
-          resume = resume.get_parsed_resume_data
-          resume['Value']['ResumeData']['ResumeMetadata']['PlainText']
-        rescue => exception
-          " "
-        end
+      if resume.present? && resume.parsed_resume.present?
+        parsed_resume = resume.parsed_resume
+        parsed_resume['Value']['ResumeData']["EmploymentHistory"]
       else
         " "
       end

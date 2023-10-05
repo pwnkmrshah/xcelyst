@@ -1,10 +1,7 @@
 ActiveAdmin.register BxBlockAdminRolePermission::AdminRole, as: "Admin Role" do
   menu parent: "User Management", label: "Role Management", priority: 1
   batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('role management') }, confirm: "Are you sure want to delete selected items?" do |ids|
-    module_name = scoped_collection.name.split("::").last
-    module_name = module_name.gsub(/([a-z])([A-Z])/, '\1 \2').downcase
-    scoped_collection.where(id: ids).destroy_all
-    redirect_to collection_path, notice: "Successfully deleted #{ids.count} #{module_name}."
+    batch_destroy_action(ids, scoped_collection)
   end
 
   permit_params :name, admin_permission_ids: []
@@ -36,6 +33,7 @@ ActiveAdmin.register BxBlockAdminRolePermission::AdminRole, as: "Admin Role" do
   end
 
   controller do
+    include ActiveAdmin::BatchActionsHelper
     def create
       admin_permission_ids = params[:bx_block_admin_role_permission_admin_role][:admin_permission_ids]
 

@@ -1,10 +1,7 @@
 ActiveAdmin.register UserAdmin do
   menu label: "Admin User", priority: 3
   batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('user admin') }, confirm: "Are you sure want to delete selected items?" do |ids|
-    module_name = scoped_collection.name.split("::").last
-    module_name = module_name.gsub(/([a-z])([A-Z])/, '\1 \2').downcase
-    scoped_collection.where(id: ids).destroy_all
-    redirect_to collection_path, notice: "Successfully deleted #{ids.count} #{module_name}."
+    batch_destroy_action(ids, scoped_collection)
   end
 
   permit_params :email, :password, :password_confirmation,admin_role_user_attributes: [:id, :admin_role_id]
@@ -63,6 +60,8 @@ ActiveAdmin.register UserAdmin do
     f.actions
   end
   controller do
+    include ActiveAdmin::BatchActionsHelper
+
     def create
       admin_user = UserAdmin.new(admin_params)
       if admin_user.save

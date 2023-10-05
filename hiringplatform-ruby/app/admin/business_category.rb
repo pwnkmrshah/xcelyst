@@ -2,10 +2,11 @@ ActiveAdmin.register BxBlockBusinessFunction::BusinessCategory, as: "Skill Categ
   menu parent: ["Website Management",  "Business Functions"], label: "Vertical Category"
   permit_params :name, :business_domain_id
   batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('skill category') }, confirm: "Are you sure want to delete selected items?" do |ids|
-    module_name = scoped_collection.name.split("::").last
-    module_name = module_name.gsub(/([a-z])([A-Z])/, '\1 \2').downcase
-    scoped_collection.where(id: ids).destroy_all
-    redirect_to collection_path, notice: "Successfully deleted #{ids.count} #{module_name}."
+    batch_destroy_action(ids, scoped_collection)
+  end
+
+  controller do
+    include ActiveAdmin::BatchActionsHelper
   end
 
   action_item :add, only: :show do
