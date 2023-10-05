@@ -90,7 +90,7 @@ ActiveAdmin.register BxBlockContentManagement::MemberBio, as: "MemberBio" do
 
     def create
       banner = BxBlockContentManagement::HomePage.where(active: true)
-      if banner.length >= 1 && params["home_page"]["active"].to_i == 1
+      if banner.length >= 1
         flash[:alert] = "All ready one banner is active"
         redirect_to(new_admin_home_page_path) and return
       end
