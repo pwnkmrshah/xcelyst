@@ -1,9 +1,14 @@
 ActiveAdmin.register AccountBlock::Account, as: "Test Account" do
     menu label: "Test Accounts", if: proc { current_user_admin.present? && current_user_admin.can_read_account_block_for_test_account?(current_user_admin) }  
     actions :index, :show
+    batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('test account') }, confirm: "Are you sure want to delete selected items?" do |ids|
+      module_name = scoped_collection.name.split("::").last
+      module_name = module_name.gsub(/([a-z])([A-Z])/, '\1 \2').downcase
+      scoped_collection.where(id: ids).destroy_all
+      redirect_to collection_path, notice: "Successfully deleted #{ids.count} #{module_name}."
+    end
 
     index do
-      render partial: 'admin/batch_action'
       selectable_column
       id_column
       column :candidate_full_name do |user|

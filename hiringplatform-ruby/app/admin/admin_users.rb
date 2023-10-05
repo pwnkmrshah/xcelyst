@@ -3,7 +3,6 @@ ActiveAdmin.register AdminUser do
   permit_params :email, :password, :password_confirmation, :enable_2FA
 
   index do
-    render partial: 'admin/batch_action'
     selectable_column
     id_column
     column :email

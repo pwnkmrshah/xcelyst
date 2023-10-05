@@ -4,7 +4,6 @@ ActiveAdmin.register BxBlockRolesPermissions::AppliedJob, as: "Applied Job" do
   actions :index, :show, :edit, :update
 
   index do
-    render partial: 'admin/batch_action'
     selectable_column
     id_column
     column :candidate do |obj|
@@ -64,9 +63,11 @@ ActiveAdmin.register BxBlockRolesPermissions::AppliedJob, as: "Applied Job" do
     end
   end
 
-  batch_action :destroy, confirm: "Are you sure you want to delete selected items?" do |ids|
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('rejected candidate') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    module_name = scoped_collection.name.split("::").last
+    module_name = module_name.gsub(/([a-z])([A-Z])/, '\1 \2').downcase
     scoped_collection.where(id: ids).destroy_all
-    redirect_to collection_path, notice: "Successfully deleted #{ids.count} rejected candidates."
+    redirect_to collection_path, notice: "Successfully deleted #{ids.count} #{module_name}."
   end
 
   controller do

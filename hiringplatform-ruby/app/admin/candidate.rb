@@ -1,5 +1,11 @@
 ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
     menu parent: "Platform Users", label: "Candidate", if: proc { current_user_admin.present? && current_user_admin.can_read_account_block_for_candidate?(current_user_admin) }
+    batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('candidate') }, confirm: "Are you sure want to delete selected items?" do |ids|
+      module_name = scoped_collection.name.split("::").last
+      module_name = module_name.gsub(/([a-z])([A-Z])/, '\1 \2').downcase
+      scoped_collection.where(id: ids).destroy_all
+      redirect_to collection_path, notice: "Successfully deleted #{ids.count} #{module_name}."
+    end
 
     breadcrumb do
       [
@@ -15,7 +21,6 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
     filter :last_name
 
     index do
-      render partial: 'admin/batch_action'
       form do |f|
         div class: "align-dropdown" do
           div do

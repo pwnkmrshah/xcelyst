@@ -1,13 +1,18 @@
 ActiveAdmin.register BxBlockDomainCategory::DomainCategory, as: "Category" do
   menu parent: "Job Functions", label: "Category", priority: 1
   permit_params :name, :domain_id
-
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('category') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    module_name = scoped_collection.name.split("::").last
+    module_name = module_name.gsub(/([a-z])([A-Z])/, '\1 \2').downcase
+    scoped_collection.where(id: ids).destroy_all
+    redirect_to collection_path, notice: "Successfully deleted #{ids.count} #{module_name}."
+  end
+  
   action_item :add, only: :show do
     link_to "New Sub Category", new_admin_sub_category_path(domain_category_id: params[:id])
   end
 
   index do
-    render partial: 'admin/batch_action'
     selectable_column
     id_column
     column :name do |text|

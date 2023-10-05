@@ -216,7 +216,6 @@ Rails.application.routes.draw do
 
   get '/webhook/whatsapp', to: "webhook#whatsapp"
   post '/webhook/whatsapp', to: "webhook#receive_request"
-  get '/webhook/permisssion_enalbed', to: 'webhook#permisssion_enalbed'
 
   put "user_resume_json_upload", to: "task#user_resume_file_upload"
   put "temp_account_json_upload", to: "task#temp_account_file_upload"

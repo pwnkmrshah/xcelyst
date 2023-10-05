@@ -32,7 +32,7 @@ schedule_interviews.update_all(time_zone: 'Asia/Kolkata')
 def create_permission(module_name, permission_name)
   if module_name == 'rejected candidate'
     BxBlockAdminRolePermission::AdminPermission.find_or_create_by(module_name: 'rejected candidate', name: permission_name)
-    BxBlockAdminRolePermission::AdminPermission.find_or_create_by(module_name: 'applied candidate', name: permission_name)
+    BxBlockAdminRolePermission::AdminPermission.find_or_create_by(module_name: 'applied candidate', name: 'view')
     BxBlockAdminRolePermission::AdminPermission.find_or_create_by(module_name: 'applied candidate', name: 'edit')
   else
     BxBlockAdminRolePermission::AdminPermission.find_or_create_by(module_name: module_name, name: permission_name)
@@ -47,7 +47,7 @@ module_permissions = {
   "candidate" => ["browse_candidate", "edit_candidate", "delete_candidate", "bulk_send_messages_to_account", "download", "batch_action"],
   "client" => ["browse_client", "add_client", "edit_client", "delete_client", "batch_action"],
   "test account" => ["browse_test_account"],
-  "job description" => ["view", "edit" "batch_action"],
+  "job description" => ["view", "edit", "batch_action"],
   "zoom meeting" => ["view", 'add'],
   "zoom user" => ["view", "sync_users"],
   "final feedback" => ["view"],

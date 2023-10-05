@@ -12,20 +12,6 @@
 
 $(document).ready(function() {
 
-  var currentPath = window.location.pathname;
-  var segments = currentPath.split('/');
-  var lastSegment = segments.pop();
-  $.ajax({
-    url: '/webhook/permisssion_enalbed',
-    method: 'GET',
-    data: { module_name: lastSegment },
-    success: function(response) {
-      if (!response.success) {
-        $('.batch_actions_selector').hide()
-      }
-    }
-  });
-
   $('.collection_selection_ids').on('click', function() {
     console.log('clicked');
     if ($('#user_ids').val() == "") {

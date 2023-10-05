@@ -2,9 +2,14 @@ ActiveAdmin.register AccountBlock::Account, as: "Shortlist Candidate" do
   menu label: "Shortlist Candidate", if: proc { current_user_admin.present? && current_user_admin.can_read_account_block_for_shortlist_candidate?(current_user_admin) }  
   permit_params :client_id, :job_description_id
   actions :index, :destroy
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('shortlist candidate') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    module_name = scoped_collection.name.split("::").last
+    module_name = module_name.gsub(/([a-z])([A-Z])/, '\1 \2').downcase
+    scoped_collection.where(id: ids).destroy_all
+    redirect_to collection_path, notice: "Successfully deleted #{ids.count} #{module_name}."
+  end
 
   index do
-    render partial: 'admin/batch_action'
     render partial: 'admin/candidate'
     @clients_account = AccountBlock::Account.where(user_role: "client")
     form do |f|
