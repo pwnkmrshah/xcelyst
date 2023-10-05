@@ -3,6 +3,10 @@ ActiveAdmin.register BxBlockDatabase::DownloadLimit, as: "DownloadLimit" do
     batch_destroy_action(ids, scoped_collection)
   end
 
+  controller do
+    include ActiveAdmin::BatchActionsHelper
+  end
+
   permit_params :no_of_downloads, :per_page_limit
 
   actions :index, :edit, :update, :destroy
@@ -28,13 +32,4 @@ ActiveAdmin.register BxBlockDatabase::DownloadLimit, as: "DownloadLimit" do
     end
     f.actions
   end
-
-  # show do
-  #   attributes_table do
-  #     row :no_of_downloads
-  #     row :created_at
-  #     row :updated_at
-  #   end
-  # end
-
 end
