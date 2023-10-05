@@ -1,9 +1,13 @@
 ActiveAdmin.register BxBlockContentManagement::ContentVideo, as: "ContentVideo" do
   menu parent: "Website Management", label: "Content Video"
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('content video') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    batch_destroy_action(ids, scoped_collection)
+  end
 
   permit_params :separate_section, :headline, :description, :thumbnails, :content_type_id, :image, :image_file, :video_file, :video_url, :active
 
   index do
+    selectable_column
     id_column
     column :separate_section do |content|
       if content.separate_section == ""
@@ -80,6 +84,7 @@ ActiveAdmin.register BxBlockContentManagement::ContentVideo, as: "ContentVideo" 
   end
 
   controller do
+    include ActiveAdmin::BatchActionsHelper
     after_update :update_image
     after_create :update_image
 

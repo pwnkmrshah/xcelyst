@@ -186,6 +186,9 @@ $(document).ready(function() {
 			type: "post",
 			data: {id: jd_id},
 			success: function(result) {
+				if (result.error != null) {
+					alert(result.error)
+				}
 				$('#ai_matching').attr("href", result.data)
 				$('#ai_matching').removeClass('disabled');
 				$('#jd_loader').removeClass('visible');

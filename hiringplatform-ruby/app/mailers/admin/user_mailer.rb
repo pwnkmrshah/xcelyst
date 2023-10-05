@@ -3,9 +3,8 @@ module Admin
     include EmailHelper
 
     def two_factor_authentication(admin_user)
-      label = 'two_factor_authentication'
       admin_user.update!(otp: rand(1_00000..9_99999))
-      email_template =find_email_template_by_label(label)
+      email_template =find_email_template_by_label(action_name)
       return unless email_template
       body = email_template.body
       body = body.gsub('{{user_email}}', admin_user.email.to_s)
@@ -19,8 +18,7 @@ module Admin
     end
 
     def send_creds(admin , password)
-      label = 'send_creds'
-      email_template = find_email_template_by_label(label)
+      email_template = find_email_template_by_label(action_name)
       return unless email_template
       body = email_template.body
       login_url = ENV['REMOTE_URL']
@@ -33,6 +31,11 @@ module Admin
       mail(from: email_template.from, to: admin.email, subject: email_template.subject) do |format|
         format.html { render partial: 'layouts/mail_template', locals: { body: body, header: header, footer: footer } }
       end
+    end
+
+    private
+    def find_email_template_by_label(label)
+      BxBlockDatabase::EmailTemplate.find_by(label: label)
     end
   end
 end

@@ -44,7 +44,7 @@ module BxBlockScheduling
 
 		def request_admin_support
 			msg = "Client #{@client.first_name} has request for admin support to pick the interview slot to #{@candidate.first_name}(candidate)."
-			mail(to: "info@xcelyst.com", from: 'builder.bx_dev@engineer.ai', subject: 'Request Admin support.', body: "#{msg}")
+			mail(to: "info@xcelyst.com", from: 'info@xcelyst.com', subject: 'Request Admin support.', body: "#{msg}")
 		end
 
 		def feedback_given_by_interviewer
@@ -60,7 +60,7 @@ module BxBlockScheduling
 		def final_interviewer_link
 			token = BuilderJsonWebToken.encode @interview.id, 'interviewer'
 			@link = (ENV["FRONT_END_URL"] ? ENV["FRONT_END_URL"] + "candidate-feedback/" : "https://hiringplatform-74392-react-native.b74392.dev.us-east-1.aws.svc.builder.cafe/candidate-feedback/")+ token
-			mail(to: @interviewer.email, from: 'builder.bx_dev@engineer.ai', subject: 'Interview completed successfully')
+			mail(to: @interviewer.email, from: 'info@xcelyst.com', subject: 'Interview completed successfully')
 		end
 
 		def set_inviter_and_invitee
@@ -83,7 +83,7 @@ module BxBlockScheduling
 		def final_interviewer_link
 			token = BuilderJsonWebToken.encode @interview.id, 'interviewer'
 			@link = (ENV["FRONT_END_URL"] ? ENV["FRONT_END_URL"] + "candidate-feedback/" : "https://hiringplatform-74392-react-native.b74392.dev.us-east-1.aws.svc.builder.cafe/candidate-feedback/")+ token
-			mail(to: @interviewer.email, from: 'builder.bx_dev@engineer.ai', subject: 'Interview completed successfully')
+			mail(to: @interviewer.email, from: 'info@xcelyst.com', subject: 'Interview completed successfully')
 		end
 
 		private

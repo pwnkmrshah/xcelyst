@@ -11,6 +11,7 @@
 //= require jquery_nested_form
 
 $(document).ready(function() {
+
   $('.collection_selection_ids').on('click', function() {
     console.log('clicked');
     if ($('#user_ids').val() == "") {

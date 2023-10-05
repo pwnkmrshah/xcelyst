@@ -1,7 +1,14 @@
 ActiveAdmin.register BxBlockManager::Interviewer, as: "Interviewer" do
     menu parent: ["Platform Users",  "Client"], label: "Interviewer"
     permit_params :name, :email, :client_id
+    batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('interviewer') }, confirm: "Are you sure want to delete selected items?" do |ids|
+      batch_destroy_action(ids, scoped_collection)
+    end
   
+    controller do
+      include ActiveAdmin::BatchActionsHelper
+    end
+
     index do
       selectable_column
       id_column

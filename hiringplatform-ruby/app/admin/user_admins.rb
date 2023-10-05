@@ -1,5 +1,8 @@
 ActiveAdmin.register UserAdmin do
   menu label: "Admin User", priority: 3
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('user admin') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    batch_destroy_action(ids, scoped_collection)
+  end
 
   permit_params :email, :password, :password_confirmation,admin_role_user_attributes: [:id, :admin_role_id]
 
@@ -57,6 +60,8 @@ ActiveAdmin.register UserAdmin do
     f.actions
   end
   controller do
+    include ActiveAdmin::BatchActionsHelper
+
     def create
       admin_user = UserAdmin.new(admin_params)
       if admin_user.save

@@ -63,7 +63,13 @@ ActiveAdmin.register BxBlockRolesPermissions::AppliedJob, as: "Applied Job" do
     end
   end
 
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('rejected candidate') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    batch_destroy_action(ids, scoped_collection)
+  end
+
   controller do
+    include ActiveAdmin::BatchActionsHelper
+
     def update
       super do |success, failure|
         success.html { redirect_to "/admin/final_feedbacks/#{resource.role_id}" }

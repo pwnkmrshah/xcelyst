@@ -40,7 +40,7 @@ module BxBlockRolesPermissions
       ActiveRecord::Base.transaction(isolation: :serializable) do
         begin
           role.update(is_closed: params[:is_closed])
-          role.applied_jobs.where(status: ["pending"]).update_all(status: "rejected", accepted: false)
+          role.applied_jobs.where(status: ["pending"]).update_all(status: "role closed", accepted: false)
           render json: { message: "Role has been updated" }, status: :ok
         rescue StandardError => e
           render json: { errors: e }, status: :unprocessable_entity

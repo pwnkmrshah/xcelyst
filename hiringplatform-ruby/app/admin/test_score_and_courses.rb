@@ -1,8 +1,12 @@
 ActiveAdmin.register BxBlockProfile::TestScoreAndCourse, as: "Test Score And Course" do
     menu false
     permit_params :title, :test_date, :test_url, role_ids: []
+    batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('test score and course') }, confirm: "Are you sure want to delete selected items?" do |ids|
+      batch_destroy_action(ids, scoped_collection)
+    end
 
     index do
+        selectable_column
         id_column
         column :title
         column :test_date
@@ -49,6 +53,7 @@ ActiveAdmin.register BxBlockProfile::TestScoreAndCourse, as: "Test Score And Cou
       end
     
       controller do
+        include ActiveAdmin::BatchActionsHelper
         before_update :update_params 
 
         def update

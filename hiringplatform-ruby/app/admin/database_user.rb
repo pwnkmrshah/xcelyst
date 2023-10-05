@@ -1,5 +1,8 @@
 ActiveAdmin.register BxBlockDatabase::TemporaryUserDatabase, as: "Database User" do
 	menu parent: "Bulk Upload", label: "Database User"
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('database user') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    batch_destroy_action(ids, scoped_collection)
+  end
 
 	actions :index, :destroy, :show
 
@@ -200,6 +203,7 @@ ActiveAdmin.register BxBlockDatabase::TemporaryUserDatabase, as: "Database User"
 	# end
 
 	controller do
+    include ActiveAdmin::BatchActionsHelper
 
 	  def extract_and_upload_files_from_zip(zip_file)
 		  Zip::File.open(zip_file.tempfile) do |zip|

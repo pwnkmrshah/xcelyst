@@ -10,7 +10,7 @@ module BxBlockAdmin
       admin = UserAdmin.find_by(email: params[:email])
       if admin && admin.valid_password?(params[:password])
         generate_pin_and_valid_date admin
-        BxBlockAdmin::OtpVerificationMailer.with(admin_id: admin.id).request_otp.deliver_now
+        BxBlockAdmin::OtpVerificationMailer.with(account_id: admin.id, admin: true).request_otp(admin.email).deliver_now
         render json: AdminUserSerializer.new(admin, meta: { token: encode(admin.id, 'admin_otp') } ).serializable_hash, status: :ok
       else
         render json: { errors: { 'email or password' => ['is invalid'] } }, status: :unprocessable_entity
