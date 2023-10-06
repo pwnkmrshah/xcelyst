@@ -28,16 +28,7 @@ ActiveAdmin.register BxBlockAboutpage::AboutPage, as: "About Page" do
       end
     end
     actions
-    # actions do |obj|
-    #   button :class => "get_preview", "data-id": obj.id do
-    #     "preview"
-    #   end
-    # end
   end
-
-  # collection_action :preview_data do 
-  #   render "/admin/preview_about_page"
-  # end
 
   form do |f|
     f.inputs do
