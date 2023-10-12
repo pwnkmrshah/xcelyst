@@ -25,7 +25,7 @@ module BxBlockScheduling
       if resume.present?
         begin
           resume = resume.get_parsed_resume_data
-          resume['Value']['ResumeData']['EmploymentHistory']['ExperienceSummary']
+          resume['Value']['ResumeData']['EmploymentHistory']
         rescue => exception
           " "
         end
