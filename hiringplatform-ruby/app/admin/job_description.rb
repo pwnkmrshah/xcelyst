@@ -102,7 +102,9 @@ ActiveAdmin.register BxBlockJobDescription::JobDescription, as: 'Job Description
       end
       div :class => "panel_contents" do
         div :class => "attributes_table" do
-          @jd_data = resource.parsed_jd
+          file = resource.parsed_jd
+          jd = resource.parse_jd_data(file)
+          @jd_data = jd['Value']
           style do 
             '.job-data-table {
                 border-collapse: collapse;

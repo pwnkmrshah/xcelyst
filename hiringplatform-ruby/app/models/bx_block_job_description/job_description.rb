@@ -27,6 +27,13 @@ module BxBlockJobDescription
 
     after_save :manual_jd_file_creation
 
+    def parse_jd_data(file)
+      s3 = Aws::S3::Client.new
+      resp = s3.get_object(bucket: ENV['AWS_BUCKET'], key: file)
+      file_data = resp.body.read
+      JSON.parse(file_data) if file_data.present?
+    end
+
     private
 
     def set_default_value

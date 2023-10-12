@@ -50,8 +50,8 @@ module BxBlockBulkUpload
         p "File processing succeeded #{f_name}"
         increment_upload_count
       rescue StandardError => e
-        p "Current exception file #{f_name}"
-        $logs << { file_name: f_name, error: e }
+        p "Current exception file #{f_name} and message is #{e.message}"
+        $logs << { file_name: f_name, error: e.message }
       end
     end
 
