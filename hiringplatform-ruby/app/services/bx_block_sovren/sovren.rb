@@ -116,18 +116,32 @@ module BxBlockSovren
       return OpenStruct.new(success?: false, errors: e)
     end
 
+    def self.upload_to_s3(file, object_key)
+      s3_client = Aws::S3::Client.new(region: ENV["AWS_REGION"])
+      bucket_name = ENV["AWS_BUCKET"]
+      response = s3_client.put_object(
+        bucket: bucket_name,
+        key: object_key,
+        body: file
+      )
+    end
+
     def self.create_job_description params, current_user, data, client_jd, identifier
+      file = params[:jd_file]
       jd = data['Value']['JobData']
       if jd.present?
         job_des = nil
         begin
   
           ActiveRecord::Base.transaction(isolation: :serializable) do
+            # Upload jd file to s3
+            file_data = data.to_json
+            upload_to_s3(file_data, file.original_filename)
             # if section is used when client try to update the automate job description.
             if client_jd.present?
               role = client_jd.role.update!(params.except(:jd_file))
               exp = find_or_create_exp(jd)
-              client_jd.update!(preferred_overall_experience_id: exp.id, parsed_jd: data['Value'], job_title: jd['JobTitles'].present? ? jd['JobTitles']['MainJobTitle'] : nil,
+              client_jd.update!(preferred_overall_experience_id: exp.id, parsed_jd: file.original_filename, job_title: jd['JobTitles'].present? ? jd['JobTitles']['MainJobTitle'] : nil,
                 parsed_jd_transaction_id: data['Info']['TransactionId'], location: jd['CurrentLocation'].present? ? jd['CurrentLocation']['Municipality'] : nil,
                 jd_file: params[:jd_file]
               )
@@ -145,7 +159,7 @@ module BxBlockSovren
             
             exp = find_or_create_exp(jd)
             salary =  jd['JobMetadata']['PlainText'].match(/SALARY:\r\n.*/).to_s.gsub("SALARY:",'').squish.to_s           
-            job_des = BxBlockJobDescription::JobDescription.create!(preferred_overall_experience_id: exp.id, parsed_jd: data['Value'], jd_type: 'automatic', 
+            job_des = BxBlockJobDescription::JobDescription.create!(preferred_overall_experience_id: exp.id, parsed_jd: file.original_filename, jd_type: 'automatic', 
               parsed_jd_transaction_id: data['Info']['TransactionId'], role_id: role.id, job_title: jd['JobTitles'].present? ? jd['JobTitles']['MainJobTitle'] : nil,
               location: jd['CurrentLocation'].present? ? jd['CurrentLocation']['Municipality'] : nil, minimum_salary: salary, jd_file: params[:jd_file])
 
@@ -241,7 +255,7 @@ module BxBlockSovren
       # ======================================================================================
       # For Fetch a score from sovren
       # ======================================================================================
-      doc_id = "#{@user_resume.document_id}".downcase
+      doc_id = "#{@user_resume.document_id}".downcase&.gsub(' ', '_')
       uri = "https://eu-rest.resumeparsing.com/v10/matcher/indexes/1/documents/#{doc_id}"
       data =  { "IndexIdsToSearchInto" => [ "jd001" ] }.to_json
       score_rs = send_post_req uri,data
@@ -352,7 +366,8 @@ module BxBlockSovren
       # ============================================================================================
       # TO ASSIGN A INDEX TO RESUME ALONG WITH DOCUMENT ID
       # ===========================================================================================
-      url = "https://eu-rest.resumeparsing.com/v10/index/1/resume/#{@user_resume.document_id}"
+      document_id = @user_resume.document_id.gsub(' ', '_')
+      url = "https://eu-rest.resumeparsing.com/v10/index/1/resume/#{document_id}"
       data =  {"ResumeData" =>  parsed_resume["Value"]["ResumeData"] }.to_json
       respObj = send_post_req url,data
     end

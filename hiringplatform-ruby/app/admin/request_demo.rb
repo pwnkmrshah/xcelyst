@@ -1,8 +1,16 @@
 ActiveAdmin.register BxBlockRequestdemo::RequestDemo, as: "Request Demo" do
   menu label: "Request Demo"
   permit_params :first_name, :last_name, :phone_no, :email, :company_name
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('request demo') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    batch_destroy_action(ids, scoped_collection)
+  end
+
+  controller do
+    include ActiveAdmin::BatchActionsHelper
+  end
 
   index do
+    selectable_column
     id_column
     column :first_name
     column :last_name

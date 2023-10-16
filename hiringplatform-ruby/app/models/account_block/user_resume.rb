@@ -20,9 +20,10 @@ module AccountBlock
         if self.parse_resume.attached?
           data = [
             Thread.new {
-              url = Rails.application.routes.url_helpers.rails_blob_url(self.parse_resume)
-              result = open(url).read
-              eval(result)
+              url = self.parse_resume.service_url
+              response = URI.open(url)
+              response_data = response.read
+              eval(response_data)
             }
           ].map(&:value)
           data[0]

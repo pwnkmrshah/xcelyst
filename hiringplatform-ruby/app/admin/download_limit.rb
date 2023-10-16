@@ -1,8 +1,15 @@
 ActiveAdmin.register BxBlockDatabase::DownloadLimit, as: "DownloadLimit" do
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('download limit') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    batch_destroy_action(ids, scoped_collection)
+  end
+
+  controller do
+    include ActiveAdmin::BatchActionsHelper
+  end
 
   permit_params :no_of_downloads, :per_page_limit
 
-  actions :index, :edit, :update
+  actions :index, :edit, :update, :destroy
 
 
   index do
@@ -25,13 +32,4 @@ ActiveAdmin.register BxBlockDatabase::DownloadLimit, as: "DownloadLimit" do
     end
     f.actions
   end
-
-  # show do
-  #   attributes_table do
-  #     row :no_of_downloads
-  #     row :created_at
-  #     row :updated_at
-  #   end
-  # end
-
 end

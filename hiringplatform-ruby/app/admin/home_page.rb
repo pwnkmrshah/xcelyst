@@ -1,8 +1,12 @@
 ActiveAdmin.register BxBlockContentManagement::HomePage, as: "HomePage" do
   menu parent: "Website Management", label: "Home Page"
   permit_params :title, :description, :active, :image, :image_file
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('home page') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    batch_destroy_action(ids, scoped_collection)
+  end
 
   index do
+    selectable_column
     id_column
     column :title
     column :description
@@ -53,6 +57,7 @@ ActiveAdmin.register BxBlockContentManagement::HomePage, as: "HomePage" do
   end
 
   controller do
+    include ActiveAdmin::BatchActionsHelper
     after_update :update_image
     after_create :update_image
 
@@ -64,7 +69,7 @@ ActiveAdmin.register BxBlockContentManagement::HomePage, as: "HomePage" do
 
     def create
       banner = BxBlockContentManagement::HomePage.where(active: true)
-      if banner.length >= 1 && params["home_page"]["active"].to_i == 1
+      if banner.length >= 1
         flash[:alert] = "All ready one banner is active"
         redirect_to(new_admin_home_page_path) and return
       end
@@ -74,7 +79,7 @@ ActiveAdmin.register BxBlockContentManagement::HomePage, as: "HomePage" do
     def update
       id = params["id"].to_i
       banner = BxBlockContentManagement::HomePage.where(active: true)
-      if banner.length >= 1 && params["home_page"]["active"].to_i == 1 && banner[0].id != id
+      if banner.length >= 1 && banner[0].id != id
         flash[:alert] = "All ready one banner is active"
         redirect_to(edit_admin_home_page_path(id)) and return
       end

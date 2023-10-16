@@ -9,13 +9,13 @@ module BxBlockForgotPassword
         otp = rand(1_00000..9_99999)
         # otp = 6.times.map{rand(10)}.join
         if @account.update(otp: otp, otp_valid_till: (Time.zone.now + 5.minutes))
-          EmailOtpMailer.with(email: @account.email).otp_email.deliver
+          EmailOtpMailer.with(email: @account.email).otp_email(@account).deliver
           render json: {message: "OTP has been sent to your given email address." }, status: 200  
         else
           render json: { errors: @account.errors.full_messages }, status: :unprocessable_entity
         end
       else
-        render json: {errors: "Not for client"}, status: :unprocessable_entity
+        render json: {errors: "This email is not registered as a candidate"}, status: :unprocessable_entity
       end
     end
     
@@ -41,13 +41,13 @@ module BxBlockForgotPassword
       if @account.user_role == 'client'
         otp = rand(1_00000..9_99999)
         if @account.update(otp: otp, otp_valid_till: (Time.zone.now + 5.minutes))
-          BxBlockForgotPassword::EmailOtpMailer.with(account: @account, host: request.base_url).otp_email.deliver
+          BxBlockForgotPassword::EmailOtpMailer.with(account: @account, host: request.base_url).otp_email(@account).deliver
           render json: {message: "OTP has been sent to your given email address." }, status: 200  
         else
           render json: { errors: @account.errors.full_messages }, status: :unprocessable_entity
         end
       else
-        render json: {errors: "Not for candidate"}, status: :unprocessable_entity
+        render json: {errors: "This email is not registered as a client"}, status: :unprocessable_entity
       end
     end
 

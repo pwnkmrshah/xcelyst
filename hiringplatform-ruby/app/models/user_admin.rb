@@ -37,44 +37,44 @@ class UserAdmin < ApplicationRecord
   end
 
   def can_read_account_block_for?(user, account_block)
-    user.admin_role.present? &&
-      user.admin_role.admin_permissions.exists?(name: "browse_#{account_block}") &&
+    admin_role.present? &&
+      admin_role.admin_permissions.exists?(name: "browse_#{account_block}") &&
       (
-        user.admin_role.admin_permissions.exists?(name: "browse_#{account_block}") ||
-          user.admin_role.admin_permissions.exists?(name: "new_#{account_block}") ||
-          user.admin_role.admin_permissions.exists?(name: "edit_#{account_block}") ||
-          user.admin_role.admin_permissions.exists?(name: "delete_#{account_block}")
+        admin_role.admin_permissions.exists?(name: "browse_#{account_block}") ||
+          admin_role.admin_permissions.exists?(name: "new_#{account_block}") ||
+          admin_role.admin_permissions.exists?(name: "edit_#{account_block}") ||
+          admin_role.admin_permissions.exists?(name: "delete_#{account_block}")
       )
   end
 
   def permission_for_whatsapp?(user)
-    user.admin_role.present? &&
-      user.admin_role.admin_permissions.exists?(name: "whatsapp")   
+    admin_role.present? &&
+      admin_role.admin_permissions.exists?(name: "whatsapp")   
   end
 
   def can_edit_admin_user?(user)
-    user.admin_role.present? &&
-      user.admin_role.admin_permissions.exists?(name: 'edit', module_name:'user admin')
+    admin_role.present? &&
+      admin_role.admin_permissions.exists?(name: 'edit', module_name:'user admin')
   end
 
   def can_delete_admin_user?(user)
-    user.admin_role.present? &&
-      user.admin_role.admin_permissions.exists?(name: 'delete', module_name:'user admin')
+    admin_role.present? &&
+      admin_role.admin_permissions.exists?(name: 'delete', module_name:'user admin')
   end
 
   def can_edit_role?(user)
-    user.admin_role.present? &&
-      user.admin_role.admin_permissions.exists?(name: 'edit', module_name:'role management')
+    admin_role.present? &&
+      admin_role.admin_permissions.exists?(name: 'edit', module_name:'role management')
   end
 
   def can_delete_role?(user)
-    user.admin_role.present? &&
-      user.admin_role.admin_permissions.exists?(name: 'delete', module_name:'role management')
+    admin_role.present? &&
+      admin_role.admin_permissions.exists?(name: 'delete', module_name:'role management')
   end
 
   def permission_for_client_dashboard?(user)
-    user.admin_role.present? &&
-      user.admin_role.admin_permissions.exists?(name: "client_dashboard")
+    admin_role.present? &&
+      admin_role.admin_permissions.exists?(name: "client_dashboard")
   end
   
   def can_read_account_block_for_candidate?(user)
@@ -98,72 +98,82 @@ class UserAdmin < ApplicationRecord
   end
 
   def upload_json_file?(user)
-    user.admin_role.present? &&
-      user.admin_role.admin_permissions.exists?(name: "upload_json_file")
+    admin_role.present? &&
+      admin_role.admin_permissions.exists?(name: "upload_json_file")
   end
 
   def upload_resume_file?(user)
-    user.admin_role.present? &&
-      user.admin_role.admin_permissions.exists?(name: "upload_bulk_resume")
+    admin_role.present? &&
+      admin_role.admin_permissions.exists?(name: "upload_bulk_resume")
   end
 
   def permission_for_permanent?(user)
-    user.admin_role.present? &&
-      user.admin_role.admin_permissions.exists?(name: "permanent")
+    admin_role.present? &&
+      admin_role.admin_permissions.exists?(name: "permanent")
   end
 
   def permission_for_make_permanent_account?(user)
-    user.admin_role.present? &&
-      user.admin_role.admin_permissions.exists?(name: "temporary_by_admin")
+    admin_role.present? &&
+      admin_role.admin_permissions.exists?(name: "temporary_by_admin")
   end
 
   def permission_for_delete?(user)
-    user.admin_role.present? &&
-       user.admin_role.admin_permissions.exists?(name: 'delete', module_name:'temporary account')
+    admin_role.present? &&
+       admin_role.admin_permissions.exists?(name: 'delete', module_name:'temporary account')
   end
 
   def permission_for_candidate_send_message?(user)
-    user.admin_role.present? &&
-       user.admin_role.admin_permissions.exists?(name: 'bulk_send_messages_to_account', module_name:'candidate')
+    admin_role.present? &&
+       admin_role.admin_permissions.exists?(name: 'bulk_send_messages_to_account', module_name:'candidate')
   end
 
   def permission_for_candidate_download_file?(user)
-    user.admin_role.present? &&
-       user.admin_role.admin_permissions.exists?(name: 'download', module_name:'candidate')
+    admin_role.present? &&
+       admin_role.admin_permissions.exists?(name: 'download', module_name:'candidate')
   end
 
   def permission_for_temporary_account_send_message?(user)
-    user.admin_role.present? &&
-       user.admin_role.admin_permissions.exists?(name: 'bulk_send_messages', module_name:'temporary account')
+    admin_role.present? &&
+       admin_role.admin_permissions.exists?(name: 'bulk_send_messages', module_name:'temporary account')
   end
 
   def can_edit_applied_candidate?(user)
-    user.admin_role.present? &&
-       user.admin_role.admin_permissions.exists?(name: 'edit', module_name:'applied candidate')
+    admin_role.present? &&
+       admin_role.admin_permissions.exists?(name: 'edit', module_name:'applied candidate')
   end
 
   def can_view_applied_candidate?(user)
-    user.admin_role.present? &&
-       user.admin_role.admin_permissions.exists?(name: 'view', module_name:'applied candidate')
+    admin_role.present? &&
+       admin_role.admin_permissions.exists?(name: 'view', module_name:'applied candidate')
   end
 
   def can_view_rejected_candidate?(user)
-    user.admin_role.present? &&
-       user.admin_role.admin_permissions.exists?(name: 'view', module_name:'rejected candidate')
+    admin_role.present? &&
+       admin_role.admin_permissions.exists?(name: 'view', module_name:'rejected candidate')
   end
 
   def can_sync_zoom_user?(user)
-    user.admin_role.present? &&
-       user.admin_role.admin_permissions.exists?(name: 'sync_users', module_name:'zoom user')
+    admin_role.present? &&
+       admin_role.admin_permissions.exists?(name: 'sync_users', module_name:'zoom user')
   end
   
   def can_edit_test_score?(user)
-    user.admin_role.present? &&
-       user.admin_role.admin_permissions.exists?(name: 'edit', module_name:'test score and course')
+    admin_role.present? &&
+       admin_role.admin_permissions.exists?(name: 'edit', module_name:'test score and course')
   end
 
   def can_view_test_score?(user)
-    user.admin_role.present? &&
-       user.admin_role.admin_permissions.exists?(name: 'view', module_name:'test score and course')
+    admin_role.present? &&
+       admin_role.admin_permissions.exists?(name: 'view', module_name:'test score and course')
+  end
+
+  def batch_action_allowed?(module_name)
+    admin_role.present? &&
+       admin_role.admin_permissions.exists?(name: 'batch_action', module_name: module_name)    
+  end
+
+  def batch_action_permission_enabled?(module_name)
+    admin_role.present? &&
+       admin_role.admin_permissions.exists?(name: 'batch_action', module_name: module_name)    
   end
 end

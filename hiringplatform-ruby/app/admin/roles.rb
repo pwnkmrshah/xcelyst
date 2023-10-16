@@ -2,8 +2,14 @@ ActiveAdmin.register BxBlockRolesPermissions::Role, as: "Final Feedback" do
   menu label: "Final Feedback"
   permit_params :name, :account_id, :managers, :position
   actions :all, except: [:edit, :update, :destroy, :new]
-
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('final feedback') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    batch_destroy_action(ids, scoped_collection)
+  end
+  controller do
+    include ActiveAdmin::BatchActionsHelper
+  end
   index do
+    selectable_column
     id_column
     column :name
     column :position

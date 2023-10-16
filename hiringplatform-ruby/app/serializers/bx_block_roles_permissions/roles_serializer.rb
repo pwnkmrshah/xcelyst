@@ -86,7 +86,13 @@ module BxBlockRolesPermissions
 
       def skills(job)
         if job.jd_type.present? && job.jd_type == "automatic"
-          job.parsed_jd
+          if job.parsed_jd.is_a? Hash
+            job.parsed_jd
+          elsif job.parsed_jd.is_a? String
+            file = job.parsed_jd
+            jd = job.parse_jd_data(file)
+            jd['Value']
+          end          
         else
           job.skill_matrices && job.skill_matrices.map do |skill|
             {

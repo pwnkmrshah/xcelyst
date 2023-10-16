@@ -1,10 +1,14 @@
 ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
 	menu parent: "Bulk Upload", label: "Temporary Account"
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('temporary account') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    batch_destroy_action(ids, scoped_collection)
+  end
 	
 	actions :index, :destroy
 
 	filter :email
 	filter :document_id
+	filter :document_hash
 	filter :phone_no
 
 	index do
@@ -29,6 +33,10 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
 		column :last_name
 		column :email
 		column :phone_no
+    column :document_id
+    column :document_hash
+    column :created_at
+    column :updated_at
 		# column :current_city do |obj|
 		# 	data = []
 		# 	# parsed_resume = obj.parsed_resume.present? ? obj.parsed_resume : obj.get_parsed_resume_data
@@ -150,13 +158,27 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
 
 	collection_action :import_bulk_resume, method: :post do
 	  if params[:upload_resume_file] && params[:upload_resume_file][:file]
+			@uploaded_files = []
+	  	total_files = params[:upload_resume_file][:file].length
+	    last_file_index = total_files - 1
+    	@count = 0 # Initialize count for this request
+    	Rails.cache.write('resume_upload_count', @count) # Store the initial count in the cache
+    	zipped_files = []
+    	normal_files = []
 	    params[:upload_resume_file][:file].each do |file|
 	      if file.content_type == 'application/zip'
-	        extract_and_upload_files_from_zip(file)
+	        zipped_files << file
 	      else
-	        upload_single_file(file)
+	      	normal_files << file
 	      end
 	    end
+	    zipped_files.each do |zipped_file|
+		   extract_and_upload_files_from_zip(zipped_file)     
+	    end if zipped_files.present?
+
+	    normal_files.each_with_index do |file, index|
+        upload_single_file(file, index == last_file_index)
+	    end if normal_files.present?
 
 	    redirect_to admin_temporary_accounts_path, flash: { notice: "Resume process will start on the backend soon." }
 	  else
@@ -165,26 +187,30 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
 	end
 
 	controller do
+		include ActiveAdmin::BatchActionsHelper
 		def scoped_collection
       AccountBlock::TemporaryAccount.where(is_permanent: false)
     end
 
 	  def extract_and_upload_files_from_zip(zip_file)
 		  Zip::File.open(zip_file.tempfile) do |zip|
-		    zip.each do |entry|
+		  	zip_entries = zip.entries.to_a
+    		total_files = zip_entries.length
+    		last_file_index = total_files - 1
+		    zip.each_with_index do |entry, index|
 		  		if entry.file?
 			      individual_file = entry.get_input_stream.read
-			      upload_to_s3(individual_file, entry.name)
+			      upload_to_s3(individual_file, entry.name, index == last_file_index)
 		    	end
 		    end
 		  end
 		end
 
-		def upload_single_file(file)
-		  upload_to_s3(file.tempfile, file.original_filename)
+		def upload_single_file(file, is_last_file)
+		  upload_to_s3(file.tempfile, file.original_filename, is_last_file)
 		end
 
-		def upload_to_s3(file, object_key)
+		def upload_to_s3(file, object_key, is_last_file)
 		  s3_client = Aws::S3::Client.new(region: ENV["AWS_REGION"])
 		  bucket_name = ENV["AWS_BUCKET"]
 		  response = s3_client.put_object(
@@ -192,9 +218,9 @@ ActiveAdmin.register AccountBlock::TemporaryAccount, as: "Temporary Account" do
 		    key: object_key,
 		    body: file
 		  )
-
+		  @uploaded_files << {file_name: object_key, is_last_file: is_last_file}
 		  # Trigger the background job for the uploaded file
-		  BxBlockBulkUpload::ResumeUploadJob.set(wait: 5.seconds).perform_later(object_key)
+		  BxBlockBulkUpload::ResumeUploadJob.set(wait: 5.seconds).perform_later(@uploaded_files) if is_last_file
 		end
 	end
 end   
