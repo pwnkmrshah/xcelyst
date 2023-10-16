@@ -89,8 +89,10 @@ module BxBlockBulkUpload
         email_ac = AccountBlock::TemporaryAccount.find_by(email: email) if email.present?
         phone_ac = AccountBlock::TemporaryAccount.find_by(phone_no: ph_no) if ph_no.present?
         doc_hash_ac = AccountBlock::TemporaryAccount.find_by(document_hash: doc_hash) if doc_hash.present?
-        return if doc_hash_ac.present?
-
+        if doc_hash_ac.present? 
+          doc_hash_ac.update(updated_at: Time.now)
+          return
+        end
         if email_ac.present?
           email_ac.update(document_hash: doc_hash, phone_no: ph_no, updated_at: Time.now)
           create_parsed_json_file respObj, email_ac
