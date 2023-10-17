@@ -19,6 +19,7 @@ module BxBlockBulkUpload
       end
 
       def process_resume_parsing(file)
+        p "1. File name #{file}"
         @count = 0
         @errors = []
         # Aws s3 way
@@ -37,13 +38,17 @@ module BxBlockBulkUpload
 
         uri = 'https://eu-rest.resumeparsing.com/v10/parser/resume'
         respObj = send_post_req(uri, data)
-        p "Soveren response ---  #{respObj['Value']['ParsingResponse']['Code']} for #{file}"
+        p "3. Soveren response ---  #{respObj['Value']['ParsingResponse']['Code']} for #{file}"
         if %w[timeout conversionexception].include? respObj['Value']['ParsingResponse']['Code'].downcase
           exception_message = respObj['Value']['ParsingResponse']['Message']
+        p "*******************************"
+        p "4. After parsing respo Value: #{respObj['Value']}"
+        p "*******************************"
         end
+        p "5. exception for file after parsing the #{file_path} ------- #{exception_message}" if exception_message.present?
+        
         raise exception_message if exception_message.present?
 
-        p "exception for file #{file_path} ------- #{exception_message}" if exception_message.present?
         create_temporary_accounts respObj, file, resp # for normal flow
 
         # for background job process
@@ -66,7 +71,7 @@ module BxBlockBulkUpload
         req = Net::HTTP::Post.new(uri.path, initheader = headers)
         req.body = data
         res = https.request(req)
-
+        p "2. result of from send_post_req(url, data): #{res} "
         # Parse the response body into an object
         respObj = JSON.parse(res.body)
       end
@@ -121,8 +126,9 @@ module BxBlockBulkUpload
           end
 
           record.update(document_hash: doc_hash, document_id: doc_hash)
+          p "6. ********Executing create_parsed_json_file********"
           create_parsed_json_file respObj, record
-
+          p "7. **********Executed create_parsed_json_file********"
           # AccountBlock::TempAccount.create(temporary_account_id: record.id, parsed_resume: respObj)
 
           # record = AccountBlock::TemporaryAccount.create(first_name: name, email: email, parsed_resume: respObj, phone_no: @ph_no)  # ( for background job process )
@@ -137,7 +143,9 @@ module BxBlockBulkUpload
         record ||= phone_ac || email_ac
         @count += 1 if record.present? || email_ac.present? || phone_ac.present? # for normal flow
 
+        p "8. ********Executing indexing********"
         indexing = indexing_resume respObj, record if record.present? || (doc_hash != record.document_hash)
+        p "9. ********Executed indexing********"
       end
 
       def indexing_resume(parsed_resume, record)
@@ -154,7 +162,7 @@ module BxBlockBulkUpload
         url = "https://eu-rest.resumeparsing.com/v10/index/#{ENV['SOVREN_TEMPORARY_ACCOUNT_INDEX']}/resume/#{record.document_id}"
         data = { 'ResumeData' => parsed_resume['Value']['ResumeData'] }.to_json
         succ_response = send_post_req url, data
-        puts "=========================#{succ_response}============================================================="
+        p "10. ==============indexing_resume(parsed_resume, record) succ_response===========#{succ_response}============================================================="
       end
 
       # created by akash deep
@@ -189,6 +197,7 @@ module BxBlockBulkUpload
         url = Rails.application.routes.default_url_options[:host] + '/bx_block_shortlisting/create_parsed_json_file'
         data = { "id": record.id, "file_data": file_data }
         response = send_post_request(url, data)
+        p "create_parsed_json_file(file_data, record): #{response.body}"
         s = JSON.parse(response.body) if response.body
         # create_directory_if_not_exist
         # file_name = "temp-account-#{SecureRandom.hex(20)}.txt"
