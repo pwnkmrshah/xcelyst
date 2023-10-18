@@ -1,5 +1,14 @@
 ActiveAdmin.register AccountBlock::Account, as: "Client" do
 	menu parent: ["Platform Users",  "Client"], label: "Client", if: proc { current_user_admin.present? && current_user_admin.can_read_account_block_for_client?(current_user_admin) }
+	batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('client') }, confirm: "Are you sure want to delete selected items?" do |ids|
+	    batch_destroy_action(ids, scoped_collection)
+	end
+	breadcrumb do
+	    [
+	      link_to('Admin', admin_root_path),
+	      link_to('Clients', admin_clients_path)
+	    ].compact
+  	end
 
 	index do
 		selectable_column
@@ -64,6 +73,8 @@ ActiveAdmin.register AccountBlock::Account, as: "Client" do
 	# end
 
 	controller  do
+  		include ActiveAdmin::BatchActionsHelper
+
 		def create
 		    @client = AccountBlock::Account.new(permit_params)
 	        send_email @client
@@ -101,6 +112,15 @@ ActiveAdmin.register AccountBlock::Account, as: "Client" do
 
 		def scoped_collection
 			AccountBlock::Account.where(user_role: "client")
+		end
+
+		def batch_action
+			begin
+				scoped_collection.where(id:params[:collection_selection]).destroy_all
+				redirect_to admin_clients_path, notice: 'Accounts deleted successfully.'
+			rescue StandardError => e
+				redirect_to admin_clients_path, notice: e.message
+			end
 		end
 
 		private

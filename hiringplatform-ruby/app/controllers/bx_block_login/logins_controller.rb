@@ -24,13 +24,13 @@ module BxBlockLogin
               failed_login: 'not_fully_verify',
               }],
               meta: { token: token }
-          }, status: :unprocessable_entity
+          }, status: 200
         end
 
         output.on(:failed_login) do |account|
           render json: {
             errors: [{
-              failed_login: 'Incorrect Email and Password.',
+              failed_login: 'Incorrect Email or Password.',
             }],
           }, status: :unauthorized
         end
@@ -52,11 +52,12 @@ module BxBlockLogin
     def client_login
       if params[:data]
         para = jsonapi_deserialize(params)
-        @account = AccountBlock::Account.where('LOWER(email) = ?', para["email"].downcase).first
+        @account = AccountBlock::Account.find_by('LOWER(email) = ? and user_role = ?', para["email"].downcase, 'client')
+        render json: { errors: [{ account: 'Account not found', }],}, status: :unprocessable_entity and return if @account.nil?
         if @account.present? && @account.user_role == "client" && @account.authenticate(para["password"]) && @account.activated
           render json: AccountBlock::EmailAccountSerializer.new(@account, meta: {token: encode(@account.id)}).serializable_hash
         else
-          render json: { errors: [{ account: 'Incorrect Email and Password', }],}, status: :unprocessable_entity
+          render json: { errors: [{ account: 'Incorrect Email or Password', }],}, status: :unprocessable_entity
         end
       else
         render json: { errors: [{ account: 'Login Failed', }],}, status: :unprocessable_entity

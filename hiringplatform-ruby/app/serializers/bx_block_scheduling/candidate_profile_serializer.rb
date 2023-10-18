@@ -24,8 +24,8 @@ module BxBlockScheduling
       resume = obj.user_resume
       if resume.present?
         begin
-          resume = resume.parsed_resume
-          resume['Value']['ResumeData']['ResumeMetadata']['PlainText']
+          resume = resume.get_parsed_resume_data
+          resume['Value']['ResumeData']['EmploymentHistory']
         rescue => exception
           " "
         end

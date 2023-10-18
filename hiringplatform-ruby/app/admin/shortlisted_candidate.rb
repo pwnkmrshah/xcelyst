@@ -1,5 +1,8 @@
 ActiveAdmin.register BxBlockShortlisting::ShortlistingCandidate, as: "Shortlisted Candidate" do
   menu label: "Shortlisted Candidate"
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('shortlisted candidate') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    batch_destroy_action(ids, scoped_collection)
+  end
 
   actions :index, :show, :destroy
 
@@ -58,6 +61,7 @@ ActiveAdmin.register BxBlockShortlisting::ShortlistingCandidate, as: "Shortliste
   end
 
   controller do
+    include ActiveAdmin::BatchActionsHelper
     def update
       if request.xhr?
         shortlisted = BxBlockShortlisting::ShortlistingCandidate.find_by(id: params[:id])

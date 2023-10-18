@@ -1,5 +1,15 @@
 ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
     menu parent: "Platform Users", label: "Candidate", if: proc { current_user_admin.present? && current_user_admin.can_read_account_block_for_candidate?(current_user_admin) }
+    batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('candidate') }, confirm: "Are you sure want to delete selected items?" do |ids|
+      batch_destroy_action(ids, scoped_collection)
+    end
+
+    breadcrumb do
+      [
+        link_to('Admin', admin_root_path),
+        link_to('Candidates', admin_candidates_path)
+      ].compact
+    end
 
     actions :all, except: :new
 
@@ -101,7 +111,7 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
                             "CandidateName"
                           end
                           td colspan: "3" do 
-                            @jd_data['Value']['ResumeData']['ContactInformation']['CandidateName']['FormattedName'] if @jd_data['Value']['ResumeData']['ContactInformation']['CandidateName'].present?
+                            @jd_data['Value']['ResumeData']['ContactInformation']['CandidateName']['FormattedName'] if @jd_data.present? && @jd_data['Value']['ResumeData']['ContactInformation']['CandidateName'].present?
                           end
                       end
                       tr do  
@@ -109,7 +119,7 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
                             "Telephones"
                           end
                           td colspan: "3" do 
-                            @jd_data['Value']['ResumeData']['ContactInformation']['Telephones'][0]['Raw'] if @jd_data['Value']['ResumeData']['ContactInformation']['Telephones'].present?
+                            @jd_data['Value']['ResumeData']['ContactInformation']['Telephones'][0]['Raw'] if @jd_data.present? && @jd_data['Value']['ResumeData']['ContactInformation']['Telephones'].present?
                           end
                       end
                       tr do  
@@ -117,9 +127,9 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
                             "EmailAddresses"
                           end
                           td colspan: "3" do 
-                            if @jd_data['Value']['ResumeData'].present?
+                            if @jd_data.present? && @jd_data['Value']['ResumeData'].present?
                               if @jd_data['Value']['ResumeData']['ContactInformation'].present?
-                                @jd_data['Value']['ResumeData']['ContactInformation']['EmailAddresses'].join(", ") if @jd_data['Value']['ResumeData']['ContactInformation']['EmailAddresses'].present?
+                                @jd_data['Value']['ResumeData']['ContactInformation']['EmailAddresses'].join(", ") if @jd_data.present? && @jd_data['Value']['ResumeData']['ContactInformation']['EmailAddresses'].present?
                               end
                             end
                           end
@@ -129,7 +139,7 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
                             "Education"
                           end
                           td colspan: "3" do
-                            if @jd_data['Value']['ResumeData']['Education'].present?
+                            if @jd_data.present? && @jd_data['Value']['ResumeData']['Education'].present?
                               if @jd_data['Value']['ResumeData']['Education']['HighestDegree'].present?
                                 if @jd_data['Value']['ResumeData']['Education']['HighestDegree']['Name'].present?
                                   @jd_data['Value']['ResumeData']['Education']['HighestDegree']['Name']['Raw'].present? ? @jd_data['Value']['ResumeData']['Education']['HighestDegree']['Name']['Raw'] : 'NA'
@@ -140,7 +150,7 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
                       end
 
                       @degree_row_count = 0
-                      if @jd_data['Value']['ResumeData']['Education'].present?
+                      if @jd_data.present? && @jd_data['Value']['ResumeData']['Education'].present?
                         @jd_data['Value']['ResumeData']['Education']['EducationDetails'].each_with_index do |degree, index|
                           if degree['Degree'].present?
                             if degree['Degree']['Name'].present?
@@ -151,7 +161,7 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
                           end
                         end
 
-                        @jd_data['Value']['ResumeData']['Education']['EducationDetails'].each_with_index do |degree, index|
+                        @jd_data.present? && @jd_data['Value']['ResumeData']['Education']['EducationDetails'].each_with_index do |degree, index|
                           if degree['Degree'].present?
                             if degree['Degree']['Name'].present?
                               if degree['Degree']['Name']['Raw'].present?
@@ -171,10 +181,10 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
                         end
                       end
 
-                      @jd_data['Value']['ResumeData']['EmploymentHistory']['ExperienceSummary'].each_with_index do |experience, index|
+                      @jd_data.present? && @jd_data['Value']['ResumeData']['EmploymentHistory']['ExperienceSummary'].each_with_index do |experience, index|
                         tr do
                             if index == 0
-                                td rowspan: "#{@jd_data['Value']['ResumeData']['EmploymentHistory']['ExperienceSummary'].count}" do
+                                td rowspan: "#{@jd_data.present? && @jd_data['Value']['ResumeData']['EmploymentHistory']['ExperienceSummary'].count}" do
                                     "Experience Summary"
                                 end
                             end
@@ -193,21 +203,21 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
                       end
 
 
-                      if @jd_data['Value']['ResumeData']['Achievements'].present?
+                      if @jd_data.present? && @jd_data['Value']['ResumeData']['Achievements'].present?
                           tr do
                               td do
                                 "Achievements"
                               end
                               td colspan: "3" do 
-                                @jd_data['Value']['ResumeData']['Achievements'].join(", ")
+                                @jd_data.present? && @jd_data['Value']['ResumeData']['Achievements'].join(", ")
                               end
                           end
                       end
 
-                      @jd_data['Value']['ResumeData']['LanguageCompetencies'].each_with_index do |language, index|
+                      @jd_data.present? && @jd_data['Value']['ResumeData']['LanguageCompetencies'].each_with_index do |language, index|
                           tr do 
                               if index == 0
-                                  td rowspan: "#{@jd_data['Value']['ResumeData']['LanguageCompetencies'].count}" do 
+                                  td rowspan: "#{@jd_data.present? && @jd_data['Value']['ResumeData']['LanguageCompetencies']&.count}" do 
                                     "Language Competencies"
                                   end
                               end
@@ -222,7 +232,7 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
                             "Qualifications Summary"
                           end
                           td colspan: "3" do 
-                            @jd_data['Value']['ResumeData']['QualificationsSummary']
+                            @jd_data.present? && @jd_data['Value']['ResumeData']['QualificationsSummary']
                           end
                       end
                       
@@ -384,7 +394,7 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
                   end
                   div style: 'overflow: auto;' do 
                     pre do 
-                      @jd_data['Value']['ResumeData']['ResumeMetadata']['PlainText']
+                      @jd_data.present? && @jd_data['Value']['ResumeData']['ResumeMetadata']['PlainText']
                     end
                   end
                 else
@@ -402,6 +412,8 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
     end
     
     controller do
+      include ActiveAdmin::BatchActionsHelper
+    
       def scoped_collection
           AccountBlock::Account.where(user_role: "candidate")
       end
@@ -427,6 +439,15 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
          rescue StandardError => e
             redirect_to edit_admin_candidate_path, alert: 'Please upload a proper resume.'
          end 
+      end
+
+      def batch_action
+        begin
+          scoped_collection.where(id:params[:collection_selection]).destroy_all
+          redirect_to admin_candidates_path, notice: 'Accounts deleted successfully.'
+        rescue StandardError => e
+          redirect_to admin_candidates_path, notice: e.message
+        end
       end
 
       private

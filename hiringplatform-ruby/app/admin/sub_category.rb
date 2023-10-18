@@ -1,8 +1,14 @@
 ActiveAdmin.register BxBlockDomainSubCategory::DomainSubCategory, as: "Sub Category" do
   menu parent: "Job Functions", label: "Sub Category", priority: 6
   permit_params :name, :domain_category_id
-
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('sub category') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    batch_destroy_action(ids, scoped_collection)
+  end
+  controller do
+    include ActiveAdmin::BatchActionsHelper
+  end
   index do
+    selectable_column
     id_column
     column :name do |text|
       if text.name == ""

@@ -1,8 +1,17 @@
 ActiveAdmin.register BxBlockBusinessFunction::BusinessSubCategory, as: "Skill Sub Category" do
   menu parent: ["Website Management",  "Business Functions"], label: "Vertical Sub Category"
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('skill sub category') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    batch_destroy_action(ids, scoped_collection)
+  end
+
+  controller do
+    include ActiveAdmin::BatchActionsHelper
+  end
+
   permit_params :name, :business_category_id
 
   index do
+    selectable_column
     id_column
     column :name
     column "Category Name" do |object|

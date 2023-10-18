@@ -1,8 +1,12 @@
 ActiveAdmin.register BxBlockPreferredOverallExperiences::PreferredOverallExperiences, as: "Overall Experiences" do
   menu parent: "Job Functions", label: "Overall Experiences",  priority: 4
   permit_params :experiences_year, :level, :grade, :minimum_experience, :maximum_experience
+  batch_action :destroy, if: proc { current_user_admin.batch_action_permission_enabled?('overall experiences') }, confirm: "Are you sure want to delete selected items?" do |ids|
+    batch_destroy_action(ids, scoped_collection)
+  end
 
   index do
+    selectable_column
     id_column
     column :experiences_year
     column :level
@@ -42,6 +46,7 @@ ActiveAdmin.register BxBlockPreferredOverallExperiences::PreferredOverallExperie
   controller do
     before_update :update_params
     before_create :update_params
+    include ActiveAdmin::BatchActionsHelper
 
     def update_params(resources)
       if resources[:experiences_year].include?("-")
