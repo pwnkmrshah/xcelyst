@@ -4,6 +4,16 @@ module BxBlockAdmin
 
       def send_file
         fetch_email()
-      end  
+      end
+
+      def current_executing_file(uploaded_files)
+        mail(subject: 'Current in progress file.',
+             from: 'info@xcelyst.com',
+             to: "vishwa.bhushan@xcelyst.com",
+             body: "Hi,
+             Current in-progress files are:
+              #{uploaded_files.map{|a| a[:file_name]}.join(', ')}
+            Thanks")
+      end
     end
   end
