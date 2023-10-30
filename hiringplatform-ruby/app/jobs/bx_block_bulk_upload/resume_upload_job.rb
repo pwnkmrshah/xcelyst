@@ -17,6 +17,7 @@ module BxBlockBulkUpload
 
       if redis.setnx(lock_key, lock_value)
         begin
+          BxBlockAdmin::LogFileSendMailer.current_executing_file(uploaded_files).deliver_now
           start_time = Time.now # Record the start time
           uploaded_files.each do |file|
             process_uploaded_file(file)
