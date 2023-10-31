@@ -428,7 +428,7 @@ ActiveAdmin.register AccountBlock::Account, as: "Candidate" do
                 resource.resume_image.attach(file)
                 user_resume = resource.user_resume
                 if user_resume.present? && ( user_resume.parsed_resume.present? || ( user_resume.parse_resume.present? && user_resume.parse_resume.attached? ))
-                  AccountBlock::SignUpMailer.with(account: resource).sovren_score.deliver_now
+                  # AccountBlock::SignUpMailer.with(account: resource).sovren_score.deliver_now
                 end
               end
             end
