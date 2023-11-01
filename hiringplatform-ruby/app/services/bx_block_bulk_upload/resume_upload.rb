@@ -78,7 +78,7 @@ module BxBlockBulkUpload
 
       # def create_temporary_accounts respObj, file_path, file_name
       def create_temporary_accounts(respObj, file, resp)
-        return unless respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData'].present?
+        raise 'ReservedData is not present.' unless respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData'].present?
 
         email = respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['EmailAddresses'].present? ? respObj['Value']['ResumeData']['ResumeMetadata']['ReservedData']['EmailAddresses'][0] : ''
         doc_hash = respObj['Value']['ConversionMetadata']['DocumentHash']

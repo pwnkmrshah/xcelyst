@@ -62,7 +62,7 @@ module BxBlockSovren
         # user_parsed_resume = AccountBlock::UserParsedResume.find_by(user_resume_id: current_user.user_resume.id)
         user_resume = current_user.user_resume
         if user_resume.present? && ( user_resume.parsed_resume.present? || ( user_resume.parse_resume.present? && user_resume.parse_resume.attached? ))
-          AccountBlock::SignUpMailer.with(account: current_user).sovren_score.deliver_now
+          # AccountBlock::SignUpMailer.with(account: current_user).sovren_score.deliver_now
            notification = BxBlockNotifications::Notification.create(
               headings: "Uploaded CV successfully",
               contents: "",
